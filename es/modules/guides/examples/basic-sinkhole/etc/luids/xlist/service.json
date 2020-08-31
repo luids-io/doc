@@ -1,0 +1,46 @@
+[
+	{
+		"id": "blocklist.site",
+		"class": "sequence",
+		"resources": [ "domain" ],
+		"opts": { "first": true },
+		"contains": [
+			{ "id": "blocklist.site-malware"    },
+			{ "id": "blocklist.site-ransomware" },
+			{ "id": "blocklist.site-phishing"   },
+			{ "id": "blocklist.site-fraud"      },
+			{ "id": "blocklist.site-scam"       },
+			{ "id": "blocklist.site-crypto"     },
+			{ "id": "blocklist.site-abuse"      },
+			{ "id": "blocklist.site-ads"        },
+			{ "id": "blocklist.site-tracking"   }
+		]
+	},
+    {
+        "id": "root",
+        "class": "wbefore",
+        "resources": [ "domain" ],
+        "contains": [
+            {
+                "id": "whitelist",
+                "class": "sequence",
+                "resources": [ "domain" ],
+                "opts": { "first": true },
+                "contains": [
+                    { "id": "my-whitelist"      },
+                    { "id": "majestic.com-1000" }
+                ]
+            },
+            {
+                "id": "blacklist",
+                "class": "sequence",
+				"resources": [ "domain" ],
+                "opts": { "first": true },
+                "contains": [
+					{ "id": "my-blacklist"   },
+					{ "id": "blocklist.site" }
+                ]
+            }
+        ]
+    }
+]

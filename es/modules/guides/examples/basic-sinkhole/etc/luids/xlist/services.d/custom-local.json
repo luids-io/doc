@@ -1,0 +1,30 @@
+[
+    {
+        "disabled": false,
+        "id": "my-blacklist",
+        "class": "file",
+        "name": "My custom blacklist",
+        "resources": [
+            "ip4",
+            "domain"
+        ],
+        "opts": {
+            "autoreload": true,
+            "reason": "found in 'my-blacklist'"
+        }
+    },
+    {
+        "disabled": false,
+        "id": "my-whitelist",
+        "class": "file",
+        "name": "My custom whitelist",
+        "resources": [
+            "ip4",
+            "domain"
+        ],
+        "opts": {
+            "autoreload": true,
+            "reason": "found in 'my-whitelist'"
+        }
+    }
+]

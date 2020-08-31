@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="43cm" height="30cm" viewBox="-421 39 844 589" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs/>
+  <g id="Fondo">
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-186.996" y="384" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-110.496" y="404.925">
+      <tspan x="-110.496" y="404.925">root</tspan>
+      <tspan x="-110.496" y="420.925">&lt;&lt;wbefore&gt;&gt;</tspan>
+      <tspan x="-110.496" y="436.925">[domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-319.696" y="286.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-243.196" y="307.425">
+      <tspan x="-243.196" y="307.425">whitelist</tspan>
+      <tspan x="-243.196" y="323.425">&lt;&lt;sequence&gt;&gt;</tspan>
+      <tspan x="-243.196" y="339.425">[domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-419.696" y="189.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-343.196" y="210.425">
+      <tspan x="-343.196" y="210.425">my-whitelist</tspan>
+      <tspan x="-343.196" y="226.425">&lt;&lt;file&gt;&gt;</tspan>
+      <tspan x="-343.196" y="242.425">[domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-250.696" y="189.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-174.196" y="210.238">
+      <tspan x="-174.196" y="210.238">majestic.com-1000</tspan>
+      <tspan x="-174.196" y="226.238">&lt;&lt;file&gt;&gt;</tspan>
+      <tspan x="-174.196" y="242.238">[domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-86.696" y="41.5002" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-10.196" y="62.4252">
+      <tspan x="-10.196" y="62.4252">blocklist.site-ads</tspan>
+      <tspan x="-10.196" y="78.4252">&lt;&lt;file&gt;&gt;</tspan>
+      <tspan x="-10.196" y="94.4252">[domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="91.304" y="40.5002" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="167.804" y="61.4252">
+      <tspan x="167.804" y="61.4252">blocklist.site-...</tspan>
+      <tspan x="167.804" y="77.4252">&lt;&lt;file&gt;&gt;</tspan>
+      <tspan x="167.804" y="93.4252">[domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-59.696" y="287.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="16.804" y="308.425">
+      <tspan x="16.804" y="308.425">blacklist</tspan>
+      <tspan x="16.804" y="324.425">&lt;&lt;sequence&gt;&gt;</tspan>
+      <tspan x="16.804" y="340.425">[domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-82.696" y="189.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-6.196" y="210.425">
+      <tspan x="-6.196" y="210.425">my-blacklist</tspan>
+      <tspan x="-6.196" y="226.425">&lt;&lt;file&gt;&gt;</tspan>
+      <tspan x="-6.196" y="242.425">[domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="88.304" y="189.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="164.804" y="210.425">
+      <tspan x="164.804" y="210.425">blocklist.site</tspan>
+      <tspan x="164.804" y="226.425">&lt;&lt;sequence&gt;&gt;</tspan>
+      <tspan x="164.804" y="242.425">[domain]</tspan>
+    </text>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-154.038" y1="384.508" x2="-191.808" y2="356.757"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-197.852,352.316 -186.833,354.208 -191.808,356.757 -192.754,362.266 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-66.3326" y1="383.022" x2="-35.1182" y2="359.36"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-29.1413,354.829 -34.0899,364.854 -35.1182,359.36 -40.1309,356.885 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-277.73" y1="285.502" x2="-301.674" y2="262.277"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-307.057,257.055 -296.398,260.428 -301.674,262.277 -303.361,267.606 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-219.368" y1="285.502" x2="-203.668" y2="263.431"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-199.32,257.32 -201.043,268.367 -203.668,263.431 -209.191,262.57 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="125.188" y1="188.496" x2="36.8544" y2="113.791"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="31.1277,108.948 41.992,111.588 36.8544,113.791 35.5345,119.224 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="164.804" y1="189.5" x2="166.691" y2="116.21"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="166.884,108.712 171.625,118.838 166.691,116.21 161.629,118.58 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="8.93986" y1="286.492" x2="3.89269" y2="264.987"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="2.17905,257.685 9.33164,266.278 3.89269,264.987 -0.40383,268.563 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="67.408" y1="286.492" x2="106.082" y2="260.883"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="112.336,256.743 106.758,266.433 106.082,260.883 101.237,258.095 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" cx="-109.696" cy="536.75" rx="6" ry="6"/>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-133.696" y1="548.75" x2="-85.696" y2="548.75"/>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-109.696" y1="542.75" x2="-109.696" y2="572.75"/>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-109.696" y1="572.75" x2="-133.696" y2="598.75"/>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-109.696" y1="572.75" x2="-85.696" y2="598.75"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-109.696" y="622.65">
+        <tspan x="-109.696" y="622.65"></tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-109.977" y1="517.78" x2="-110.275" y2="459.739"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-110.313,452.239 -105.262,462.213 -110.275,459.739 -115.262,462.264 "/>
+    </g>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="-100.696" y="493.25">
+      <tspan x="-100.696" y="493.25">REQUEST</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="268.904" y="40.7002" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="345.404" y="61.6252">
+      <tspan x="345.404" y="61.6252">blocklist.site-tracking</tspan>
+      <tspan x="345.404" y="77.6252">&lt;&lt;file&gt;&gt;</tspan>
+      <tspan x="345.404" y="93.6252">[domain]</tspan>
+    </text>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="205.468" y1="188.497" x2="297.226" y2="112.895"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="303.015,108.126 298.476,118.343 297.226,112.895 292.117,110.626 "/>
+    </g>
+  </g>
+</svg>

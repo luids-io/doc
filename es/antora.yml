@@ -24,4 +24,5 @@ start_page: welcome.adoc
 # if you want to learn more about it.
 nav:
 - modules/ROOT/nav.adoc
+- modules/guides/nav.adoc
 - modules/manuals/nav.adoc

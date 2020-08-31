@@ -2,5 +2,5 @@
 
 Bienvenido a la documentación de ^lu^IDS.
 
-* xref:manuals:index.adoc[Conocer los detalles de instalación, configuración y
-  mantenimiento de las herramientas]
+* xref:guides:index.adoc[Guías]: mediante nuestras guías rápidas de despliegue podrá configurar en unos minutos distintos casos de uso.
+* xref:manuals:index.adoc[Manuales]: conozca los detalles de instalación, configuración y mantenimiento de las herramientas
