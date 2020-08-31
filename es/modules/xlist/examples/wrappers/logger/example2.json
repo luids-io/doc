@@ -1,0 +1,24 @@
+[
+    {
+        "id": "logger2",
+        "class": "mock",
+        "resources": [
+            "ip4"
+        ],
+        "source": "true",
+        "opts": {
+            "reason": "logger2 response"
+        },
+        "wrappers": [
+            {
+                "class": "logger",
+                "opts": {
+                    "showpeer": true,
+                    "found": "warn",
+                    "notfound": "info",
+                    "error": "error"
+                }
+            }
+        ]
+    }
+]

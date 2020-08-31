@@ -1,0 +1,127 @@
+[[wrapper-response]]
+= response
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El envoltorio *response* realiza cambios en las respuestas retornadas por el componente.
+
+=== Configuración
+
+* El valor de `class` debe de ser `response`.
+* Admite campos opcionales en `opts`.
+
+[[response-table-opts]]
+[cols="1,1,2"]
+.Listado de campos opcionales de _response_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `clean`
+| _boolean_
+| limpia de la razón los datos de políticas y puntuaciones
+
+| `aggregate`
+| _boolean_
+| realiza el agregado de los datos de puntuaciones y políticas
+
+| `threshold`
+| _int_
+| establece un umbral de puntuación para que devuelva una respuesta afirmativa
+
+| `negate`
+| _boolean_
+| invierte la respuesta
+
+| `ttl`
+| _int_
+| sobreescribe el ttl de la respuesta
+
+| `reason`
+| _string_
+| sobreescribe la razón de la respuesta
+
+| `prefixid`
+| _string_
+| establece el identificador de la definición de la lista como prefijo en las respuestas
+
+| `prefix`
+| _string_
+| agrega el prefijo a las respuestas
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+[[response-example1]]
+.Ejemplo de _response_ con `reason` y `ttl`
+[source,json]
+----
+include::{examplesdir}/wrappers/response/example1.json[]
+----
+
+El resultado de <<response-example1>> será:
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"response1 response",30 (828.807µs)
+----
+
+[[response-example2]]
+.Ejemplo de _response_ con `negate`
+[source,json]
+----
+include::{examplesdir}/wrappers/response/example2.json[]
+----
+
+El resultado de <<response-example2>> será:
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"response1 response",0 (880.92µs)
+$ xlistc 2.2.2.2
+ip4,2.2.2.2: false,"",0 (616.196µs)
+----
+
+[[response-example3]]
+.Ejemplo de _response_ con `preffixid`
+[source,json]
+----
+include::{examplesdir}/wrappers/response/example3.json[]
+----
+
+El resultado de <<response-example3>> será:
+
+[source,console]
+----
+$ xlistc 127.0.0.2
+ip4,127.0.0.2: true,"response3: Client host blocked using Barracuda Reputation, see http://www.barracudanetworks.com/reputation/?r=1&ip=127.0.0.2",299 (375.87615ms)
+----
+
+=== Uso avanzado
+
+[[response-example4]]
+.Ejemplo de _response_ con `aggregate` y `threshold`
+[source,json]
+----
+include::{examplesdir}/wrappers/response/example4.json[]
+----
+
+El resultado de <<response-example4>> será:
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"[score]20[/score]blacklist1 response;blacklist2 response",0 (780.512µs)
+$ xlistc 2.2.2.2
+ip4,2.2.2.2: false,"",0 (646.086µs)
+$ xlistc 3.3.3.3
+ip4,3.3.3.3: false,"",0 (880.809µs)
+----

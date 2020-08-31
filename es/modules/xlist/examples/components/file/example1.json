@@ -1,0 +1,10 @@
+[
+    {
+        "id": "file1",
+        "class": "file",
+        "resources": [
+            "ip4",
+            "domain"
+        ]
+    }
+]

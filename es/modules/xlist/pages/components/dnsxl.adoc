@@ -1,0 +1,138 @@
+[[component-dnsxl]]
+= dnsxl
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *dnsxl* permite la creación de RBLs que utiliza la información de un zona DNS.
+
+=== Configuración
+
+* El valor de `class` debe de ser `dnsxl`.
+* Admite `ip4`, `ip6` y `domain` en el campo `resources`.
+* El campo `source` es opcional e indicar la zona DNS que contiene la RBL. Si se omitiese, el componente utilizará el identificador como zona DNS.
+* Admite campos opcionales en `opts`.
+
+[[dnsxl-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _dnsxl_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `reason`
+| _string_
+| motivo que devolverá en caso de resultado afirmativo
+
+| `pingdns`
+| _string_
+| la lista no sigue el estándar y como chequeo comprobará la existencia del registro definido
+
+| `halfping`
+| _boolean_
+| la lista no sigue completamente el estándar y comprobará únicamente _127.0.0.2_
+
+| `authtoken`
+| _string_
+| token de autenticación que se pondrá como prefijo en las consultas dns
+
+| `resolvreason`
+| _boolean_
+| realizará la consulta del registro TXT para obtener la razón
+
+| `resolvers`
+| _[]string_
+| servidores DNS que se utilizarán en lugar de usar los resolvers por defecto
+
+| `retries`
+| _int_
+| número de reintentos que realizará el cliente DNS si no se recibe respuesta en el timeout dado
+
+| `nsresolvers`
+| _boolean_
+| usará los servidores DNS específicos de la zona en lugar de usar los resolvers por defecto
+
+| `dnscodes`
+| _map[string]string_
+| mapeo de ips de respuestas a razones
+
+| `errcodes`
+| _map[string]string_
+| mapeo de ips de respuestas a errores
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+Para crear una lista *dnsxl* es necesario definir el identificador, la clase `dnsxl` y los tipos de recurso que va a ofrecer. Además será necesario especificar la zona DNS contra la que se realizarán las consultas.
+
+[[dnsxl-example1]]
+.Ejemplo de lista _dnsxl_
+[source,json]
+----
+include::{examplesdir}/components/dnsxl/example1.json[]
+----
+
+En la configuración del ejemplo, la lista del ejemplo responderá a todas las solicitudes de tipo `ip4` chequeando para ello en la lista asociada a la zona DNS `b.barracudacentral.org`.
+
+La salida de <<dnsxl-example1>> sería la siguiente.
+
+[source,console]
+----
+$ xlistc 127.0.0.2
+ip4,127.0.0.2: true,"",42 (126.727066ms)
+----
+
+
+=== Uso avanzado
+
+Nótese que en el ejemplo anterior no hay una razón devuelta. Esto se debe a que por defecto no se obtiene ya que requiere una segunda consulta al servidor DNS lo que incrementa la latencia del sistema. Si esto no es un problema, podemos utilizar el modificador `resolvreason` como se muestra en el ejemplo siguiente.
+
+[[dnsxl-example2]]
+.Ejemplo de lista _dnsxl_ con `resolvreason`
+[source,json]
+----
+include::{examplesdir}/components/dnsxl/example2.json[]
+----
+
+La salida de <<dnsxl-example2>> sería la siguiente:
+
+[source,console]
+----
+$ xlistc 127.0.0.2
+ip4,127.0.0.2: true,"Client host blocked using Barracuda Reputation, see http://www.barracudanetworks.com/reputation/?r=1&ip=127.0.0.2",185 (314.529874ms)
+----
+
+También podemos definir la opción `reason` para dar una respuesta fija estática. Pero si conocemos los códigos devueltos por la zona DNS podemos mapearlo a razones estáticas mediante `dnscodes` y `errcodes` (si hay errores definidos). Hay que tener en cuenta que una respuesta puede tener múltiples códigos de respuesta y, por lo tanto, serán concatenados en la razón.
+
+[[dnsxl-example3]]
+.Ejemplo de lista _dnsxl_ con `dnscodes`
+[source,json]
+----
+include::{examplesdir}/components/dnsxl/example3.json[]
+----
+
+La salida de <<dnsxl-example3>> sería la siguiente:
+
+[source,console]
+----
+$ xlistc 127.0.0.2
+ip4,127.0.0.2: true,"blacklist;whilelist;yellowlist;brownlist;NOBL",2099 (243.360464ms)
+----
+
+Existen zonas DNS que no pueden ser consultadas usando conocidos resolvedores como los de google y deben ser consultadas directamente. Para ello hay dos opciones:
+. Especificar directamente las ips de los servidores DNS a utilizar para esa zona mediante la opción `resolvers`.
+. Especificar la opción `nsresolvers` que obtendrá automáticamente los servidores DNS de la zona y los fijará.
+
+[[dnsxl-example4]]
+.Ejemplo de lista _dnsxl_ con `nsresolvers`
+[source,json]
+----
+include::{examplesdir}/components/dnsxl/example4.json[]
+----
+
+Si desea tener más ejemplos de configuraciones de este componente, tiene a su disposición un catálogo amplio de configuraciones en https://github.com/luids-io/database/tree/master/dnsxl[la sección dnsxl] de la https://github.com/luids-io/database/blob/master/README.adoc[base de datos de XList]

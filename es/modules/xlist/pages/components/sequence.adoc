@@ -1,0 +1,106 @@
+[[component-sequence]]
+= sequence
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *sequence* permite la creación de una RBL compuesta por un conjunto de RBLs sobre el que se realizarán los chequeos. Dichos chequeos se harán de forma secuencial, en el orden definido durante su creación y devolverá cierto si alguna de las listas lo hace, concatenando todas las razones de las respuestas afirmativas. También es posible configurar la secuencia de forma que retorne en el primer valor cierto que encuentre.
+
+=== Configuración
+
+* El valor de `class` debe de ser `sequence`.
+* Admite todos los tipos de recursos en el campo `resources`.
+* Es necesario emplear el campo `contains` definir las listas sobre las que realizará los chequeos.
+* Admite campos opcionales en `opts`.
+
+[[sequence-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _sequence_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `reason`
+| _string_
+| motivo que devolverá en caso de que resultado afirmativo
+
+| `skiperrors`
+| _boolean_
+| si una lista hija devuelve un error, lo ignorará
+
+| `first`
+| _boolean_
+| devolverá la primera respuesta afirmativa que encuentre
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+Para crear una lista _sequence_ es necesario definir el identificador, la clase `sequence`, los tipos de recurso que va a ofrecer (el componente soporta todos) y la opción estándar `contains` que contendrá las listas "hijas".
+
+Para configurar adecuadamente una lista de tipo _sequence_, la única restricción existente es que todas las listas hijas deberán soportar al menos los recursos definidos en la lista padre o _sequence_.
+
+[[sequence-example1]]
+.Ejemplo de lista _sequence_
+[source,json]
+----
+include::{examplesdir}/components/sequence/example1.json[]
+----
+
+En la configuración del <<sequence-example1>> `sequence1` se define una lista compuesta que soporta el tipo de recurso `ip4` y contiene dos listas: la primera es la lista identificada por `mock1` y soporta los tipos de recursos `ip4` e `ip6`, y la segunda es la lista identificada por `mock2` y que soporta el tipo de recurso `ip4`. Nótese que ambas listas hijas soportan el tipo de recurso ofrecido por la lista padre.
+
+Para realizar el chequeo, la lista chequeará en cada una de las listas hijas, primero chequeará en `mock1`, luego `mock2` y finalmente `mock3`.  En este ejemplo, siempre retornará la concatenación de las respuestas afirmativas:
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"mock2 response;mock3 response",0 (562.333µs)
+----
+
+TIP: Las listas de tipo _sequence_ deberían usarse sólo en chequeos locales y en los que no se hagan uso de disco, ya que la latencia del sistema será la suma de todos los elementos que incluyen la secuencia. Para este tipo de chequeos debería usarse una lista de tipo _parallel_.
+
+== Uso avanzado
+
+Además del uso por defecto, el componente ofrece soporte a las opciones de la tabla resumen <<sequence-table-opts>> que pueden alterar su comportamiento.
+
+Un modificador muy útil es el uso de `first` como puede verse en el siguiente ejemplo.
+
+[[sequence-example2]]
+.Ejemplo de lista _sequence_ con modificador `first`
+[source,json]
+----
+include::{examplesdir}/components/sequence/example2.json[]
+----
+
+Con esta lista obtendríamos el siguiente resultado. Obsérvese que cuando la lista `mock2` retorna positivo, deja de chequear.
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"mock2 response",0 (982.994µs)
+----
+
+TIP: En general, si la latencia es importante y no es necesario chequear en todas las listas para calcular cualquier tipo de métrica, conviene usar _sequence_ con el modificador `first`.
+
+Como se ha indicado, la lista de tipo _sequence_ itera por los elementos definidos en la secuencia, pero... ¿qué pasa si alguno de ellos retorna error?. Pues bien, el comportamiento por defecto es retornar el error. Si queremos que se ignore el error y se continúe chequeando las demás listas, puede utilizarse la opción `skiperrors`. Esta opción ignorará cualquier error retornado en los chequeos.
+
+[[sequence-example3]]
+.Ejemplo de lista _sequence_ con modificador `skiperrors`
+[source,json]
+----
+include::{examplesdir}/components/sequence/example3.json[]
+----
+
+NOTE: La opción `skiperrors` únicamente "enmascarará" los errores de chequeos, de esta forma la lista seguirá funcionando a pesar de posibles errores en alguna de sus listas hijas. Los _pings_ tendrán el mismo comportamiento, es decir, que si existe un error en alguna de las listas hijas, el _ping_ dará error.  De este modo, se podrán detectar los errores y conocer del estado degradado del sistema.
+
+La salida del <<sequence-example3>> será la siguiente:
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"sequence3 response",0 (836.807µs)
+----

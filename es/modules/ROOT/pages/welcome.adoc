@@ -1,4 +1,6 @@
-= luIDS
+= ^lu^IDS
 
-Bienvenido a la documentación de luIDS.
+Bienvenido a la documentación de ^lu^IDS.
 
+* xref:manuals:index.adoc[Conocer los detalles de instalación, configuración y
+  mantenimiento de las herramientas]

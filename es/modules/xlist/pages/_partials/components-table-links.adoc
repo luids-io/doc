@@ -1,0 +1,60 @@
+[cols="1,3,1,1"]
+|===
+| Nombre | Descripción | Recursos | Contenedor
+
+| <<component-mock>>
+| Se usa para realizar pruebas
+| _Todos_
+| _No_
+
+| <<component-mem>>
+| Chequea lista en memoria
+| _Todos_
+| _No_
+
+| <<component-file>>
+| Chequea lista en fichero
+| _todos_
+| _No_
+
+| <<component-dnsxl>>
+| Chequea en zonas dnsxl
+| _ip4_ _ip6_ _domain_
+| _No_
+
+| <<component-grpc>>
+| Chequea en una lista grpc remota
+| _Todos_
+| _No_
+
+| <<component-apicheck>>
+| Chequea en una lista grpc remota definida en `ids.api`
+| _Todos_
+| _No_
+
+| <<component-geoip2>>
+| Emplea geolocalización
+| _ip4_
+| _No_
+
+| <<component-sequence>>
+| Chequea en las listas de forma secuencial
+| _Todos_
+| _Sí_
+
+| <<component-parallel>>
+| Chequea en las listas en paralelo
+| _Todos_
+| _Sí_
+
+| <<component-wbefore>>
+| Chequea primero en una lista blanca
+| _Todos_
+| _Sí_
+
+| <<component-selector>>
+| Selecciona
+| _Todos_
+| _Sí_
+
+|===

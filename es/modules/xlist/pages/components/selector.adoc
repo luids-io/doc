@@ -1,0 +1,87 @@
+[[component-selector]]
+= selector
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *selector* permite la creación de una RBL formada por listas que soportan diferentes tipos de recursos, ofreciendo una interfaz única con la que chequear cualquier tipo de recurso. Su principal uso es el de ser usado como lista raíz.
+
+=== Configuración
+
+* El valor de `class` debe de ser `selector`.
+* Admite todos los tipos de recursos en el campo `resources`.
+* Es necesario emplear el campo `contains` definir las listas sobre las que realizará la selección.
+* Admite campos opcionales en `opts`.
+
+[[selector-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _selector_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `reason`
+| _string_
+| motivo que devolverá en caso de que resultado afirmativo
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+Para crear una lista *selector* es necesario definir el identificador, la clase `selector`, los tipos de recurso que va a ofrecer (el componente soporta todos) y la opción estándar `contains` que contendrá las listas "hijas".
+
+Para configurar adecuadamente una lista de tipo _selector_, se deben seguir las siguientes reglas:
+
+* El número de tipos de recursos y el número de listas hijas deben ser el mismo.
+* Se asignará el tipo de recurso a la lista que lo soporta según el orden en que se definan.
+
+[[selector-example1]]
+.Ejemplo de lista _selector_
+[source,json]
+----
+include::{examplesdir}/components/selector/example1.json[]
+----
+
+En la configuración del ejemplo `selector1` se define una lista compuesta que soporta los tipos de recurso `ip4` y `domain` y contiene dos listas: la primera es la lista identificada por `mock1` y soporta el tipo de recurso `ip4`, y la segunda es la lista identificada por `mock2` y que soporta el tipo de recurso `domain`. Nótese que el orden asignado a las listas hijas coincide con el de los recursos soportados.
+
+La salida que obtendríamos al chequear la lista sería la siguiente:
+
+[source,console]
+----
+$ xlistc
+[ip4 domain] (462.851µs)
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"mock1 response",0 (606.71µs)
+$ xlistc www.micasa.com
+domain,www.micasa.com: true,"mock2 response",0 (792.335µs)
+----
+
+=== Uso avanzado
+
+Si se observa el ejemplo anterior, la primera de las listas hijas también soporta el tipo de recurso `ip6`, sin embargo, este tipo de recurso no es soportado por la lista `selector1`. ¿Cómo podemos hacer que nuestra lista selector ofrezca soporte también para este tipo de recurso?. Muy sencillo, definiendo el recurso `ip6` junto con otra lista hija. Sin embargo, como vamos a reutilizar una lista ya creada, usaremos el mismo identificador para que no sea necesario definir una nueva instancia, ahorrando memoria.
+
+
+[[selector-example2]]
+.Ejemplo de lista _selector_ usando alias y `reason`
+[source,json]
+----
+include::{examplesdir}/components/selector/example2.json[]
+----
+
+La salida de <<selector-example2>> sería la siguiente:
+
+[source,console]
+----
+$ xlistc
+[ip4 ip6 domain] (470.15µs)
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"selector2 response",0 (528.47µs)
+$ xlistc www.micasa.com
+domain,www.micasa.com: true,"selector2 response",0 (689.75µs)
+$ xlistc fe00::0
+ip6,fe00::0: true,"selector2 response",0 (643.478µs)
+----

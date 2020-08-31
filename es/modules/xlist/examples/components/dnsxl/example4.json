@@ -1,0 +1,14 @@
+[
+    {
+        "id": "dnsxl4",
+        "class": "dnsxl",
+        "resources": [
+            "ip4"
+        ],
+        "source": "zen.spamhaus.org",
+        "opts": {
+            "nsresolvers": true,
+            "resolvreason": true
+        }
+    }
+]

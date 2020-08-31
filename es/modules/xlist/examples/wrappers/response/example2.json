@@ -1,0 +1,19 @@
+[
+    {
+        "id": "response2",
+        "class": "mock",
+        "resources": [
+            "ip4"
+        ],
+        "source": "false,true",
+        "wrappers": [
+            {
+                "class": "response",
+                "opts": {
+                    "negate": true,
+                    "reason": "response1 response"
+                }
+            }
+        ]
+    }
+]

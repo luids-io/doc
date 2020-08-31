@@ -1,0 +1,16 @@
+[
+    {
+        "id": "geoip2_2",
+        "class": "geoip2",
+        "resources": [
+            "ip4"
+        ],
+        "source": "GeoLite2-Country.mmdb",
+        "opts": {
+            "countries": [
+                "es"
+            ],
+            "reverse": true
+        }
+    }
+]

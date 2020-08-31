@@ -1,0 +1,110 @@
+[[component-parallel]]
+= parallel
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *parallel* permite la creación de una RBL compuesta por un conjunto de RBLs sobre el que se realizarán los chequeos. Dichos chequeos se harán en paralelo. Opcionalmente retornará inmediatamente si alguno de los chequeos retorna positivo.
+
+=== Configuración
+
+* El valor de `class` debe de ser `parallel`.
+* Admite todos los tipos de recursos en el campo `resources`.
+* Es necesario emplear el campo `contains` definir las listas sobre los que realizará los chequeos.
+* Admite campos opcionales en `opts`.
+
+[[parallel-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _parallel_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `reason`
+| _string_
+| motivo que devolverá en caso de que resultado afirmativo
+
+| `skiperrors`
+| _boolean_
+| si una lista hija devuelve un error, continuará el chequeo.
+
+| `first`
+| _boolean_
+| devolverá la primera respuesta afirmativa que encuentre
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+Para crear una lista _parallel_ es necesario definir el identificador, la clase `parallel`, los tipos de recurso que va a ofrecer (el componente soporta todos) y la opción estándar `contains` que contendrá las listas "hijas".
+
+Para configurar adecuadamente una lista de tipo _parallel_, la única restricción existente es que todas las listas hijas deberán soportar al menos los recursos definidos en la lista padre o _parallel_.
+
+[[parallel-example1]]
+.Ejemplo de lista _parallel_
+[source,json]
+----
+include::{examplesdir}/components/parallel/example1.json[]
+----
+
+En la configuración del ejemplo `parallel1` se define una lista compuesta que soporta el tipo de recurso `ip4` y contiene dos listas: la primera es la lista identificada por `mock1` y soporta los tipos de recursos `ip4` e `ip6`, y la segunda es la lista identificada por `mock2` y que soporta el tipo de recurso `ip4`. Nótese que ambas listas hijas soportan el tipo de recurso ofrecido por la lista padre.
+
+Para realizar el chequeo, la lista realizará en paralelo la ambas listas.  En este ejemplo, siempre retornará la concatenación de las respuestas afirmativas (que podrá variar el orden):
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"mock3 response;mock2 response",0 (657.282µs)
+----
+
+TIP: Las listas de tipo _parallel_ deberían usarse para chequeos múltiples que hagan uso de red o de operaciones en disco. Para chequeos locales en memoria, deberían usarse listas de tipo _sequence_ ya que emplean menos recursos.
+
+== Uso avanzado
+
+Además del uso por defecto, el componente ofrece soporte a las opciones de la tabla resumen <<parallel-table-opts>> que pueden alterar su comportamiento.
+
+Un modificador muy útil es el uso de `first` como puede verse en el siguiente ejemplo.
+
+[[parallel-example2]]
+.Ejemplo de lista _parallel_ con modificador `first`
+[source,json]
+----
+include::{examplesdir}/components/parallel/example2.json[]
+----
+
+Con esta lista, devolverá el primer resultado afirmativo, que podrá ser diferente en cada ocasión.
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"mock3 response",0 (596.715µs)
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"mock2 response",0 (587.02µs)
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"mock3 response",0 (702.055µs)
+----
+
+TIP: En general, si la latencia es importante y no es necesario chequear en todas las listas para calcular cualquier tipo de métrica, conviene usar _parallel_ con el modificador `first`.
+
+Como se ha indicado, la lista de tipo _parallel_ chequea en todos los elementos que la componen, pero... ¿qué pasa si alguno de ellos retorna error?.  Pues bien, el comportamiento por defecto es retornar el error. Si queremos que se ignore el error y se continúe chequeando en las demás listas, puede utilizarse la opción `skiperrors`. Esta opción ignorará cualquier error retornado en los chequeos.
+
+[[parallel-example3]]
+.Ejemplo de lista _parallel_ con modificador `skiperrors`
+[source,json]
+----
+include::{examplesdir}/components/parallel/example3.json[]
+----
+
+NOTE: La opción `skiperrors` únicamente "enmascarará" los errores de chequeos, de esta forma la lista seguirá funcionando a pesar de posibles errores en alguna de sus listas hijas. Los _pings_ tendrán el mismo comportamiento, es decir, que si existe un error en alguna de las listas hijas, el _ping_ dará error. De este modo, se podrán detectar los errores y conocer del estado degradado del sistema.
+
+La salida del <<parallel-example3>> será la siguiente:
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"sequence3 response",0 (655.384µs)
+----

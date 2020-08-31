@@ -1,0 +1,320 @@
+= Definición del servicio
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+En este apartado se describirá el proceso de definición de un servicio. Para ello, se explicará por medio de un ejemplo cómo se define un servicio de listas en _xlistd_ y, a continuación, se tratarán en profundidad los diferentes tipos de piezas que tendremos a nuestra disposición.
+
+TIP: Recuerde que dispone de Guías con configuraciones ya realizadas que podrá fácilmente modificar según sus necesidades. Estas guías pueden servir también de apoyo para entender esta parte de la documentación.
+
+
+[[explained]]
+== Explicación
+
+Simplificando mucho, _xlistd_ podría considerarse una especie de servicio de agregación de listas negras y blancas. Dicho servicio se configura a través de un fichero (o ficheros) de configuración en el que se lleva a cabo la definición del mismo. Definir un servicio _xlistd_ es como construir un castillo de juguete con piezas. Se explicará con mayor detalle a continuación, pero podemos decir brevemente que hay dos tipos de piezas: los _componentes_ y los _envoltorios_.
+
+Para realizar la explicación realizaremos un ejemplo en el que:
+
+. Se realizará un diagrama de bloques explicativo con el diseño deseado.
+. Se incluirá un diagrama de secuencia que explique cómo responderá a las solicitudes.
+. Se plasmará el diseño en un fichero de definición del servicio.
+
+
+=== Componentes
+
+[[compo-example-image]]
+.Ejemplo de composición
+image::components-example.svg[xlistd,width=85%,pdfwidth=85%]
+
+En <<compo-example-image>> puede verse gráficamente cómo podría ser una posible definición del servicio. Para completar la información de la imagen y poder interpretarla correctamente aclarar que:
+
+. Los componentes del servicio son los elementos encuadrados.
+. Los componentes tienen un nombre único identificador. Ej: `root`, `ip-service`, `my-whitelist-ip4`, etc.
+. Los componentes tienen un arquetipo o una "clase" que indica el comportamiento del componente. Ej: `selector`, `wbefore`, `file`, etc.
+. Los componentes dan soporte a un conjunto de tipos de recursos. Ej: `[ip4,domain]`, `[ip4]`, etc.
+. Las líneas indican la comunicación que se lleva a cabo entre los componentes, es decir, por dónde seguirán las peticiones.
+
+Como puede observarse también:
+
+. Todas las peticiones se dirigen a un componente raíz o `root`.
+. Los componentes pueden tener nodos hijos a los que reenviar la petición. Esto evidentemente dependerá del arquetipo. En el ejemplo tenemos: `selector`, `wbefore` y `parallel`.
+. Existen componentes que no tienen nodos hijos y que por lo tanto procesarán y responderán a la petición. En el ejemplo tenemos: `file`, `geoip2`, `grpc` y `dnsxl`.
+. Los componentes pueden ser referenciados varias veces desde distintas ramas como puede verse en los componentes `remote1-blacklist` y `remote2-blacklist`.
+
+[[sequence-example]]
+.Ejemplo de secuencia
+[plantuml, sequence-domain, png]
+....
+actor grpcclient
+participant xlistapi
+participant "root\n<<selector>>" as root
+participant "domain-service\n<<wbefore>>" as domainservice
+participant "my-whitelist-domain\n<<file>>" as mywhitelistdomain
+participant "blacklist-domain\n<<parallel>>" as blacklistdomain
+participant "remote1-blacklist\n<<grpc>>" as remote1blacklist
+participant "remote2-blacklist\n<<dnsxl>>" as remote2blacklist
+
+grpcclient -> xlistapi: Check(www.infected.com, domain)
+xlistapi -> root: Check(www.infected.com, domain)
+
+root -> domainservice: Check(www.infected.com, domain)
+domainservice -> mywhitelistdomain: Check(www.infected.com, domain)
+mywhitelistdomain --> domainservice: {result: false}
+
+domainservice -> blacklistdomain: Check(www.infected.com, domain)
+blacklistdomain -> remote1blacklist: Check(www.infected.com, domain)
+blacklistdomain -> remote2blacklist: Check(www.infected.com, domain)
+remote1blacklist --> blacklistdomain: {result: false}
+remote2blacklist --> blacklistdomain: {result: true, reason: "malware"}
+blacklistdomain --> domainservice: {result: true, reason: "malware"}
+
+domainservice --> root: {result: true, reason: "malware"}
+
+root --> xlistapi: {result: true, reason: "malware"}
+xlistapi --> grpcclient: {result: true, reason: "malware"}
+....
+
+En el <<sequence-example>> podemos ver cómo seria la secuencia de un chequeo. La explicación es la siguiente:
+
+. La _apixlist_ traslada la petición a la lista fijada como `root`.
+. La lista `root` es de la clase `selector`, lo que hará que seleccione de sus componentes hijas aquella que tenga registrada para servir peticiones de tipo `domain`. En este caso es el componente `domain-service`.
+. El componente `domain-service` es de la clase `wbefore`, esta clase lo que hace es chequear primero en una lista blanca y si está en la lista blanca retornará inmediatamente negativo. Así lo hace, y al no encontrarse traslada al consulta al componente `blacklist-domain`.
+. El componente `blacklist-domain`, al ser de la clase `parallel`, consultará en paralelo a sus componentes hijos: `remote1-blacklist` y `remote2-blacklist`.
+. Estos componentes, chequearán en servidores remotos usando los protocolos _GRPC_ y _DNSxL_ y devolverán su resultado. Si alguno de estos componentes devuelve un resultado afirmativo, el componente de la clase `parallel` retornará el primero que lo haga.
+
+[[config-example]]
+.Ejemplo de configuración
+[source,json]
+----
+[
+  {
+    "id": "remote1-blacklist",
+    "class": "grpc",
+    "resources": [ "ip4", "domain" ],
+    "source": "unix:///run/xlistd1.socket"
+  },
+  {
+    "id": "remote2-blacklist",
+    "class": "dnsxl",
+    "resources": [ "ip4", "domain" ],
+    "source": "rbl.dns-zone.com"
+  },
+  {
+    "id": "root",
+    "class": "selector",
+    "resources": [ "ip4", "domain" ],
+    "contains": [
+      {
+        "id": "ip-service",
+        "class": "wbefore",
+        "resources": [ "ip4" ],
+        "contains": [
+          {
+            "id": "my-whitelist-ip4",
+            "class": "file",
+            "resources": [ "ip4" ],
+            "source": "my-whitelist-ip4.xlist"
+          },
+          {
+            "id": "blacklist-ip4",
+            "class": "parallel",
+            "resources": [ "ip4" ],
+            "contains": [
+              {
+                "id": "geoip2-spanish",
+                "class": "geoip2",
+                "resources": [ "ip4" ],
+                "source": "GeoLite2-Country.mmdb",
+                "opts": {
+                  "countries": [
+                    "es"
+                  ],
+                  "reverse": true,
+                }
+              },
+              {  "id": "remote1-blacklist"  },
+              {  "id": "remote2-blacklist"  }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "domain-service",
+        "class": "wbefore",
+        "resources": [ "domain" ],
+        "contains": [
+          {
+            "id": "my-whitelist-domain",
+            "class": "file",
+            "resources": [ "domain" ],
+            "source": "my-whitelist-domain.xlist"
+          },
+          {
+            "id": "blacklist-domain",
+            "class": "parallel",
+            "resources": [ "domain" ],
+            "contains": [
+              {  "id": "remote1-blacklist"  },
+              {  "id": "remote2-blacklist"  }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
+----
+
+En el <<config-example>> puede verse cómo se implementaría la configuración vista en un fichero `services.json`. Como se observa, se trata de un fichero en formato _JSON_.
+
+Los ficheros de definición deben contener un array _JSON_, esto es, empezar con `[` y finalizar con `]` y dentro de dicho array contener objetos _JSON_ con las definiciones de los componentes que compondrán nuestro servicio.
+
+TIP: Podemos dividir la configuración en diferentes ficheros si nos es más cómodo o más claro de interpretar. El resultado final será un array único formado por la concatenación de los arrays definidos en cada fichero. Lo único que hay que tener en cuenta es que será determinante el orden en el que se definan.
+
+Cada definición deberá contener obligatoriamente un campo `id` que será único y un campo `class` que indicará cómo se construirá el componente. Luego, en función del campo `class`, los componentes podrán requerir de más información. Esto es, habrá componentes que requerirán de un valor en `source`, otros que requerirán que existan valores en `contains`, etc. Esto se verá en la documentación de cada uno de los componentes.
+
+Obsérvese en <<config-example>> cómo algunos componentes contienen a otros componentes (ejemplos: `root`, `ip-service`). En estos casos, se construirán de forma recursiva los componentes y no se pasará al siguiente componente del array principal hasta que se construya todo el árbol de componentes definidos.
+
+Existen casos en los que es necesario "reutilizar" componentes en distintas ramas del árbol como puede verse en <<compo-example-image>> con los componentes `remote1-blacklist` y `remote2-blacklist`. Aunque también es posible crear dos instancias con diferentes identificadores, no es recomendable hacerlo debido a que se duplican los recursos consumidos (esto es especialmente poco recomendable si reutilizamos componentes que carguen en memoria bases de datos). Por ello simplemente hay que declarar el componente una vez y en las posteriores apariciones, referenciarlo únicamente con el campo `id`.
+
+TIP: Aunque la referencias mediante definiciones que contengan el campo `id` están pensadas para la reutilización de componentes, también pueden ser útiles para hacer un fichero de definición secuencial, evitando la creación de un enorme árbol de estructuras _JSON_ más difícil de interpretar y de mantener.
+
+
+=== Envoltorios
+
+Hasta aquí hemos visto la definición de las listas mediante el uso de componentes, que siguen un arquetipo o clase para responder a la petición. Sin embargo puede ser requeridas funcionalidades adicionales como cachear las peticiones, registrar las peticiones que se realizan, estadísticas sobre tiempos de respuesta, alterar las respuestas, etc. Nótese que estas funcionalidades  son genéricas y pueden aplicarse a todos los componentes, independientemente de la clase o arquetipo al que pertenezca. Para ello se han desarrollado los _wrappers_ o en una traducción más o menos desafortunada, los *envoltorios*.
+
+Supongamos que en el ejemplo visto, queremos lo siguiente:
+
+* Incorporar una caché global al servicio en el componente `root`.
+* Registrar las peticiones que devuelvan positivo.
+* Tener métricas sobre respuestas y tiempos de respuesta de: `root`, `remote1-blacklist` y `remote2-blacklist`.
+* Agregar el identificador de la lista como prefijo en las respuestas afirmativas que provengan de `remote1-blacklist` y `remote2-blacklist`.
+
+
+[[wrappers-example-image]]
+.Ejemplo de envoltorios
+image::wrappers-example.svg[xlistd,width=85%,pdfwidth=85%]
+
+En el <<wrappers-example-image>> podemos ver cómo se aplicarían los envoltorios (_wrappers_) sobre los componentes. Observe lo siguiente:
+
+. Cada envoltorio (_wrapper_) que se agrega tiene un arquetipo o clase. En el ejemplo se muestran los arquetipos: `cache`, `log`, `metrics` y `response`.
+. No tienen identificadores ni van asociados a ningún tipo de recurso determinado.
+. Tienen un orden de aplicación, esto es, la petición seguirá el orden de definición de los envoltorios. En el ejemplo de los envoltorios sobre el componente identificado como `root`, las métricas medirán los efectos de la caché al encontrarse definida con anterioridad.
+
+
+[[wrappers-sequence-example]]
+.Ejemplo de secuencia
+[plantuml, wrappers-sequence-example, png]
+....
+actor grpcclient
+participant xlistapi
+participant "<<metrics>>" as metrics #99FF99
+participant "<<log>>" as log #99FF99
+participant "<<cache>>" as cache #99FF99
+participant "root\n<<selector>>" as root
+
+grpcclient -> xlistapi: Check(www.infected.com, domain)
+xlistapi -> metrics: Check(www.infected.com, domain)
+
+metrics -> metrics: start = now()
+metrics -> log: Check(www.infected.com, domain)
+
+log -> cache: Check(www.infected.com, domain)
+cache -> cache: read cache
+cache -> root: Check(www.infected.com, domain)
+root --> cache: {result: true, reason: "malware"}
+cache -> cache: write cache
+cache --> log: {result: true, reason: "malware"}
+
+log -> log: write logfile
+log -->  metrics: {result: true, reason: "malware"}
+metrics -> metrics: metrics{found++, latency=now()-start}
+
+metrics --> xlistapi: {result: true, reason: "malware"}
+xlistapi --> grpcclient: {result: true, reason: "malware"}
+....
+
+[[config-wrappers-example]]
+.Ejemplo de configuración de wrappers
+[source,json]
+----
+[
+  {
+    "id": "remote1-blacklist",
+     ....
+    "wrappers": [
+      { "class": "metrics" },
+      { "class": "response", "opts": { "prefixid": true } }
+    ]
+  },
+  {
+    "id": "remote2-blacklist",
+     ....
+    "wrappers": [
+      { "class": "metrics" },
+      { "class": "response", "opts": { "prefixid": true } }
+    ]
+  },
+  {
+    "id": "root",
+     ....
+    "wrappers": [
+      { "class": "cache", "opts": { "ttl": 30 } },
+      { "class": "log"     },
+      { "class": "metrics" }
+    ]
+  }
+]
+----
+
+
+En el <<config-wrappers-example>> podemos ver que la agregación de _wrappers_ o envoltorios se realiza mediante el campo `wrappers`, que es un array de objetos de deben contener el atributo `class` que indica el tipo de envoltorio que representa. De manera adicional, algunos componentes pueden requerir de más campos que deberán definirse en un objeto referenciado por el campo `opts`. Estos campos dependerán del tipo de envoltorio. Finalmente, como se describió en <<wrappers-sequence-example>>, es importante el orden en que se declaran los envoltorios, ya que esto afecta sobre el comportamiento.
+
+[[components]]
+== Utilización de Componentes
+
+A continuación se muestra una tabla con todos los componentes disponibles, si pincha en cada uno de los enlaces, podrá acceder a la documentación completa del componente.
+
+ifdef::env-site,env-github[]
+include::partial$components-table-xrefs.adoc[]
+endif::env-site,env-github[]
+
+ifndef::env-site,env-github[]
+include::{partialsdir}/components-table-links.adoc[]
+include::{pagesdir}/components/mock.adoc[leveloffset=3]
+include::{pagesdir}/components/mem.adoc[leveloffset=3]
+include::{pagesdir}/components/file.adoc[leveloffset=3]
+include::{pagesdir}/components/dnsxl.adoc[leveloffset=3]
+include::{pagesdir}/components/apicheck.adoc[leveloffset=3]
+include::{pagesdir}/components/grpc.adoc[leveloffset=3]
+include::{pagesdir}/components/geoip2.adoc[leveloffset=3]
+include::{pagesdir}/components/sequence.adoc[leveloffset=3]
+include::{pagesdir}/components/parallel.adoc[leveloffset=3]
+include::{pagesdir}/components/wbefore.adoc[leveloffset=3]
+include::{pagesdir}/components/selector.adoc[leveloffset=3]
+endif::env-site,env-github[]
+
+[[wrappers]]
+== Utilización de Envoltorios
+
+A continuación se muestra una tabla con todos los envoltorios disponibles, si pincha en cada uno de los enlaces, podrá acceder a la documentación completa del envoltorio.
+
+ifdef::env-site,env-github[]
+include::partial$wrappers-table-xrefs.adoc[]
+endif::env-site,env-github[]
+
+ifndef::env-site,env-github[]
+include::{partialsdir}/wrappers-table-links.adoc[]
+include::{pagesdir}/wrappers/cache.adoc[leveloffset=3]
+include::{pagesdir}/wrappers/logger.adoc[leveloffset=3]
+include::{pagesdir}/wrappers/metrics.adoc[leveloffset=3]
+include::{pagesdir}/wrappers/score.adoc[leveloffset=3]
+include::{pagesdir}/wrappers/policy.adoc[leveloffset=3]
+include::{pagesdir}/wrappers/response.adoc[leveloffset=3]
+include::{pagesdir}/wrappers/timeout.adoc[leveloffset=3]
+endif::env-site,env-github[]
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:manage-sources.adoc[Gestión de fuentes]
+endif::env-site,env-github[]

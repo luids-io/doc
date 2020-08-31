@@ -1,0 +1,81 @@
+[[component-mem]]
+= mem
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *mem* permite la creación de RBLs que utiliza la información del contenido de un fichero en formato _xlist_ o de un array de datos que se de en la misma definición. Para ello, el componente cargará en memoria la información.
+
+=== Configuración
+
+* El valor de `class` debe de ser `mem`.
+* Admite `ip4`, `ip6` y `domain` en el campo `resources`.
+* El campo `source` NO es obligatorio, si se utiliza, deberá indicar el path path al fichero xlist del que cargará la información.
+* Admite campos opcionales en `opts`.
+
+[[mem-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _mem_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `reason`
+| _string_
+| motivo que devolverá en caso de resultado afirmativo
+
+| `data`
+| _[]map[string]string_
+| datos a cargar
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+Para crear una lista *mem* es necesario definir el identificador, la clase `mem` y los tipos de recurso que va a ofrecer. El componente únicamente realizará la carga de datos durante su inicialización.
+
+[[mem-example1]]
+.Ejemplo de lista mem vacía
+[source,json]
+----
+include::{examplesdir}/components/mem/example1.json[]
+----
+
+En la configuración del <<mem-example1>> tenemos una lista vacía que responderá a todas las solicitudes de tipo `ip4` y `domain` devolviendo que no existe el recurso.
+
+[[mem-example2]]
+.Ejemplo de lista mem desde fichero
+[source,json]
+----
+include::{examplesdir}/components/mem/example2.json[]
+----
+
+En la configuración del <<mem-example2>> tenemos una lista que utilizará el fichero `testfile1.xlist` como origen de datos.
+
+NOTE: El path definido en `source` puede ser relativo o absoluto. En caso de que sea relativo, se hará de acuerdo al parámetro de configuración `xlist.sourcesdir`. Si este parámetro no se indica, se usará el directorio actual.
+
+WARNING: Recuerde que la carga de datos de este componente únicamente se realiza durante la inicialización, por lo que si cambia el contenido del fichero NO se reflejarán los cambios hasta el siguiente reinicio del servicio. Para el uso de ficheros le recomendamos el componente xref:components/file.adoc[file].
+
+=== Uso avanzado
+
+Además del valor estándar de `source`, el componente ofrece soporte a las opciones de la tabla resumen <<mem-table-opts>> que pueden alterar su comportamiento.
+
+[[mem-example3]]
+.Ejemplo de _mem_ con `reason`
+[source,json]
+----
+include::{examplesdir}/components/mem/example3.json[]
+----
+
+[[mem-example4]]
+.Ejemplo de _mem_ con `data`
+[source,json]
+----
+include::{examplesdir}/components/mem/example4.json[]
+----
+
+NOTE: Los valores válidos para `type` son los mismos definidos en el formato xlist.

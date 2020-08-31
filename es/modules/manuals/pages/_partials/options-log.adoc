@@ -1,0 +1,14 @@
+[[options-log]]
+= Sección `log`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `format` | _string_ | No | `text`
+|  Define el formato del log.
+
+| `level` | _string_ | No | `info`
+|  Define el el nivel de log empleado.
+
+|===

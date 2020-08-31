@@ -1,0 +1,27 @@
+[[options-args]]
+= Sólo argumentos
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `config` | _string_ | No |
+|  Usa el parámetro como fichero de configuración en lugar de los ficheros
+   definidos por defecto. Admite la configuración en formatos `toml` y `yaml`.
+   Para la correcta detección del formato, `config` deberá incorporar la
+   extensión correspondiente.
+
+| `debug` | _boolean_ | No | `false`
+|  Habilita el modo debug.
+
+| `dry-run` | _boolean_ | No | `false`
+|  Chequea y construye las listas del servicio pero no lo inicializa. Puede
+   emplearse para comprobar que la configuración es correcta.
+
+| `help` | _boolean_ | No | `false`
+|  Muestra la ayuda.
+
+| `version` | _boolean_ | No | `false`
+|  Muestra la versión de la aplicación.
+
+|===

@@ -1,0 +1,2 @@
+.xref:index.adoc[Manuales]
+include::xlist:partial$nav.adoc[]

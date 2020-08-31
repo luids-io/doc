@@ -1,0 +1,20 @@
+[
+    {
+        "id": "dnsxl3",
+        "class": "dnsxl",
+        "resources": [
+            "ip4"
+        ],
+        "source": "hostkarma.junkemailfilter.com",
+        "opts": {
+            "halfping": true,
+            "dnscodes": {
+                "127.0.0.1": "whilelist",
+                "127.0.0.2": "blacklist",
+                "127.0.0.3": "yellowlist",
+                "127.0.0.4": "brownlist",
+                "127.0.0.5": "NOBL"
+            }
+        }
+    }
+]

@@ -1,0 +1,13 @@
+[
+    {
+        "id": "dnsxl2",
+        "class": "dnsxl",
+        "resources": [
+            "ip4"
+        ],
+        "source": "b.barracudacentral.org",
+        "opts": {
+            "resolvreason": true
+        }
+    }
+]

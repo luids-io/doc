@@ -1,0 +1,17 @@
+[[options-xlistd-plugin-dnsxl]]
+= Sección `xlistd.plugin.dnsxl`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `resolvconf` | _boolean_ | No | `false`
+|  Empleará los resolvedores dns definidos en `/etc/resolv.conf` por defecto en los componentes de la clase `dnsxl`.
+
+| `resolvers` | _[]string_ | No |
+|  Empleará los resolvedores dns definidos en los componentes de la clase `dnsxl`.
+
+| `timeout` | _int_ | No |
+|  Establece un timeout por defecto en milisegundos para las consultas _DNS_ realizadas por los componentes de la clase `dnsxl`.
+
+|===

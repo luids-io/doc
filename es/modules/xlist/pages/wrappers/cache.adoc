@@ -1,0 +1,67 @@
+[[wrapper-cache]]
+= cache
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El envoltorio *cache* crea una caché en memoria con las respuestas del componente al que envuelve.
+
+=== Configuración
+
+* El valor de `class` debe de ser `cache`.
+* Admite campos opcionales en `opts`. Si no se especifican por defecto se asigna un `ttl` de `300`.
+
+[[cache-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _cache_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `ttl`
+| _int_
+| tiempo en caché
+
+| `negativettl`
+| _int_
+| tiempo en caché en caso negativo
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+[[cache-example1]]
+.Ejemplo de _cache_
+[source,json]
+----
+include::{examplesdir}/wrappers/cache/example1.json[]
+----
+
+Puede observarse en las consultas al servidor con la configuración de <<example1>> el efecto de la caché.
+
+[source,console]
+----
+$ xlistc 127.0.0.2
+ip4,127.0.0.2: true,"Client host blocked using Barracuda Reputation, see http://www.barracudanetworks.com/reputation/?r=1&ip=127.0.0.2",300 (294.487878ms)
+$ xlistc 127.0.0.2
+ip4,127.0.0.2: true,"Client host blocked using Barracuda Reputation, see http://www.barracudanetworks.com/reputation/?r=1&ip=127.0.0.2",297 (689.026µs)
+$ xlistc 5.5.5.5
+ip4,5.5.5.5: false,"",300 (238.795356ms)
+$ xlistc 5.5.5.5
+ip4,5.5.5.5: false,"",298 (511.793µs)
+----
+
+=== Uso avanzado
+
+También podemos desactivar la caché para las respuestas negativas usando la opción `negativettl` como se muestra a continuación.
+
+[[cache-example2]]
+.Ejemplo de _cache_ con `negativettl`
+[source,json]
+----
+include::{examplesdir}/wrappers/cache/example2.json[]
+----

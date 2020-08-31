@@ -1,0 +1,46 @@
+[
+    {
+        "id": "sequence1",
+        "class": "sequence",
+        "name": "example sequence",
+        "resources": [
+            "ip4"
+        ],
+        "contains": [
+            {
+                "id": "mock1",
+                "class": "mock",
+                "resources": [
+                    "ip4",
+                    "ip6"
+                ],
+                "source": "false",
+                "opts": {
+                    "reason": "mock1 response"
+                }
+            },
+            {
+                "id": "mock2",
+                "class": "mock",
+                "resources": [
+                    "ip4"
+                ],
+                "source": "true",
+                "opts": {
+                    "reason": "mock2 response"
+                }
+            },
+            {
+                "id": "mock3",
+                "class": "mock",
+                "resources": [
+                    "ip4"
+                ],
+                "source": "true",
+                "opts": {
+                    "reason": "mock3 response"
+                }
+            }
+        ]
+    }
+]

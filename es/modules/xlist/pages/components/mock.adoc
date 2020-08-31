@@ -1,0 +1,91 @@
+[[component-mock]]
+= mock
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *mock* permite la creación de RBLs de pruebas de manera muy simple. Está concebido para:
+
+* Usarse en tests unitarios y de integración junto con otros componentes más complejos.
+* Usarse para realizar pruebas de configuración y latencias, pudiendo simular fallos e introducir retardos.
+
+=== Configuración
+
+* El valor de `class` debe de ser `mock`.
+* Admite cualquier tipo de recursos en el campo `resources`.
+* El campo `source` puede emplearse para indicar una secuencia de respuestas.
+* Admite campos opcionales en `opts`.
+
+[[mock-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de `mock`
+|===
+| Opción | Tipo de dato | Explicación
+
+| `reason`
+| _string_
+| motivo que devolverá en caso de resultado afirmativo
+
+| `ttl`
+| _int_
+| valor de TTL que devolverá en todas las respuestas
+
+| `fail`
+| _boolean_
+| si está activo, entonces la lista siempre fallará
+
+| `lazy`
+| _int_
+| tiempo en milisegundos que la lista tardará en responder
+
+| `sleep`
+| _int_
+| igual que `lazy`, pero no responderá inmediatamente a la cancelación
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+Para crear una lista *mock* es necesario definir el identificador, la clase `mock` y los tipos de recurso que va a ofrecer (el componente soporta todos).
+
+[[mock-example1]]
+.Ejemplo de lista mock
+[source,json]
+----
+include::{examplesdir}/components/mock/example1.json[]
+----
+
+En la configuración del <<mock-example1>>, la lista del ejemplo responderá a todas las solicitudes de tipo `ip4` y `domain` diciendo que no las encuentra (es el valor por defecto).
+
+Podemos alterar este comportamiento mediante la opción estándar de `source`. En este caso, `source` será una cadena que contenga valores de `true` y `false` separados por comas. Como ejemplos: `"true"` o `"true,false,true,true"`
+
+WARNING: La secuencia especificada en `source` NO indica una probabilidad, NO es aleatoria.
+
+[[mock-example2]]
+.Ejemplo de listas mock con el parámetro source
+[source,json]
+----
+include::{examplesdir}/components/mock/example2.json[]
+----
+
+En caso de la lista lista `mock2`, siempre devolverá cierto. Sin embargo, la lista `mock3` irá respondiendo a cada petición respondiendo a la secuencia indicada. Esto es: existe, no existe, existe, existe, existe, no existe, existe, etc.
+
+=== Uso avanzado
+
+Además del valor estándar de `source`, el componente ofrece soporte a las opciones de la tabla resumen <<mock-table-opts>> que pueden alterar su comportamiento.
+
+[[mock-example3]]
+.Ejemplo de uso de opciones en mock
+[source,json]
+----
+include::{examplesdir}/components/mock/example3.json[]
+----
+
+En el ejemplo `mock4` define una RBL a la que se podrán consultar por recursos de tipo `ip4` y que devolverá al 50% que existe, siguiendo la secuencia e introduciendo además un retardo de 100 milisegundos que obedecerá inmediatamente a la cancelación. La respuesta vendrá con un _ttl_ de 10 segundos y en caso de respuesta afirmativa, devolverá el motivo: _"hello caracola"_.
+
+El ejemplo `mock5` creará una RBL a la que se podrán consultar por recursos del tipo `ip4` y siempre dará fallo en las llamadas a los servicios _check_ y _ping_.

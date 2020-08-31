@@ -1,0 +1,14 @@
+[
+    {
+        "id": "mem3",
+        "class": "mem",
+        "name": "Memory list from file with reason",
+        "resources": [
+            "ip4"
+        ],
+        "source": "testfile1.xlist",
+        "opts": {
+            "reason": "ip found"
+        }
+    }
+]

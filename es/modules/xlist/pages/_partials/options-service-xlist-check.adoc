@@ -1,0 +1,23 @@
+[[options-service-xlist-check]]
+= Sección `service.xlist.check`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `enable` | _boolean_ | Sí | `true`
+|  Habilita la api `luids.xlist.Check`.
+
+| `rootid` | _boolean_ | Sí | `root`
+|  Define el identificador de la lista que será expuesta por el servicio.
+
+| `log` | _boolean_ | No | `true`
+|  Habilita el log del servicio.
+
+| `disclosure` | _boolean_ | No | `false`
+|  Revelará los errores internos en lugar de enmascararlos bajo un error genérico. Útil para su uso en listas intermedias y depuración.
+
+| `exposeping` | _boolean_ | No | `false`
+|  Expondrá el ping del servicio interno. Por defecto, el servicio `ping` retornará siempre ok si existe comunicación y no hay un error grave. Si se habilita esta opción se mapeará el ping del servicio al ping interno de la lista configurada.
+
+|===

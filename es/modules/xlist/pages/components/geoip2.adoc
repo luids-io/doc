@@ -1,0 +1,71 @@
+[[component-geoip2]]
+= geoip2
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *geoip2* permite la creación de RBLs de tipo `ip4` que respondan en función de la situación geográfica de la dirección.
+
+=== Configuración
+
+* El valor de `class` debe de ser `geoip2`.
+* Únicamente admite el tipo `ip4` en el campo `resources`.
+* El campo `source` es obligatorio y debe indicar el path al fichero de base de datos.
+* Admite campos opcionales en `opts`.
+
+[[geoip2-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _geoip2_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `reason`
+| _string_
+| motivo que devolverá en caso de que resultado afirmativo
+
+| `countries`
+| _[]string_
+| códigos de paises en formato ISO
+
+| `reverse`
+| _boolean_
+| si está activo, invierte el matching
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+Para crear una lista *geoip2* es necesario definir el identificador, la clase `geoip2` y especificar únicamente el tipo de recurso `ip4` ya que sólo ofrece soporte para este tipo de recurso. Además, será necesario especificar el path a la base de datos _geoip2_ en `source`.
+
+[[geoip2-example1]]
+.Ejemplo de _geoip2_
+[source,json]
+----
+include::{examplesdir}/components/geoip2/example1.json[]
+----
+
+NOTE: El path definido en `source` puede ser relativo o absoluto. En caso de que sea relativo, se hará de acuerdo al parámetro de configuración `xlist.sourcesdir`. Si este parámetro no se indica, se usará el directorio actual.
+
+Con esto hemos creado una lista, pero fíjese que es completamente inútil ya que no hemos especificado las reglas que seguirá la lista. Para ello utilizaremos opciones como puede verse en el ejemplo siguiente.
+
+[[geoip2-example2]]
+.Ejemplo de _geoip2_ que da positivo para ips no españolas
+[source,json]
+----
+include::{examplesdir}/components/geoip2/example2.json[]
+----
+
+En este caso hemos configurado una lista `geoip2_2` que devuelve cierto en el caso de que la ip consultada no sea de España. Para ello hemos definido mediante la opción `countries` un array de códigos de países en el que hemos incluido solo el código de España. Esto hace que la lista de positivo si la dirección pertenece a este país. Sin embargo, queremos que haga exactamente lo contrario, para lo cual modificamos el comportamiento mediante la opción `reverse`.
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"found country code 'AU'",0 (647.286µs)
+$ xlistc 80.38.172.1
+ip4,80.38.172.1: false,"",0 (720.511µs)
+----

@@ -1,0 +1,22 @@
+[
+    {
+        "id": "cache2",
+        "class": "dnsxl",
+        "resources": [
+            "ip4"
+        ],
+        "source": "b.barracudacentral.org",
+        "opts": {
+            "resolvreason": true
+        },
+        "wrappers": [
+            {
+                "class": "cache",
+                "opts": {
+                    "ttl": 300,
+                    "negativettl": -1
+                }
+            }
+        ]
+    }
+]

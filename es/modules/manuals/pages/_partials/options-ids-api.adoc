@@ -1,0 +1,18 @@
+[[options-ids-api]]
+= Sección `ids.api`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `certsdir` | _string_ | No |
+|  Especifica el directorio donde estarán los certificados referenciados en la
+   configuración de clientes de la API.
+
+| `files` | _[]string_ | No |
+|  Listado de ficheros donde se encuentra la definición estática de los clientes de servicios de la api `luids`.
+
+| `dirs` | _[]string_ | No |
+|  Listado de ficheros donde se encuentra la definición estática de los clientes de servicios de la api `luids`.
+
+|===

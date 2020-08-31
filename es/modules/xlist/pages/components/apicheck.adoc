@@ -1,0 +1,46 @@
+[[component-apicheck]]
+= apicheck
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *apicheck* permite la creación de RBLs que utiliza la _API XList_ de un servicio definido en `/etc/luids/apiservices.json`.
+
+=== Configuración
+
+* El valor de `class` debe de ser `apicheck`.
+* Admite todos los tipos de recursos en el campo `resources`.
+* El campo `source` puede contener el identificador del servicio. Si no se indica, se utilizará el valor de `id`.
+
+== Ejemplos de uso
+
+=== Uso básico
+
+Para crear una lista *apicheck* es necesario definir el identificador, la clase `apicheck` y los tipos de recurso que ofrece.
+
+[[apicheck-example1]]
+.Ejemplo de lista _apicheck_
+[source,json]
+----
+include::{examplesdir}/components/apicheck/example1.json[]
+----
+
+Para este ejemplo, el fichero `/etc/luids/apiservices.json` debería contener algo similar a esto.
+
+[source,json]
+----
+[
+    {
+        "id": "xlist-malware",
+        "api": "luids.xlist.v1.Check",
+        "endpoint": "tcp://xlistd-server1:5802"
+    }
+]
+----
+
+WARNING: Ten cuidado de incluir una referencia al mismo servidor en la
+configuración ya que se puede crear un bucle y en este momento no hay
+desarrollado un mecanismo de detección de bucles.

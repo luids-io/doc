@@ -1,0 +1,17 @@
+[[options-ids-event]]
+= Sección `ids.event`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `service` | _string_ | No |
+|  Especifica el identificador del cliente de la api `luids.event.Notify`.
+
+| `buffer` | int | No | 100
+|  Tamaño del buffer interno de eventos.
+
+| `instance` | _string_ | No |
+|  Especifica el identificador de instancia para agregar a los eventos.
+
+|===

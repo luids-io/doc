@@ -1,0 +1,69 @@
+[
+    {
+        "id": "score2",
+        "class": "dnsxl",
+        "resources": [
+            "ip4"
+        ],
+        "source": "zen.spamhaus.org",
+        "opts": {
+            "nsresolvers": true,
+            "dnscodes": {
+                "127.0.0.2": "ZEN2: Direct UBE sources, spam operations & spam services",
+                "127.0.0.3": "ZEN3: Direct snowshoe spam sources detected via automation",
+                "127.0.0.4": "ZEN4: CBL (3rd party exploits such as proxies, trojans, etc.)",
+                "127.0.0.5": "ZEN5: CBL (3rd party exploits such as proxies, trojans, etc.)",
+                "127.0.0.6": "ZEN6: CBL (3rd party exploits such as proxies, trojans, etc.)",
+                "127.0.0.7": "ZEN7: CBL (3rd party exploits such as proxies, trojans, etc.)",
+                "127.0.0.9": "ZEN9: All networks in DROP and EDROP",
+                "127.0.0.10": "ZEN10: End-user Non-MTA IP addresses set by ISP outbound mail policy",
+                "127.0.0.11": "ZEN11: End-user Non-MTA IP addresses set by ISP outbound mail policy"
+            }
+        },
+        "wrappers": [
+            {
+                "class": "score",
+                "opts": {
+                    "matches": [
+                        {
+                            "expr": "ZEN2",
+                            "value": 15
+                        },
+                        {
+                            "expr": "ZEN3",
+                            "value": 15
+                        },
+                        {
+                            "expr": "ZEN4",
+                            "value": 15
+                        },
+                        {
+                            "expr": "ZEN5",
+                            "value": 15
+                        },
+                        {
+                            "expr": "ZEN6",
+                            "value": 15
+                        },
+                        {
+                            "expr": "ZEN7",
+                            "value": 15
+                        },
+                        {
+                            "expr": "ZEN9",
+                            "value": 15
+                        },
+                        {
+                            "expr": "ZEN10",
+                            "value": 15
+                        },
+                        {
+                            "expr": "ZEN11",
+                            "value": 15
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+]

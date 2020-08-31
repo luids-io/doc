@@ -1,0 +1,57 @@
+######################
+## Service settings ##
+######################
+[xlistd]
+certsdir  = "/etc/luids/ssl"
+datadir   = "/var/lib/luids/xlist"
+
+[xlistd.service]
+files      = [ "/etc/luids/xlist/services.json" ]
+dirs       = [ "/etc/luids/xlist/services.d" ]
+
+[xlistd.plugin.dnsxl]
+resolvers  = [ "8.8.8.8", "8.8.4.4" ]
+#resolvconf = true
+
+[service.xlist.check]
+enable     = true
+rootid     = "root"
+log        = true
+#exposeping = true
+#disclosure = true
+
+#########################
+## Client API settings ##
+#########################
+[ids.api]
+certsdir  = "/etc/luids/ssl"
+files     = [ "/etc/luids/apiservices.json" ]
+#dirs      = [ "/etc/luids/apiservices.d" ]
+
+#####################
+## Server settings ##
+#####################
+[server]
+listenuri  = "tcp://0.0.0.0:5801"
+certca     = "/etc/luids/ssl/certs/CA.crt"
+certfile   = "/etc/luids/ssl/certs/server.crt"
+keyfile    = "/etc/luids/ssl/ssl/private/server.key"
+clientauth = true
+allowed    = [ "127.0.0.1", "192.168.0.0/16" ]
+metrics    = true
+
+#####################
+## Health settings ##
+#####################
+[health]
+listenuri  = "tcp://127.0.0.1:8081"
+metrics    = true
+#profile    = true
+allowed    = [ "127.0.0.1" ]
+
+##################
+## Log settings ##
+##################
+[log]
+format  = "log"
+level   = "info"

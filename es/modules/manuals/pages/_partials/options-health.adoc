@@ -1,0 +1,18 @@
+[[options-health]]
+= Sección `health`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `allowed` | _[]string_ | No |
+|  Incluye el listado como orígenes permitidos para el uso del servicio.
+
+| `listenuri` | _string_ | No |
+|  Lanzará un servidor http escuchando en la uri con información de
+   métricas y estado.
+
+| `metrics` | _boolean_ | No | `false`
+|  Habilita el uso de métricas.
+
+|===

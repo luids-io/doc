@@ -1,0 +1,25 @@
+= Introducción
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+El paquete de software *xlist* contiene todo lo necesario para integrar *servicios de listas negras* en nuestro sistema de detección de intrusos _^lu^IDS_.
+
+Para realizar dicha tarea, el software funciona como una especie de *servicio de agregación de listas negras* que podremos alimentar mediante nuestra propia selección de listas de Internet y consumir utilizando otros componentes del sistema _^lu^IDS_ como servidores dns, analizadores de red o sistemas cortafuegos.
+
+Las herramientas que componen el paquete de software son:
+
+* *xlistd*: es el servidor de agregación de listas negras. Implementa un _sistema de plugins_ muy potente que permite incorporar la información de fuentes externas utilizando diferentes protocolos y un _sistema de configuración_ que nos posibilita desarrollar cualquier tipo de lógica agregación.
+* *xlistc*: es un pequeño cliente de consola que puede utilizarse para testear el servidor o para consumir la información desde nuestros scripts.
+* *xlget*: pretende ser el _apt-get de las listas negras_, ofreciendo para ello las funcionalidades de descarga y actualización de diversos tipos de fuentes y formatos de lista.
+
+.Diagrama de contexto
+image::introduction-xlist.svg[introduction-xlist,width=100%,pdfwidth=80%]
+
+Todo el software está escrito en _Go_, es software libre y está disponible en https://github.com/luids-io/xlist.
+
+Para facilitar la creación de nuestros propios servicios de listas negras, se ha creado una base de datos en la que se han incluido numerosas fuentes gratuitas en Internet listas para ser usadas.
+La base de datos está accesible en: https://github.com/luids-io/xlist-database.
+
+ifdef::env-site,env-github[]
+A continuación: xref:getting-started.adoc[Empezando]
+endif::env-site,env-github[]

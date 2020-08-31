@@ -1,0 +1,82 @@
+[
+    {
+        "id": "blacklist1",
+        "class": "mem",
+        "resources": [
+            "ip4"
+        ],
+        "opts": {
+            "reason": "blacklist1 response",
+            "data": [
+                {
+                    "type": "ip4",
+                    "value": "1.1.1.1"
+                },
+                {
+                    "type": "ip4",
+                    "value": "2.2.2.2"
+                }
+            ]
+        }
+    },
+    {
+        "id": "blacklist2",
+        "class": "mem",
+        "resources": [
+            "ip4"
+        ],
+        "opts": {
+            "reason": "blacklist2 response",
+            "data": [
+                {
+                    "type": "ip4",
+                    "value": "1.1.1.1"
+                },
+                {
+                    "type": "ip4",
+                    "value": "3.3.3.3"
+                }
+            ]
+        }
+    },
+    {
+        "id": "response4",
+        "class": "sequence",
+        "resources": [
+            "ip4"
+        ],
+        "contains": [
+            {
+                "id": "blacklist1",
+                "wrappers": [
+                    {
+                        "class": "score",
+                        "opts": {
+                            "value": 10
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "blacklist2",
+                "wrappers": [
+                    {
+                        "class": "score",
+                        "opts": {
+                            "value": 10
+                        }
+                    }
+                ]
+            }
+        ],
+        "wrappers": [
+            {
+                "class": "response",
+                "opts": {
+                    "aggregate": true,
+                    "threshold": 10
+                }
+            }
+        ]
+    }
+]

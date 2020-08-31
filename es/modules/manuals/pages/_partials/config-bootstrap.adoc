@@ -1,0 +1,19 @@
+[[config-bootstrap]]
+= Proceso de inicialización
+
+La configuración de un servicio _^lu^IDS_ puede realizarse de varias formas:
+
+. Mediante un fichero de configuración (en formatos `yaml` o `toml`)
+. Mediante parámetros de línea de comandos.
+. Mediante variables de entorno.
+
+Todas las secciones menos aquellas opciones que están definidas como _sólo argumentos_ pueden configurarse por cualquiera de las tres vías, siguiendo el siguiente proceso de inicialización:
+
+. Si se especifica la opción `--config` se utilizará el fichero definido en dicha opción.
+. Leerá el resto de opciones de configuración de la línea de comandos.
+. Leerá las opciones de configuración desde variables de entorno.
+. Valida y aplica la configuración.
+. Si se ha pasado el parámetro `--dry-run` detendrá la ejecución con salida ok si todo ha ido bien.
+. Inicializará los servidores que se hayan configurado.
+
+NOTE: En caso de que algunas opciones de configuración diverjan: las variables de entorno tienen prioridad sobre los parámetros de línea de comando y estos a su vez, tienen prioridad sobre un fichero de configuración.

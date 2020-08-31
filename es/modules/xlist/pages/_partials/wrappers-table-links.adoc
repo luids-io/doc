@@ -1,0 +1,26 @@
+[cols="1,3"]
+|===
+| Nombre | Descripción
+
+| <<wrapper-cache>>
+| Crea una caché en memoria con las respuestas
+
+| <<wrapper-logger>>
+| Registra las peticiones
+
+| <<wrapper-metrics>>
+| Realiza métricas de las peticiones
+
+| <<wrapper-score>>
+| Agrega puntuaciones a las respuestas
+
+| <<wrapper-policy>>
+| Agrega política a las respuestas
+
+| <<wrapper-response>>
+| Modifica las respuestas
+
+| <<wrapper-timeout>>
+| Define un timeout para las consultas
+
+|===

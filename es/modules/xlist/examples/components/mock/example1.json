@@ -1,0 +1,10 @@
+[
+    {
+        "id": "mock1",
+        "class": "mock",
+        "resources": [
+            "ip4",
+            "domain"
+        ]
+    }
+]

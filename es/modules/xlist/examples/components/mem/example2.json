@@ -1,0 +1,12 @@
+[
+    {
+        "id": "mem2",
+        "class": "mem",
+        "name": "Memory list from file",
+        "resources": [
+            "ip4",
+            "domain"
+        ],
+        "source": "testfile1.xlist"
+    }
+]

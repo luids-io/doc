@@ -1,0 +1,18 @@
+[
+    {
+        "id": "logger1",
+        "class": "mock",
+        "resources": [
+            "ip4"
+        ],
+        "source": "true",
+        "opts": {
+            "reason": "logger1 response"
+        },
+        "wrappers": [
+            {
+                "class": "logger"
+            }
+        ]
+    }
+]

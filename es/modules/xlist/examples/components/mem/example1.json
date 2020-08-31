@@ -1,0 +1,11 @@
+[
+    {
+        "id": "mem1",
+        "class": "mem",
+        "name": "Empty memory list",
+        "resources": [
+            "ip4",
+            "domain"
+        ]
+    }
+]

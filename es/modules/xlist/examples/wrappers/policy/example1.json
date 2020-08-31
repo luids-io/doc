@@ -1,0 +1,17 @@
+[
+    {
+        "id": "policy1",
+        "class": "mock",
+        "resources": [ "ip4" ],
+        "source": "true",
+        "opts": {
+            "reason": "policy1 response"
+        },
+        "wrappers": [
+            {
+                "class": "policy",
+                "opts": { "value": "dns=nxdomain,event=info" }
+            }
+        ]
+    }
+]

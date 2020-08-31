@@ -1,0 +1,14 @@
+[[options-xlget]]
+= Sección `xlget`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `cachedir` | _string_ | No |
+|  Especifica el directorio donde se almacenarán los datos temporales e intermedios de las descargas.
+
+| `outputdir` | _string_ | No |
+|  Especifica el directorio de salida de las listas descargadas.
+
+|===

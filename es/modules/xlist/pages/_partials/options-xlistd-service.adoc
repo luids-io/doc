@@ -1,0 +1,14 @@
+[[options-xlistd-service]]
+= Sección `xlistd.service`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `files` | _[]string_ | No |
+|  Listado de ficheros donde se encuentra la definición del servicio.
+
+| `dirs` | _[]string_ | No |
+|  Listado de directorios donde se encuentran los ficheros de definición del servicio con extensión `json`.
+
+|===

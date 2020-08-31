@@ -22,5 +22,6 @@ start_page: welcome.adoc
 # MANDATORY. A list of Antora navigation files. You probably don't need to
 # change this field. See https://docs.antora.org/antora/1.0/navigation/
 # if you want to learn more about it.
-nav: 
+nav:
 - modules/ROOT/nav.adoc
+- modules/manuals/nav.adoc

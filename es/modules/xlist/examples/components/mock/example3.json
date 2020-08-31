@@ -1,0 +1,27 @@
+[
+    {
+        "id": "mock4",
+        "class": "mock",
+        "name": "mockup 50/50",
+        "resources": [
+            "ip4"
+        ],
+        "source": "true,false",
+        "opts": {
+            "reason": "hello caracola",
+            "ttl": 10,
+            "lazy": 100
+        }
+    },
+    {
+        "id": "mock5",
+        "class": "mock",
+        "name": "mockup fail forever",
+        "resources": [
+            "ip4"
+        ],
+        "opts": {
+            "fail": true
+        }
+    }
+]

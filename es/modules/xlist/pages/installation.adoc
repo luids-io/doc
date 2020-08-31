@@ -1,0 +1,150 @@
+= Instalación
+include::{partialsdir}/attributes-es.adoc[]
+//ifdef::env-site,env-github[:toc:]
+
+El paquete de software *xlist* se encuentra precompilado para los siguientes sistemas operativos y arquitecturas:
+
+|===
+| *OS*    | `amd64` | `arm` | `arm64`
+
+| Linux   | X       | X     | X
+
+| Windows | X       |       |
+
+| MacOS   | X       |       |
+
+| FreeBSD | X       |       |
+
+| OpenBSD | X       |       |
+
+|===
+
+Puede ver todas las versiones y sus ficheros de descarga en: https://github.com/luids-io/xlist/releases
+
+El software viene en forma de ejecutables compilados estáticamente. Esto hace que sea muy sencillo de desplegar en cualquier entorno ya que no es necesario instalar ningún tipo de dependencia adicional. Aun así, es conveniente utilizar el instalador para obtener una instalación estandarizada.
+
+[[installer]]
+== Instalador
+
+Actualmente sólo hay instalador disponible para _GNU/Linux_. Para instalar, simplemente copie y pegue el siguiente contenido en una shell.
+
+[source,bash]
+.Instalación de xlist mediante instalador
+----
+RELEASE="v0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+wget $DOWNLOAD_URI  -O installer_xlist.sh
+chmod 755 installer_xlist.sh
+sudo ./installer_xlist.sh
+----
+
+El instalador por defecto NO sobreescribe los binarios y, por lo tanto, no actualizará el software con la última versión si ya existiese una. Si desea que se sobreescriban, deberá ejecutar el instalador con el modificador `-o`.
+
+Por defecto el script de instalación instalará los binarios de la arquitectura `amd64`, si desea instalar una versión del software diferente o arquitectura diferente (como puede ser si estamos ejecutando el instalador en una _Raspberry Pi_), podrá hacerlo o bien editando el fichero del instalador y la variable `ARCH` definida en el instalador o simplemente definiendo explícitamente la variable en el contexto del instalador.
+
+.Lanzando el instalador con otra arquitectura
+[source,bash]
+----
+sudo ARCH=arm64 ./installer_xlist.sh
+----
+
+TIP: En las distribuciones basadas en Debian, es posible conocer la arquitectura del sistema con el comando `dpkg --print-architecture`
+
+Al ejecutar el instalador se indican los pasos que realizará. Para que el proceso de instalación continúe simplemente deberá responder con un `y`.
+
+.Ejemplo de ejecución del instalador
+[source,console]
+----
+$ sudo ./installer.sh
+
+======================
+- luIDS installer:
+   xlist v0.0.1
+======================
+
+Warning! This script will commit the following changes to your system:
+. Download and install binaries in '/usr/local/bin'
+. Create system group 'luids'
+. Create system user 'luxlist'
+. Create data dirs in '/var/lib/luids'
+. Create cache dirs in '/var/cache/luids'
+. Create config dirs in '/etc/luids'
+. Copy systemd configurations to '/etc/systemd/system'
+
+Are you sure? (y/n) y
+
+* Downloading and installing binaries... OK
+* Creating system group... OK
+* Creating system user... OK
+* Creating data dirs... OK
+* Creating cache dirs... OK
+* Creating base config... OK
+* Creating service config... OK
+* Installing systemd services... OK
+* Installing helper scripts... OK
+
+Installation success!. You can see /tmp/ins-JNhlDd/installer.log for details.
+----
+
+El instalador no habilita el servicio en systemd, podrá iniciarlo con:
+
+[source, bash]
+----
+systemctl start luids-xlget
+systemctl start luids-xlistd
+----
+
+NOTE: En caso de que su sistema no disponga de systemd, el instalador simplemente no instalará los servicios.
+
+TIP: Es posible ejecutar múltiples instancias de _xlistd_ con diferentes configuraciones. Para ello está disponible el script systemd `xlistd@.service`
+
+[[docker]]
+== Docker
+
+[source,console]
+----
+docker pull luids/xlistd
+docker pull luids/xlget
+----
+
+[[manual]]
+== Binarios
+
+[[manual-binary]]
+=== Binarios precompilados
+
+Descargue los binarios utilizando un navegador en la siguiente dirección: https://github.com/luids-io/xlist/releases
+
+O bien simplemente copie y pegue lo siguiente en una shell, sustituyendo el sistema operativo y la arquitectura definida en los parámetros `OS` y `ARCH` si fuese necesario.
+
+[source,bash]
+----
+RELEASE="v0.0.1"
+OS="linux"
+ARCH="amd64"
+DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/xlist_${RELEASE}_${OS}_${ARCH}.tgz"
+wget $DOWNLOAD_URI -O xlist_binaries.tgz
+tar zxvf xlist_binaries.tgz
+----
+
+[[manual-sources]]
+=== Compilar las fuentes
+
+Para poder compilar es necesario tener instalado compilador de _Go_ (_1.14_), _Git_ y de la utilidad _make_.
+
+Para compilar bastará ejecutar:
+
+[source,bash]
+----
+git clone https://github.com/luids-io/xlist.git
+cd xlist
+make
+----
+
+Dentro del directorio `bin` recién creado, se encontrarán los binarios compilados.
+
+ifdef::env-site,env-github[]
+A continuación: xref:configuration.adoc[Configuración]
+endif::env-site,env-github[]

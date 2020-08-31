@@ -1,0 +1,68 @@
+[[wrapper-score]]
+= score
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El envoltorio *score* agrega una puntuación a las respuestas afirmativas del componente al que envuelve.
+
+=== Configuración
+
+* El valor de `class` debe de ser `score`.
+* Admite campos opcionales en `opts`.
+
+[[score-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _score_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `value`
+| _int_
+| puntuación que agrega a la respuesta
+
+| `matches`
+| _[]{`expr`: regexp, `value`: int}_
+| si la razón que evalúa cumple la expresión regular, agrega la puntuación.  Si múltiples expresiones se aplican, entonces las puntuaciones suman.  Si ninguna expresión se aplica, entonces se usará el `value` si se ha definido.
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+[[score-example1]]
+.Ejemplo de _score_
+[source,json]
+----
+include::{examplesdir}/wrappers/score/example1.json[]
+----
+
+El ejemplo <<score-example1>> responderá de la siguiente forma:
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: true,"[score]10[/score]mock response",0 (875.219µs)
+----
+
+
+=== Uso avanzado
+
+[[score-example2]]
+.Ejemplo de _score_ con `matches`
+[source,json]
+----
+include::{examplesdir}/wrappers/score/example2.json[]
+----
+
+El ejemplo <<score-example2>> responderá de la siguiente forma:
+
+[source,console]
+----
+$ xlistc 127.0.0.2
+ip4,127.0.0.2: true,"[score]45[/score]ZEN2: Direct UBE sources, spam operations & spam services;ZEN10: End-user Non-MTA IP addresses set by ISP outbound mail policy;ZEN4: CBL (3rd party exploits such as proxies, trojans, etc.)",60 (94.529916ms)
+----

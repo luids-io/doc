@@ -1,0 +1,5 @@
+= Siguientes pasos
+
+TODO
+
+include::{partialsdir}/attributes-es.adoc[]

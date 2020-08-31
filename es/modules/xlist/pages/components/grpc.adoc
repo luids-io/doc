@@ -1,0 +1,32 @@
+[[component-grpc]]
+= grpc
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *grpc* permite la creación de RBLs que utiliza la _API XList_ de un servidor remoto.
+
+=== Configuración
+
+* El valor de `class` debe de ser `grpc`.
+* Admite todos los tipos de recursos en el campo `resources`.
+* El campo `source` es obligatorio y debe contener la URI del servidor.
+* Es posible configurar los parámetros `tls`.
+
+== Ejemplos de uso
+
+=== Uso básico
+
+Para crear una lista *grpc* es necesario definir el identificador, la clase `grpc` y los tipos de recurso que va a ofrecer.
+
+[[grpc-example1]]
+.Ejemplo de lista _grpc_
+[source,json]
+----
+include::{examplesdir}/components/grpc/example1.json[]
+----
+
+WARNING: Ten cuidado de incluir una referencia al mismo servidor en la configuración ya que se puede crear un bucle y en este momento no hay desarrollado un mecanismo de detección de bucles.

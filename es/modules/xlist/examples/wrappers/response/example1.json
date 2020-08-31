@@ -1,0 +1,22 @@
+[
+    {
+        "id": "response1",
+        "class": "mock",
+        "resources": [
+            "ip4"
+        ],
+        "source": "true",
+        "opts": {
+            "reason": "mock response"
+        },
+        "wrappers": [
+            {
+                "class": "response",
+                "opts": {
+                    "reason": "response1 response",
+                    "ttl": 30
+                }
+            }
+        ]
+    }
+]

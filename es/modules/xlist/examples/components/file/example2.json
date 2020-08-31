@@ -1,0 +1,12 @@
+[
+    {
+        "id": "file2",
+        "class": "file",
+        "name": "File list with explicit source",
+        "resources": [
+            "ip4",
+            "domain"
+        ],
+	"source": "testfile1.xlist"
+    }
+]

@@ -1,0 +1,10 @@
+[
+    {
+        "id": "dnsxl1",
+        "class": "dnsxl",
+        "resources": [
+            "ip4"
+        ],
+        "source": "b.barracudacentral.org"
+    }
+]

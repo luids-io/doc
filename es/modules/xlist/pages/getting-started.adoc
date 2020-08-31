@@ -1,0 +1,283 @@
+= Empezando
+include::{partialsdir}/attributes-es.adoc[]
+
+A continuación veremos un pequeño tutorial en el que instalaremos un pequeño sistema de listas negras en un servidor GNU/Linux. El objetivo de este tutorial es familiarizar al usuario con las herramientas y mostrar una pequeña parte de lo que nos ofrece el software, si desea ver su uso en algún escenario "real" puede ver alguna de las guías disponibles.
+
+== Instalando y probando
+
+Usaremos el instalador del paquete, para ello simplemente copiaremos y pegaremos el siguiente contenido en una shell.
+
+[source,bash]
+----
+RELEASE="v0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+wget $DOWNLOAD_URI -O installer_xlist.sh
+chmod 755 installer_xlist.sh
+sudo ./installer_xlist.sh -u
+----
+
+El instalador instala unos scripts `systemd` para la inicialización de los servicios, pero no los inicia ni activa, esto debe hacerlo explícitamente el administrador de sistemas. Para ello lo inicializaremos con `systemctl`.
+
+[source,bash]
+----
+systemctl start luids-xlistd
+----
+
+Podemos ver que está funcionando, utilizando el comando `xlistc`.
+
+[source,console]
+----
+$ xlistc
+[] (3.904544ms)
+----
+
+== Nuestra primera lista negra
+
+En una instalación estándar, la configuración del servicio `xlistd` se realiza en el fichero `/etc/luids/xlist/xlistd.toml`. Dentro de dicho fichero se hace referencia a la definición del servicio que, en la instalación estándar, se encuentra en el fichero `/etc/luids/xlist/services.json`. Lo configuraremos para que utilice una lista negra que dejaremos en `/var/lib/luids/xlist/my-blacklist.xlist`.
+
+.Contenido de `/etc/luids/xlist/services.json`
+[source,json]
+----
+[
+  {
+    "id": "root",
+    "class": "file",
+    "resources": [ "ip4", "domain" ],
+    "source": "my-blacklist.xlist",
+    "opts": { "reason": "found in 'my-blacklist'" }
+  }
+]
+----
+
+.Contenido de `/var/lib/luids/xlist/my-blacklist.xlist`
+[source]
+----
+ip4,plain,1.2.3.4
+ip4,cidr,10.0.0.0/8
+domain,plain,www.badsite.com
+domain,sub,malware.com
+----
+
+Reiniciaremos el servicio...
+
+[source,bash]
+----
+systemctl restart luids-xlistd
+----
+
+Probaremos nuestro sistema de listas negras recién configurado...
+
+[source,console]
+----
+$ xlistc
+[ip4 domain] (3.434562ms)
+$ xlistc 1.2.3.4 10.2.1.54 1.2.3.5
+ip4,1.2.3.4: true,"found in 'my-blacklist'",0 (388.339µs)
+ip4,10.2.1.54: true,"found in 'my-blacklist'",0 (372.635µs)
+ip4,1.2.3.5: false,"",0 (654.919µs)
+$ xlistc www.badsite.com anything.malware.com www.google.com
+domain,www.badsite.com: true,"found in 'my-blacklist'",0 (392.013µs)
+domain,anything.malware.com: true,"found in 'my-blacklist'",0 (606.256µs)
+domain,www.google.com: false,"",0 (348.862µs)
+----
+
+== Usando fuentes de internet
+
+Hemos visto cómo configurar una lista negra que gestionamos nosotros, sin embargo es poco práctico. La verdadera potencia de _xlistd_ radica en la posibilidad de combinar múltiples orígenes ya existentes de información. Para facilitar esta labor al usuario, se ha confeccionado la https://github.com/luids-io/xlist-database[base de datos xlist].
+
+Para construir nuestra lista, vamos a utilizar listas negras que descargaremos de internet y para esto utilizaremos la utilidad `xlget`. Su configuración, en la instalación estándar, radica en el fichero `/etc/luids/xlist/xlget.toml` y en este fichero se hace referencia al fichero `/etc/luids/xlist/sources.json`, que es de donde obtendrá las fuentes.
+
+.Contenido de `/etc/luids/xlist/sources.json`
+[source,json]
+----
+[
+  {
+    "id": "blocklist.site-malware",
+    "sources": [
+      {
+        "format": "hosts",
+        "resources": [ "ip4", "domain" ],
+        "uri": "https://raw.githubusercontent.com/blocklistproject/Lists/master/malware.txt"
+      }
+    ],
+    "update": "24h"
+  },
+  {
+    "id": "blocklist.site-phishing",
+    "sources": [
+      {
+        "format": "hosts",
+        "resources": [ "domain" ],
+        "uri": "https://raw.githubusercontent.com/blocklistproject/Lists/master/phishing.txt"
+        }
+    ],
+    "update": "24h"
+  },
+  {
+    "id": "blocklist.site-ransomware",
+    "sources": [
+      {
+        "format": "hosts",
+        "resources": [ "domain" ],
+        "uri": "https://raw.githubusercontent.com/blocklistproject/Lists/master/ransomware.txt"
+      }
+    ],
+    "update": "24h"
+  }
+]
+----
+
+Probaremos que la configuración es correcta con `xlget_check` y ejecutaremos un update con `xlget_update`.
+
+[source,console]
+----
+# xlget_check
+INFO[0000] xlget (version: 0d16cf2 build: 2020-08-13T17:57:00+0200)
+configuration ok
+needs update: 'blocklist.site-malware' 'blocklist.site-phishing' 'blocklist.site-ransomware'
+root@luids-test:~# xlget_update
+INFO[0000] xlget (version: 0d16cf2 build: 2020-08-13T17:57:00+0200)
+INFO[0000] getting 'blocklist.site-malware'
+INFO[0012] summary 'blocklist.site-malware': updated=true ip4=20643 ip6=0 domain=697557 md5=0 sha1=0 sha256=0
+INFO[0012] getting 'blocklist.site-phishing'
+INFO[0016] summary 'blocklist.site-phishing': updated=true ip4=0 ip6=0 domain=189968 md5=0 sha1=0 sha256=0
+INFO[0016] getting 'blocklist.site-ransomware'
+INFO[0016] summary 'blocklist.site-ransomware': updated=true ip4=0 ip6=0 domain=1903 md5=0 sha1=0 sha256=0
+INFO[0016] xlget finished
+----
+
+Podremos comprobar que se han descargado correctamente las listas en `/var/lib/luids/xlist`
+
+[source,console]
+----
+# ls -lah /var/lib/luids/xlist/
+total 30M
+drwxrwx--T 2 root    luids 4,0K ago 13 19:09 .
+drwxr-xr-x 3 root    root  4,0K ago 13 18:03 ..
+-rw-r--r-- 1 root    root    90 ago 13 18:36 my-blacklist.xlist
+-rw-r--r-- 1 luxlist luids  24M ago 13 19:08 blocklist.site-malware.xlist
+-rwxr-xr-x 1 luxlist luids   32 ago 13 19:08 blocklist.site-malware.xlist.md5
+-rw-r--r-- 1 luxlist luids 6,4M ago 13 19:09 blocklist.site-phishing.xlist
+-rwxr-xr-x 1 luxlist luids   32 ago 13 19:09 blocklist.site-phishing.xlist.md5
+-rw-r--r-- 1 luxlist luids  75K ago 13 19:09 blocklist.site-ransomware.xlist
+-rwxr-xr-x 1 luxlist luids   32 ago 13 19:09 blocklist.site-ransomware.xlist.md5
+----
+
+Iniciaremos el servicio automático de actualización de `xlget`
+
+[source,bash]
+----
+systemctl start luids-xlget
+----
+
+Ahora necesitamos reconfigurar nuestro servicio `xlistd` para que utilice las listas.
+
+.Contenido de `/etc/luids/xlist/services.json`
+[source,json]
+----
+[
+  {
+    "id": "my-blacklist",
+    "class": "file",
+    "resources": [ "ip4", "domain" ],
+    "opts": {
+      "autoreload": true,
+      "reason": "found in 'my-blacklist'"
+    }
+  },
+  {
+    "id": "blocklist.site-malware",
+    "class": "file",
+    "resources": [ "ip4", "domain" ],
+    "opts": {
+      "autoreload": true,
+      "reason": "found in 'blocklist.site-malware'"
+    }
+  },
+  {
+    "id": "blocklist.site-phishing",
+    "class": "file",
+    "resources": [ "domain" ],
+    "opts": {
+      "autoreload": true,
+      "reason": "found in 'blocklist.site-phishing'"
+    }
+  },
+  {
+    "id": "blocklist.site-ransomware",
+    "class": "file",
+    "resources": [ "domain" ],
+    "opts": {
+      "autoreload": true,
+      "reason": "found in 'blocklist.site-ransomware'"
+    }
+  },
+  {
+    "id": "root",
+    "class": "selector",
+    "resources": [ "ip4", "domain" ],
+    "contains": [
+      {
+        "id": "ip4-blacklist",
+        "class": "sequence",
+        "resources": [ "ip4" ],
+        "contains": [
+          { "id": "my-blacklist"              },
+          { "id": "blocklist.site-malware"    }
+        ]
+      },
+      {
+        "id": "domain-blacklist",
+        "class": "sequence",
+        "resources": [ "domain" ],
+        "contains": [
+          { "id": "my-blacklist"              },
+          { "id": "blocklist.site-malware"    },
+          { "id": "blocklist.site-phishing"   },
+          { "id": "blocklist.site-ransomware" }
+        ]
+      }
+    ]
+  }
+]
+----
+
+Podremos probar que la configuración es correcta antes de reiniciar el servicio...
+
+[source,console]
+----
+# xlistd --config /etc/luids/xlist/xlistd.toml --dry-run
+INFO[0000] xlistd (version: 0d16cf2 build: 2020-08-13T17:56:46+0200)
+configuration seems ok
+# systemctl restart luids-xlistd
+----
+
+Comprobaremos el correcto funcionamiento de nuestro nuevo servicio chequeando la existencia de alguno de los dominios que se encuentran en las listas enumeradas. Por ejemplo...
+
+[source,console]
+----
+$ xlistc www.auth-google.com www.badsite.com www.google.com
+domain,www.auth-google.com: true,"found in 'blocklist.site-phishing'",0 (421.402µs)
+domain,www.badsite.com: true,"found in 'my-blacklist'",0 (794.537µs)
+domain,www.google.com: false,"",0 (531.819µs)
+----
+
+Una vez que tenemos todo bien configurado, consolidaremos los servicios.
+
+[source,bash]
+----
+systemctl enable luids-xlistd
+systemctl enable luids-xlget
+----
+
+== Siguientes pasos
+
+En este tutorial hemos visto la construcción de un sencillo sistema de listas negras, pero no hemos entrado a entender el detalle de su configuración. Tampoco hemos visto muchas de las funcionalidades que el software *xlist* nos ofrece como el uso de listas en zonas _DNS_, geolocalización, listas blancas, puntuaciones... Todo eso se verá en los siguientes capítulos.
+
+TIP: La potencia real de los servicios *xlist* radican de su combinación con otros servicios como servicio DNS, analizadores de tráfico, etc. Puede ver algunas de las posibles configuraciones se encuentran en el apartado de guías de despliegue.
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

@@ -1,0 +1,49 @@
+[
+    {
+        "id": "wbefore1",
+        "class": "wbefore",
+        "name": "example wbefore",
+        "resources": [
+            "ip4"
+        ],
+        "contains": [
+            {
+                "id": "whitelist",
+                "class": "mem",
+                "resources": [
+                    "ip4"
+                ],
+                "opts": {
+                    "data": [
+                        {
+                            "type": "ip4",
+                            "value": "1.1.1.1"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "blacklist",
+                "class": "mem",
+                "resources": [
+                    "ip4"
+                ],
+                "opts": {
+                    "data": [
+                        {
+                            "type": "ip4",
+                            "value": "1.1.1.1"
+                        },
+                        {
+                            "type": "ip4",
+                            "value": "2.2.2.2"
+                        }
+                    ]
+                }
+            }
+        ],
+        "opts": {
+            "reason": "wbefore1 response"
+        }
+    }
+]

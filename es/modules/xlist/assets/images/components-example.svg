@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="34cm" height="29cm" viewBox="-422 39 668 570" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs/>
+  <g id="Fondo">
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-186.996" y="384" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-110.496" y="404.925">
+      <tspan x="-110.496" y="404.925">root</tspan>
+      <tspan x="-110.496" y="420.925">&lt;&lt;selector&gt;&gt;</tspan>
+      <tspan x="-110.496" y="436.925">[ip4,domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-319.696" y="286.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-243.196" y="307.425">
+      <tspan x="-243.196" y="307.425">ip-service</tspan>
+      <tspan x="-243.196" y="323.425">&lt;&lt;wbefore&gt;&gt;</tspan>
+      <tspan x="-243.196" y="339.425">[ip4]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-419.696" y="189.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-343.196" y="210.425">
+      <tspan x="-343.196" y="210.425">my-whitelist-ip4</tspan>
+      <tspan x="-343.196" y="226.425">&lt;&lt;file&gt;&gt;</tspan>
+      <tspan x="-343.196" y="242.425">[ip4]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-250.696" y="189.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-174.196" y="210.425">
+      <tspan x="-174.196" y="210.425">blacklist-ip4</tspan>
+      <tspan x="-174.196" y="226.425">&lt;&lt;parallel&gt;&gt;</tspan>
+      <tspan x="-174.196" y="242.425">[ip4]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-420.696" y="101.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-344.196" y="122.425">
+      <tspan x="-344.196" y="122.425">my-blacklist-ip4</tspan>
+      <tspan x="-344.196" y="138.425">&lt;&lt;file&gt;&gt;</tspan>
+      <tspan x="-344.196" y="154.425">[ip4]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-86.696" y="41.5002" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-10.196" y="62.4252">
+      <tspan x="-10.196" y="62.4252">remote1-blacklist</tspan>
+      <tspan x="-10.196" y="78.4252">&lt;&lt;grpc&gt;&gt;</tspan>
+      <tspan x="-10.196" y="94.4252">[ip4,domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="91.304" y="40.5002" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="167.804" y="61.4252">
+      <tspan x="167.804" y="61.4252">remote2-blacklist</tspan>
+      <tspan x="167.804" y="77.4252">&lt;&lt;dnsxl&gt;&gt;</tspan>
+      <tspan x="167.804" y="93.4252">[ip4,domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-59.696" y="287.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="16.804" y="308.425">
+      <tspan x="16.804" y="308.425">domain-service</tspan>
+      <tspan x="16.804" y="324.425">&lt;&lt;wbefore&gt;&gt;</tspan>
+      <tspan x="16.804" y="340.425">[domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-82.696" y="189.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-6.196" y="210.425">
+      <tspan x="-6.196" y="210.425">my-whitelist-domain</tspan>
+      <tspan x="-6.196" y="226.425">&lt;&lt;file&gt;&gt;</tspan>
+      <tspan x="-6.196" y="242.425">[domain]</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="86.304" y="189.5" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="162.804" y="210.425">
+      <tspan x="162.804" y="210.425">blacklist-domain</tspan>
+      <tspan x="162.804" y="226.425">&lt;&lt;parallel&gt;&gt;</tspan>
+      <tspan x="162.804" y="242.425">[domain]</tspan>
+    </text>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-154.038" y1="384.508" x2="-191.808" y2="356.757"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-197.852,352.316 -186.833,354.208 -191.808,356.757 -192.754,362.267 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-66.3326" y1="383.022" x2="-35.1182" y2="359.36"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-29.1414,354.829 -34.09,364.855 -35.1182,359.36 -40.1309,356.886 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-277.73" y1="285.503" x2="-301.674" y2="262.277"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-307.057,257.055 -296.398,260.428 -301.674,262.277 -303.361,267.606 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-219.368" y1="285.503" x2="-203.668" y2="263.431"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-199.32,257.32 -201.043,268.367 -203.668,263.431 -209.191,262.57 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-238.776" y1="188.571" x2="-270.97" y2="171.906"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-277.63,168.458 -266.451,168.615 -270.97,171.906 -271.048,177.495 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-137.07" y1="188.496" x2="-54.5502" y2="114.027"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-48.9823,109.002 -53.0564,119.414 -54.5502,114.027 -59.756,111.99 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-97.3378" y1="188.515" x2="82.0201" y2="110.374"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="88.8959,107.378 81.7252,115.956 82.0201,110.374 77.7311,106.789 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="123.64" y1="188.496" x2="36.3658" y2="113.833"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="30.6668,108.958 41.5159,111.659 36.3658,113.833 35.0152,119.258 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="162.804" y1="189.5" x2="165.95" y2="116.204"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="166.271,108.711 170.838,118.916 165.95,116.204 160.847,118.487 "/>
+    </g>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="-251.696" y="40.5002" width="153" height="65" rx="0" ry="0"/>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-175.196" y="61.2383">
+      <tspan x="-175.196" y="61.2383">geoip2-spanish</tspan>
+      <tspan x="-175.196" y="77.2383">&lt;&lt;geoip2&gt;&gt;</tspan>
+      <tspan x="-175.196" y="93.2383">[ip4]</tspan>
+    </text>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-174.421" y1="188.515" x2="-174.906" y2="116.221"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-174.956,108.721 -169.889,118.687 -174.906,116.221 -179.889,118.755 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="8.94127" y1="286.498" x2="3.89128" y2="264.981"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="2.17764,257.679 9.33023,266.272 3.89128,264.981 -0.405242,268.557 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="66.7153" y1="286.498" x2="104.809" y2="260.928"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="111.036,256.748 105.52,266.473 104.809,260.928 99.9466,258.17 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" cx="-108.696" cy="517.75" rx="6" ry="6"/>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-132.696" y1="529.75" x2="-84.696" y2="529.75"/>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-108.696" y1="523.75" x2="-108.696" y2="553.75"/>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-108.696" y1="553.75" x2="-132.696" y2="579.75"/>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-108.696" y1="553.75" x2="-84.696" y2="579.75"/>
+      <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="-108.696" y="603.65">
+        <tspan x="-108.696" y="603.65"></tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="-109.417" y1="498.755" x2="-109.931" y2="459.61"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="-110.029,452.11 -104.898,462.044 -109.931,459.61 -114.897,462.175 "/>
+    </g>
+    <text font-size="12.7998" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="-101.696" y="484.25">
+      <tspan x="-101.696" y="484.25">REQUEST</tspan>
+    </text>
+  </g>
+</svg>

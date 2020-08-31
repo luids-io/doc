@@ -1,0 +1,14 @@
+[[wrapper-metrics]]
+= metrics
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El envoltorio *metrics* habilita las métricas con _Prometheus_ de las peticiones realizadas al componente.
+
+=== Configuración
+
+* El valor de `class` debe de ser `metrics`.

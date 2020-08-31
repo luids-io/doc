@@ -1,0 +1,61 @@
+[cols="1,3,1,1"]
+|===
+| Nombre | Descripción | Recursos | Contenedor
+
+| xref:components/mock.adoc[mock]
+| Se usa para realizar pruebas
+| _Todos_
+| _No_
+
+| xref:components/mem.adoc[mem]
+| Chequea lista en memoria
+| _Todos_
+| _No_
+
+| xref:components/file.adoc[file]
+| Chequea lista en fichero
+| _todos_
+| _No_
+
+| xref:components/dnsxl.adoc[dnsxl]
+| Chequea en zonas dnsxl
+| _ip4_ _ip6_ _domain_
+| _No_
+
+| xref:components/apicheck.adoc[apicheck]
+| Chequea en una lista grpc remota definida en `ids.api`
+| _Todos_
+| _No_
+
+
+| xref:components/grpc.adoc[grpc]
+| Chequea en una lista grpc remota
+| _Todos_
+| _No_
+
+| xref:components/geoip2.adoc[geoip2]
+| Emplea geolocalización
+| _ip4_
+| _No_
+
+| xref:components/sequence.adoc[sequence]
+| Chequea en las listas de forma secuencial
+| _Todos_
+| _Sí_
+
+| xref:components/parallel.adoc[parallel]
+| Chequea en las listas en paralelo
+| _Todos_
+| _Sí_
+
+| xref:components/wbefore.adoc[wbefore]
+| Chequea primero en una lista blanca
+| _Todos_
+| _Sí_
+
+| xref:components/selector.adoc[selector]
+| Selecciona
+| _Todos_
+| _Sí_
+
+|===

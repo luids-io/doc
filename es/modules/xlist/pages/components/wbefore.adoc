@@ -1,0 +1,57 @@
+[[component-wbefore]]
+= wbefore
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *wbefore* (white before) permite la creación de una RBL que satisface un caso de uso muy general:
+
+. Comprueba en una lista blanca si existe un determinado recurso. Si el recurso existe, se trata de un recurso fiable y devuelve inmediatamente que no lo encuentra.
+. Al no encontrarse en la lista blanca, comprueba en la lista negra, retornando su existencia si así fuese.
+
+=== Configuración
+
+* El valor de `class` debe de ser `wbefore`.
+* Admite todos los tipos de recursos en el campo `resources`.
+* Es necesario emplear el campo `contains` definir las listas sobre las que realizará la comprobación.
+* Admite campos opcionales en `opts`.
+
+[[wbefore-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _wbefore_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `reason`
+| _string_
+| motivo que devolverá en caso de que resultado afirmativo
+
+|===
+
+== Ejemplos de uso
+
+Para crear una lista *wbefore* es necesario definir el identificador, la clase `wbefore`, los tipos de recurso que va a ofrecer (el componente soporta todos) y emplear la opción estándar `contains` para agregar las lista blanca y la lista negra.
+
+WARNING: Es obligatorio que la lista de este tipo contenga dos listas, y además en el orden especificado: primero la lista blanca y luego la negra.
+
+WARNING: Las listas agregadas deben soportar _al menos_ los mismos tipos de recursos definidos en la lista padre.
+
+[[wbefore-example1]]
+.Ejemplo de lista _wbefore_
+[source,json]
+----
+include::{examplesdir}/components/wbefore/example1.json[]
+----
+
+La salida del <<wbefore-example1>> es la siguiente:
+
+[source,console]
+----
+$ xlistc 1.1.1.1
+ip4,1.1.1.1: false,"",0 (726.381µs)
+$ xlistc 2.2.2.2
+ip4,2.2.2.2: true,"wbefore1 response",0 (656.024µs)
+----

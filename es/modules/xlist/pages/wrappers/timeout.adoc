@@ -1,0 +1,29 @@
+[[wrapper-timeout]]
+= timeout
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El envoltorio *timeout* define un timeout a las consultas enviadas al componente.
+
+=== Configuración
+
+* El valor de `class` debe de ser `timeout`.
+* Admite campos opcionales en `opts`.
+
+[[timeout-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _timeout_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `timeout`
+| _int_
+| milisegundos de timeout
+
+|===
+
+El valor por defecto de `timeout` si no se especifica es de `300` milisegundos.

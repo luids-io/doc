@@ -1,0 +1,63 @@
+= Gestión de fuentes
+include::{partialsdir}/attributes-es.adoc[]
+
+
+Cuando se inicializa *xlget* comprueba en un fichero de fuentes si es necesario realizar el proceso de descarga y conversión (si ha caducado el tiempo desde la última ejecución).  En caso afirmativo lleva a cabo las siguientes fases.
+
+. *Descarga*: descarga la información de la fuente en una caché temporal.
+. *Conversión*: convierte la información a un fichero en formato xlist.
+. *Despliegue*: despliega el fichero xlist en la trayectoria definida, pudiendo llamar a un programa adicional.
+. *Limpieza*: elimina los ficheros temporales.
+
+.Flujo de datos simplificado de xlget
+image::xlget-flow.svg[flujo de datos simplificado de xlget,width=50%,pdfwidth=40%]
+
+Como se vio en el apartado de configuración de xlget, mediante el parámetro `sources` indicamos el fichero donde se indican las fuentes que se van a utilizar.
+
+La manera más sencilla de explicarlo es mediante un ejemplo y analizando los campos.
+
+[source,json]
+----
+[
+ {
+  "id": "quidsup.net-malware", //<1>
+  "sources": [ //<2>
+    {
+      "uri": "https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-malware.txt", //<3>
+      "destination": "notrack-malware.txt", //<4>
+      "format": "flat", //<5>
+      "resources": [ "domain" ] //<6>
+    }
+  ],
+  "update": "24h", //<7>
+  "disabled": false //<8>
+ }
+]
+----
+<1> `id` es el identificador del origen. Se usará para crear directorios temporales en caché y para el nombre del fichero de salida
+<2> `sources` es un array en el que definiremos las fuentes. Es un array ya que un origen puede tener múltiples fuentes que descargar
+<3> `uri`, dirección de la fuente. Actualmente sólo hay implementados dos tipos de descarga:
+
+. _http/https_: descargará desde un servidor
+. _file_: utilizará un fichero del sistema local
+
+<4> `destination`, nombre del fichero al descargarse. Es opcional pero puede necesitarse en dos casos:
+
+. Existen múltiples fuentes del mismo origen con el mismo nombre. Esto hace que sobreescriba una sobre otra y no se procese correctamente.
+. El sistema de descarga no es capaz de asignarle un nombre. Esto ocurre en algunos casos, y depende de la URI y la cabecera de respuesta del servidor. Para más información ver https://github.com/cavaliercoder/grab[la documentación del gestor de descargas].
+
+<5> `format` es el formato en el que se encuentra la fuente. Es necesario para poder procesar y convertir el fichero de salida al formato común. Actualmente hay dos formatos soportados:
+
+. _flat_: es cuando un fichero simplemente es un listado de elementos.
+. _hosts_: es un fichero en formato `/etc/hosts`. El conversor eliminará automáticamente todos los `localhost`, `127.0.0.1`, etc.
+
+<6> `resources` son los tipos de recursos que hay que extraer. Esto es importante, ya que el fichero puede contener diferentes tipos, pero mediante este parámetro de tipo array, se indicará de manera explícita qué tipos de recursos se han de extraer.
+<7> `update` determina la frecuencia de actualización. _xlget_ sólo descargará cuando haya pasado el tiempo indicado en este campo desde la última descarga.
+<8> `disabled` indica si se encuentra deshabilitada la entrada. Si es `true`, entonces _xlget_ la ignorará.
+
+Cuando se ejecute _xlget_, creará un fichero de salida con el nombre de la lista y la extensión _.xlist_ en el directorio que se haya indicado en la opción `outputdir` y reemplazará el existente si el hash md5 no coincide o no existe hash (de esta forma hace innecesaria la recarga del fichero por parte de un componente _file_ del demonio _xlist_).
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:next-steps.adoc[Siguientes pasos]
+endif::env-site,env-github[]

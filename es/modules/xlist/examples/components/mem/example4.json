@@ -1,0 +1,32 @@
+[
+    {
+        "id": "mem4",
+        "class": "mem",
+        "name": "Memory list from data with reason",
+        "resources": [
+            "ip4",
+            "domain"
+        ],
+        "opts": {
+            "reason": "found in data",
+            "data": [
+                {
+                    "type": "ip4",
+                    "value": "1.1.1.1"
+                },
+                {
+                    "type": "ip4",
+                    "value": "1.2.3.4"
+                },
+                {
+                    "type": "domain",
+                    "value": "www.micasa.com"
+                },
+                {
+                    "type": "cidr4",
+                    "value": "12.1.1.0/24"
+                }
+            ]
+        }
+    }
+]

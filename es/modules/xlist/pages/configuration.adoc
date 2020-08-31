@@ -1,0 +1,101 @@
+= Configuración
+include::{partialsdir}/attributes-es.adoc[]
+//ifdef::env-site,env-github[:toc:]
+
+La configuración del software se realiza de la misma forma que el resto de componentes del sistema _^lu^IDS_, tal y como se describe en <<config-bootstrap>>. Luego, cada componente tiene sus propias secciones particulares como se describirá en <<config-xlistd>> y <<config-xlget>>.
+
+ifdef::env-site,env-github[]
+include::manuals:partial$config-bootstrap.adoc[leveloffset=1]
+endif::env-site,env-github[]
+
+ifndef::env-site,env-github[]
+include::{moduledir}/../manuals/pages/_partials/config-bootstrap.adoc[leveloffset=2]
+endif::env-site,env-github[]
+
+[[config-xlistd]]
+== Configuración `xlistd`
+
+[[config-xlistd-sections]]
+=== Secciones
+
+* <<options-args>>
+* <<options-xlistd>>
+* <<options-xlistd-service>>
+* <<options-xlistd-plugin-dnsxl>>
+* <<options-service-xlist-check>>
+* <<options-ids-api>>
+* <<options-server>>
+* <<options-health>>
+* <<options-log>>
+
+[[config-xlistd-examples]]
+=== Ejemplos
+
+.Ejemplo de `/etc/luids/xlist/xlistd.toml`
+[source,toml]
+----
+include::{examplesdir}/xlistd-default.toml[]
+----
+
+.Ejemplo completo de `/etc/luids/xlist/xlistd.toml`
+[source,toml]
+----
+include::{examplesdir}/xlistd-example1.toml[]
+----
+
+[[config-xlget]]
+== Configuración `xlget`
+
+[[config-xlget-sections]]
+=== Secciones
+
+* <<options-xlget-args>>
+* <<options-xlget>>
+* <<options-xlget-source>>
+* <<options-log>>
+
+[[config-xlget-examples]]
+=== Ejemplos
+
+.Ejemplo de `/etc/luids/xlist/xlget.toml`
+[source,toml]
+----
+include::{examplesdir}/xlget-example1.toml[]
+----
+
+[[config-reference]]
+== Referencia de configuración
+
+ifdef::env-site,env-github[]
+include::manuals:partial$options-args.adoc[leveloffset=2]
+include::partial$options-xlistd.adoc[leveloffset=2]
+include::partial$options-xlistd-service.adoc[leveloffset=2]
+include::partial$options-xlistd-plugin-dnsxl.adoc[leveloffset=2]
+include::partial$options-service-xlist-check.adoc[leveloffset=2]
+include::manuals:partial$options-ids-api.adoc[leveloffset=2]
+include::manuals:partial$options-server.adoc[leveloffset=2]
+include::manuals:partial$options-health.adoc[leveloffset=2]
+include::manuals:partial$options-log.adoc[leveloffset=2]
+include::partial$options-xlget-args.adoc[leveloffset=2]
+include::partial$options-xlget.adoc[leveloffset=2]
+include::partial$options-xlget-source.adoc[leveloffset=2]
+endif::env-site,env-github[]
+
+ifndef::env-site,env-github[]
+include::{moduledir}/../manuals/pages/_partials/options-args.adoc[leveloffset=3]
+include::{partialsdir}/options-xlistd.adoc[leveloffset=3]
+include::{partialsdir}/options-xlistd-service.adoc[leveloffset=3]
+include::{partialsdir}/options-xlistd-plugin-dnsxl.adoc[leveloffset=3]
+include::{partialsdir}/options-service-xlist-check.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-ids-api.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-server.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-health.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-log.adoc[leveloffset=3]
+include::{partialsdir}/options-xlget-args.adoc[leveloffset=3]
+include::{partialsdir}/options-xlget.adoc[leveloffset=3]
+include::{partialsdir}/options-xlget-source.adoc[leveloffset=3]
+endif::env-site,env-github[]
+
+ifdef::env-site,env-github[]
+A continuación: xref:service-definition.adoc[Definición del servicio]
+endif::env-site,env-github[]

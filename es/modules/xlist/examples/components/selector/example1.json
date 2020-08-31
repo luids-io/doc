@@ -1,0 +1,36 @@
+[
+    {
+        "id": "selector1",
+        "class": "selector",
+        "name": "example selector",
+        "resources": [
+            "ip4",
+            "domain"
+        ],
+        "contains": [
+            {
+                "id": "mock1",
+                "class": "mock",
+                "resources": [
+                    "ip4",
+                    "ip6"
+                ],
+                "source": "true",
+                "opts": {
+                    "reason": "mock1 response"
+                }
+            },
+            {
+                "id": "mock2",
+                "class": "mock",
+                "resources": [
+                    "domain"
+                ],
+                "source": "true",
+                "opts": {
+                    "reason": "mock2 response"
+                }
+            }
+        ]
+    }
+]

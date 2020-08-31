@@ -1,0 +1,83 @@
+[[component-file]]
+= file
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *file* permite la creación de RBLs que utiliza la información del contenido de un fichero en formato _xlist_, pudiendo recargar de forma automática la información si el fichero se modifica. Para ello, el componente utilizará internamente al componente xref:components/mem.adoc[mem].
+
+=== Configuración
+
+* El valor de `class` debe de ser `file`.
+* Admite `ip4`, `ip6` y `domain` en el campo `resources`.
+* El campo `source` NO es obligatorio e indica el path al fichero de base de datos. Si no se especifica, usará un fichero cuyo nombre sea el identificador con la extensión `.xlist`.
+* Admite campos opcionales en `opts`.
+
+
+[[file-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _file_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `reason`
+| _string_
+| motivo que devolverá en caso de resultado afirmativo
+
+| `autoreload`
+| _boolean_
+| comprobará cada cierto tiempo si ha cambiado el fichero y lo recargará
+
+| `unsafereload`
+| _boolean_
+| el proceso de recarga será inseguro, como contrapartida, ahorrará memoria durante el proceso
+
+| `reloadseconds`
+| _int_
+| tiempo en segundos entre comprobaciones de cambio de fichero
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+Para crear una lista *file* es necesario definir el identificador, la clase `file` y los tipos de recurso que va a ofrecer. El componente realizará la carga de datos durante su inicialización, cargando únicamente los tipos de recursos definidos e ignorando los demás que existan en el fichero. Por defecto, el componente no comprobará si se ha cambiado el fichero y no se actualizará a no ser que se reinicie el servicio.
+
+[[file-example1]]
+.Ejemplo de _file_
+[source,json]
+----
+include::{examplesdir}/components/file/example1.json[]
+----
+
+En la configuración del ejemplo, la lista del ejemplo responderá a todas las solicitudes de tipo `ip4` y `domain` en función de si existen en el fichero `file1.xlist` (como no se especifica el nombre, usa el identificador definido).
+
+[[file-example2]]
+.Ejemplo de _file_ con source
+[source,json]
+----
+include::{examplesdir}/components/file/example2.json[]
+----
+
+NOTE: El path definido en `source` puede ser relativo o absoluto. En caso de que sea relativo, se hará de acuerdo al parámetro de configuración `xlist.sourcesdir`. Si este parámetro no se indica, se usará el directorio actual.
+
+=== Uso avanzado
+
+Además del valor estándar de `source`, el componente ofrece soporte a las opciones de la tabla resumen <<file-table-opts>> que pueden alterar su comportamiento.
+
+[[file-example3]]
+.Ejemplo de uso de opciones en _file_
+[source,json]
+----
+include::{examplesdir}/components/file/example3.json[]
+----
+
+En el ejemplo, fíjese que tanto `file3` como `file4` utilizan la misma lista de origen, sin embargo `file3` únicamente cargará los recursos de tipo `ip4` y `file4` los recursos de tipo `domain`. Ambas listas comprobarán si se ha modificado el fichero pero en el caso de `file3` lo hará siguiendo el tiempo establecido por defecto (30 segundos), mientras que `file4` comprobará cada 60 segundos. Además `file3` hará la recarga "insegura".
+
+NOTE: La recarga segura funciona del siguiente forma: el componente crea internamente una nueva lista en memoria y carga todos los elementos del fichero en esa lista. Una vez que se ha realizado completamente la carga sin errores, sustituirá la lista que está sirviendo por la nueva.  En caso de que hubiera errores, lo notificaría vía _ping_ y no sustituiría la lista, asegurando el funcionamiento del servicio.
+
+NOTE: La recarga insegura reemplaza directamente la lista, ahorrando memoria al no ser necesarias ambas listas al mismo tiempo. En caso de que fallase la recarga, el componente quedaría con la lista cargada "a medias". En este caso el _ping_ también notificaría de la existencia del error.

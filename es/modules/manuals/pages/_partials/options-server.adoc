@@ -1,0 +1,27 @@
+[[options-server]]
+= Sección `server`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `allowed` | _[]string_ | No |
+|  Incluye el listado como orígenes permitidos para el uso del servicio.
+
+| `cacert` | _string_ | No |
+|  Utilizará la cadena como al certificado de la CA del servidor.
+
+| `certfile` | _string_ | No |
+|  Utilizará la cadena como trayectoria al certificado del servidor.
+
+| `clientauth` | _boolean_ | No | `false`
+|  Requiere la autenticación del certificado del cliente en el servicio.
+
+| `keyfile` | _boolean_ | No |
+|  Utilizará la cadena como trayectoria al fichero de clave privada del
+   servidor.
+
+| `listenuri` | _string_ | No | `tcp://127.0.0.1:58XX`
+|  Lanzará un servidor _GRPC_ escuchando en la uri.
+
+|===

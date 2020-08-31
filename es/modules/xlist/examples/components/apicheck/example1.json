@@ -1,0 +1,11 @@
+[
+    {
+        "id": "apicheck1",
+        "class": "apicheck",
+        "resources": [
+            "ip4",
+            "domain"
+        ],
+        "source": "xlist-malware"
+    }
+]

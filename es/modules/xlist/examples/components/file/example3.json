@@ -1,0 +1,30 @@
+[
+    {
+        "id": "file3",
+        "class": "file",
+        "name": "File list with ip resource",
+        "resources": [
+            "ip4"
+        ],
+        "source": "testfile1.xlist",
+        "opts": {
+            "reason": "ip found",
+            "autoreload": true,
+            "unsafereload": true
+        }
+    },
+    {
+        "id": "file4",
+        "class": "file",
+        "name": "File list with domain resource",
+        "resources": [
+            "domain"
+        ],
+        "source": "testfile1.xlist",
+        "opts": {
+            "reason": "domain found",
+            "autoreload": true,
+            "reloadseconds": 60
+        }
+    }
+]

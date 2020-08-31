@@ -1,0 +1,11 @@
+[
+    {
+        "id": "grpc1",
+        "class": "grpc",
+        "resources": [
+            "ip4",
+            "domain"
+        ],
+        "source": "tcp://127.0.0.1:5802"
+    }
+]

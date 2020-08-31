@@ -1,0 +1,10 @@
+[
+    {
+        "id": "geoip2_1",
+        "class": "geoip2",
+        "resources": [
+            "ip4"
+        ],
+        "source": "GeoLite2-Country.mmdb"
+    }
+]

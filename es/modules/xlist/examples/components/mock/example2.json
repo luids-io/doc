@@ -1,0 +1,22 @@
+[
+    {
+        "id": "mock2",
+        "class": "mock",
+        "name": "mockup true all",
+        "resources": [
+            "ip4",
+            "domain"
+        ],
+        "source": "true"
+    },
+    {
+        "id": "mock3",
+        "class": "mock",
+        "name": "mockup with sequence",
+        "resources": [
+            "ip4",
+            "domain"
+        ],
+        "source": "true,false,true,true"
+    }
+]
