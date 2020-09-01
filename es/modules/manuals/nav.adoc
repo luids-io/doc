@@ -1,2 +1,3 @@
 .xref:index.adoc[Manuales]
 include::xlist:partial$nav.adoc[]
+include::dns:partial$nav.adoc[]

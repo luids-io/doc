@@ -1,0 +1,11 @@
+[[options-resolvcache]]
+= Sección `resolvcache`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `expire` | _int_ | Sí | `3600`
+|  Tiempo de expiración de los datos de la caché.
+
+|===

@@ -1,0 +1,23 @@
+[[plugin-coredns-idsevent]]
+= Plugin `idsevent`
+
+.Sintaxis del plugin `idsevent`
+----
+idsevent {
+  service SERVICENAME
+  buffer INT
+}
+----
+
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `service` | _string_ | No | `idsevent`
+|  Especifica el identificador del servicio API notificador de eventos.
+
+| `buffer` | int | No | 100
+|  Tamaño del buffer interno de eventos.
+
+|===

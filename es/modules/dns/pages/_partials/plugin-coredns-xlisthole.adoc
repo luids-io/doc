@@ -1,0 +1,38 @@
+[[plugin-coredns-xlisthole]]
+= Plugin `xlisthole`
+
+.Sintaxis del plugin `xlisthole`
+----
+xlisthole {
+  service SERVICENAME
+  listed-domain [merge] POLICY
+  unlisted-domain POLICY
+  listed-ip [merge] POLICY
+  unlisted-ip POLICY
+  on-error (return|nxdomain|refused|ip:x.x.x.x)
+}
+----
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `service` | _string_ | No |
+|  Especifica el identificador del servicio xlist para sumidero.
+
+| `listed-domain` | _string_ | No | `dns=nxdomain,log=true`
+| Acciones a tomar si dominio listado
+
+| `unlisted-domain` | _string_ | No | `dns=return`
+| Acciones a tomar si dominio no listado
+
+| `listed-ip` | _string_ | No | `dns=nxdomain,log=true`
+| Acciones a tomar si alguna de las IPs es listada
+
+| `unlisted-ip` | _string_ | No | `dns=return`
+| Acciones a tomar si ninguna de las IPs está listada
+
+| `on-error` | _string_ | No | `return`
+| Acciones a tomar si se produce un error
+
+|===

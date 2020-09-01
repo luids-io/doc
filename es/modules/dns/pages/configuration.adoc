@@ -1,0 +1,111 @@
+= Configuración
+include::{partialsdir}/attributes-es.adoc[]
+//ifdef::env-site,env-github[:toc:]
+
+El software `ludns` tiene la particularidad de que está basado en el software `CoreDNS`. Por lo tanto, el estilo de configuración e inicialización es el mismo que dicho software (tiene la documentación del mismo en https://coredns.io). En lo que respecta a la configuración de los plugins específicos de _CoreDNS_, se describirá en <<config-ludns>>.
+
+En lo que respecta `resolvcache`, la configuración del software se realiza de la misma forma que el resto de componentes del sistema _^lu^IDS_, tal y como se describe en <<config-bootstrap>>. La configuración de este componente se describirá en <<config-resolvcache>>.
+
+ifdef::env-site,env-github[]
+include::manuals:partial$config-bootstrap.adoc[leveloffset=1]
+endif::env-site,env-github[]
+
+ifndef::env-site,env-github[]
+include::{moduledir}/../manuals/pages/_partials/config-bootstrap.adoc[leveloffset=2]
+endif::env-site,env-github[]
+
+[[config-ludns]]
+== Configuración `ludns`
+
+[[config-ludns-sections]]
+=== Secciones
+
+* <<plugin-coredns-idsapi>>
+* <<plugin-coredns-idsevent>>
+* <<plugin-coredns-xlisthole>>
+* <<plugin-coredns-xlistrbl>>
+* <<plugin-coredns-resolvarchive>>
+* <<plugin-coredns-resolvcache>>
+
+[[config-ludns-examples]]
+=== Ejemplos
+
+.Ejemplo 1 de `/etc/luids/dns/Corefile`
+[source]
+----
+include::{examplesdir}/Corefile-example1.txt[]
+----
+
+.Ejemplo 2 de `/etc/luids/dns/Corefile`
+[source]
+----
+include::{examplesdir}/Corefile-example2.txt[]
+----
+
+[[config-resolvcache]]
+== Configuración `resolvcache`
+
+[[config-resolvcache-sections]]
+=== Secciones
+
+* <<options-args>>
+* <<options-resolvcache>>
+* <<options-resolvcache-dump>>
+* <<options-resolvcache-trace>>
+* <<options-resolvcache-limit>>
+* <<options-service-dnsutil-resolvcheck>>
+* <<options-service-dnsutil-resolvcollect>>
+* <<options-server>>
+* <<options-health>>
+* <<options-log>>
+
+[[config-resolvcache-examples]]
+=== Ejemplos
+
+TODO
+
+[[config-reference]]
+== Referencia de configuración
+
+ifdef::env-site,env-github[]
+include::partial$plugin-coredns-idsapi.adoc[leveloffset=2]
+include::partial$plugin-coredns-idsevent.adoc[leveloffset=2]
+include::partial$plugin-coredns-xlisthole.adoc[leveloffset=2]
+include::partial$plugin-coredns-xlistrbl.adoc[leveloffset=2]
+include::partial$plugin-coredns-resolvarchive.adoc[leveloffset=2]
+include::partial$plugin-coredns-resolvcache.adoc[leveloffset=2]
+include::manuals:partial$options-args.adoc[leveloffset=2]
+include::partial$options-resolvcache.adoc[leveloffset=2]
+include::partial$options-resolvcache-dump.adoc[leveloffset=2]
+include::partial$options-resolvcache-trace.adoc[leveloffset=2]
+include::partial$options-resolvcache-limit.adoc[leveloffset=2]
+include::partial$options-service-dnsutil-resolvcheck.adoc[leveloffset=2]
+include::partial$options-service-dnsutil-resolvcollect.adoc[leveloffset=2]
+include::manuals:partial$options-server.adoc[leveloffset=2]
+include::manuals:partial$options-health.adoc[leveloffset=2]
+include::manuals:partial$options-log.adoc[leveloffset=2]
+endif::env-site,env-github[]
+
+ifndef::env-site,env-github[]
+include::{partialsdir}/plugin-coredns-idsapi.adoc[leveloffset=3]
+include::{partialsdir}/plugin-coredns-idsevent.adoc[leveloffset=3]
+include::{partialsdir}/plugin-coredns-xlisthole.adoc[leveloffset=3]
+include::{partialsdir}/plugin-coredns-xlistrbl.adoc[leveloffset=3]
+include::{partialsdir}/plugin-coredns-resolvarchive.adoc[leveloffset=3]
+include::{partialsdir}/plugin-coredns-resolvcache.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-args.adoc[leveloffset=3]
+include::{partialsdir}/options-resolvcache.adoc[leveloffset=3]
+include::{partialsdir}/options-resolvcache-dump.adoc[leveloffset=3]
+include::{partialsdir}/options-resolvcache-trace.adoc[leveloffset=3]
+include::{partialsdir}/options-resolvcache-limit.adoc[leveloffset=3]
+include::{partialsdir}/options-service-dnsutil-resolvcheck.adoc[leveloffset=3]
+include::{partialsdir}/options-service-dnsutil-resolvcollect.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-server.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-health.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-log.adoc[leveloffset=3]
+endif::env-site,env-github[]
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:service-definition.adoc[Definición del servicio]
+endif::env-site,env-github[]

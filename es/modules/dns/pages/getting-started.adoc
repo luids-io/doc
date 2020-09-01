@@ -1,0 +1,153 @@
+= Empezando
+include::{partialsdir}/attributes-es.adoc[]
+
+A continuación veremos un pequeño tutorial en el que instalaremos un pequeño sumidero DNS en un servidor GNU/Linux. El objetivo de este tutorial es familiarizar al usuario con las herramientas y mostrar una pequeña parte de lo que nos ofrece el software, si desea ver su uso en algún escenario "real" puede ver alguna de las guías disponibles.
+
+== Instalando y probando
+
+Usaremos el instalador del paquete, para ello simplemente copiaremos y pegaremos el siguiente contenido en una shell.
+
+[source,bash]
+----
+RELEASE="v0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/dns/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+wget $DOWNLOAD_URI -O installer_dns.sh
+chmod 755 installer_dns.sh
+sudo ./installer_dns.sh -u
+----
+
+El instalador instala unos scripts `systemd` para la inicialización de los servicios, pero no los inicia ni activa, esto debe hacerlo explícitamente el administrador de sistemas. Para ello lo inicializaremos con `systemctl`.
+
+[source,bash]
+----
+systemctl start luids-ludns
+----
+
+Para no interferir con el sistema, por defecto, escucha en el puerto `1053`.  Esto obviamente debería cambiarse si fuésemos a utilizarlo de forma real. Sin embargo, para nuestra guía no será necesario ya que usaremos la herramienta `dig`. Con dicha herramienta podremos ver que está funcionando.
+
+[source,console]
+----
+$ dig +short @localhost -p 1053 www.google.com
+216.58.201.132
+$ dig +short @localhost -p 1053 www.badsite.com
+104.200.22.130
+104.200.23.95
+----
+
+== Instalando nuestras dependencias
+
+Debido a que vamos a construir un sumidero, necesitamos un servidor `xlistd` que de soporte al sistema de listas negras. Por ello procederemos a instalar dicho servidor.
+
+[source,bash]
+----
+RELEASE="v0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+wget $DOWNLOAD_URI -O installer_xlist.sh
+chmod 755 installer_xlist.sh
+sudo ./installer_xlist.sh -u
+----
+
+== Nuestra primera lista negra
+
+En una instalación estándar, la configuración del servicio `xlistd` se realiza en el fichero `/etc/luids/xlist/xlistd.toml`. Dentro de dicho fichero se hace referencia a la definición del servicio que, en la instalación estándar, se encuentra en el fichero `/etc/luids/xlist/services.json`. Lo configuraremos para que utilice una lista negra que dejaremos en `/var/lib/luids/xlist/my-blacklist.xlist`.
+
+.Contenido de `/etc/luids/xlist/services.json`
+[source,json]
+----
+[
+  {
+    "id": "root",
+    "class": "file",
+    "resources": [ "domain" ],
+    "source": "my-blacklist.xlist",
+    "opts": { "reason": "found in 'my-blacklist'" }
+  }
+]
+----
+
+.Contenido de `/var/lib/luids/xlist/my-blacklist.xlist`
+[source]
+----
+domain,plain,www.badsite.com
+domain,sub,malware.com
+----
+
+Reiniciaremos el servicio...
+
+[source,bash]
+----
+systemctl restart luids-xlistd
+----
+
+Probaremos nuestro sistema de listas negras recién configurado...
+
+[source,console]
+----
+$ xlistc
+[domain] (3.434562ms)
+$ xlistc www.badsite.com anything.malware.com www.google.com
+domain,www.badsite.com: true,"found in 'my-blacklist'",0 (392.013µs)
+domain,anything.malware.com: true,"found in 'my-blacklist'",0 (606.256µs)
+domain,www.google.com: false,"",0 (348.862µs)
+----
+
+Ya tenemos un sistema de listas negras funcionando. Aunque en la práctica no es de mucha utilidad, nos servirá para mostrar parte de la funcionalidad de nuestro software.
+
+== Integrando el sistema de listas negras
+
+Para que nuestro sistema pueda ser usado, debemos "publicarlo" en los servicios del host. Para ello editaremos el fichero `/etc/luids/apiservices.json`.
+
+.Contenido de `/etc/luids/apiservices.json`
+[source,json]
+----
+[
+    {
+        "id": "xlisthole",
+        "api": "luids.xlist.v1.Check",
+        "endpoint": "tcp://127.0.0.1:5801"
+    }
+]
+----
+
+Editaremos nuestro fichero `/etc/luids/dns/Coredns` y descomentaremos los plugins `idsapi` y `xlisthole` o lo dejaremos con el mínimo contenido como se muestra a continuación.
+
+.Contenido de `/etc/luids/dns/Corefile`
+----
+.:1053 {
+    idsapi
+    xlisthole
+    forward . 8.8.8.8 8.8.4.4
+}
+----
+
+Reiniciaremos el servicio con `systemctl restart luids-ludns` y probaremos el funcionamiento de nuestro sistema.
+
+[source,console]
+----
+$ dig +short @localhost -p 1053 www.google.com
+216.58.209.68
+$ dig +short @localhost -p 1053 www.badsite.com
+----
+
+Vemos que ya no resuelve `www.badsite.com`. Podemos ver el log cómo nos indica que ha encontrado un elemento en la lista negra.
+
+[source,console]
+----
+# grep ludns /var/log/syslog
+.....
+Sep  1 07:12:52 luids-router ludns[2660]: linux/amd64, go1.14.3,
+Sep  1 07:13:22 luids-router ludns[2660]: [INFO] plugin/xlisthole: [::1]:48514 check 'www.badsite.com' response: true 'found in 'my-blacklist''
+----
+
+== Siguientes pasos
+
+En este tutorial hemos visto la construcción de un sencillo sumidero DNS, pero no hemos entrado a entender el detalle de su configuración. Tampoco hemos visto muchas de las funcionalidades que el software *dns* nos ofrece como el archivado, caché de resoluciones, zona rbl... Todo eso se verá en los siguientes capítulos.
+
+TIP: La potencia real de los servicios *dns* radican de su combinación con otros servicios como los analizadores de tráfico. Puede ver algunas de las posibles configuraciones se encuentran en el apartado de guías de despliegue.
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

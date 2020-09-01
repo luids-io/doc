@@ -1,0 +1,14 @@
+[[options-service-dnsutil-resolvcheck]]
+= Sección `service.dnsutil.resolvcheck`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `enable` | _boolean_ | Sí | `true`
+|  Habilita la API.
+
+| `log` | _boolean_ | No | `true`
+|  Habilita el log.
+
+|===

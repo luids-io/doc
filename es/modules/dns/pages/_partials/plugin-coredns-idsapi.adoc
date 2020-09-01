@@ -1,0 +1,27 @@
+[[plugin-coredns-idsapi]]
+= Plugin `idsapi`
+
+.Sintaxis del plugin `idsapi`
+----
+idsapi {
+  files FILENAME ...
+  dirs DIRNAME ...
+  certsdir SSLDIR
+}
+----
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `certsdir` | _string_ | No |
+|  Especifica el directorio donde estarán los certificados referenciados en la
+   configuración de clientes de la API.
+
+| `files` | _[]string_ | No | `/etc/luids/services.json`
+|  Listado de ficheros donde se encuentra la definición estática de los clientes de los servicios de la API.
+
+| `dirs` | _[]string_ | No |
+|  Listado de ficheros donde se encuentra la definición estática de los clientes de los servicios de la API.
+
+|===

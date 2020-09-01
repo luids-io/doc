@@ -6,3 +6,4 @@ de algunas de las aplicaciones que forman el ecosistema _^lu^IDS_, tienes a tu
 libre disposición los manuales online y en formato PDF.
 
 * xref:xlist:index.adoc[*Manual xlist*]
+* xref:dns:index.adoc[*Manual dns*]

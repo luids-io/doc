@@ -1,0 +1,22 @@
+[[plugin-coredns-resolvarchive]]
+= Plugin `resolvarchive`
+
+.Sintaxis del plugin `resolvarchive`
+----
+resolvarchive {
+  service SERVICENAME
+  server-ip IP
+}
+----
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `service` | _string_ | No |
+|  Especifica el identificador del servicio de archivado DNS.
+
+| `server-ip` | _string_ | No |
+| IP para definir como servidor.
+
+|===

@@ -1,0 +1,22 @@
+= Introducción
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+El paquete de software *dns* contiene todo lo necesario para desplegar *servicios de dns* integrados con nuestro sistema _^lu^IDS_.
+
+Para realizar dicha tarea, se han desarrollado una serie de plugins para el popular servidor _CoreDNS_ que le agregan funcionalidades de *dns blackhole o sinkhole*, *servidor de zona dnsbl*, *archivado de consultas DNS* y una *caché de consultas DNS* de baja latencia que permite conocer si una determinada _IP_ ha sido resuelta por un dispositivo de nuestra red.
+
+Las herramientas que componen el paquete de software son:
+
+* *ludns*: es un servidor _CoreDNS_ compilado con los plugins que lo integran con el sistema _luIDS_ junto a los plugins estándar de resolvedor y proxy cache.
+* *resolvache*: es un servicio que ofrece un sistema de caché de consultas de las resoluciones _DNS_ indexadas por cliente que realizó la resolución y la _IP_ resuelta.
+* *resolvcollect* y *resolvcheck*: son herramientas _CLI_ que permiten alimentar y chequear el sistema de caché para pruebas.
+
+.Diagrama de contexto
+image::introduction-dns.svg[introduction-dns,width=100%,pdfwidth=80%]
+
+Todo el software está escrito en _Go_, es software libre y está disponible en https://github.com/luids-io/dns.
+
+ifdef::env-site,env-github[]
+A continuación: xref:getting-started.adoc[Empezando]
+endif::env-site,env-github[]
