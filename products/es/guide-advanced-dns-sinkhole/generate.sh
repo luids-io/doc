@@ -10,7 +10,7 @@ asciidoctor-pdf -o output.pdf -v --trace -r asciidoctor-diagram \
 	guide.adoc
 
 ## remove temporal files generated
-rm $MODULE_DIR/assets/images/diagram-basic-sinkhole-sequence.png
-rm $MODULE_DIR/assets/images/deployment-basic-dns-sinkhole.png
-rm $MODULE_DIR/assets/images/flow-basic-dns-sinkhole.png
+#rm $MODULE_DIR/assets/images/diagram-sinkhole-sequence.png
+#rm $MODULE_DIR/assets/images/deployment-basic-sinkhole.png
+#rm $MODULE_DIR/assets/images/flow-basic-sinkhole.png
 rm -rf .asciidoctor

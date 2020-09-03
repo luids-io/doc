@@ -8,7 +8,7 @@ NOTE: Puedes realizar la configuración de esta guía *en menos de 5 minutos*
 únicamente con la información de los apartados de <<installation>> y
 <<configuration>>. Además tienes a tu disposición todos los ficheros de
 configuración de esta guía
-https://github.com/luids-io/docs/blob/master/es/modules/guides/examples/basic-sinkhole[aquí].
+https://github.com/luids-io/docs/blob/master/es/modules/guides/examples/basic-dns-sinkhole[aquí].
 
 IMPORTANT: La configuración de esta guía también está disponible en `docker-compose` en el https://github.com/luids-io/deploy[repositorio de despliegues de luIDS]
 
@@ -23,7 +23,7 @@ Para entender mejor el funcionamiento, puede verse el siguiente diagrama de secu
 
 [[diagram-sinkhole-sequence]]
 .Secuencia de un sumidero DNS con xlist
-[plantuml, diagram-sinkhole-sequence, png, pdfwidth=70%]
+[plantuml, diagram-basic-sinkhole-sequence, png, pdfwidth=70%]
 ----
 actor dnsclient
 participant "DNS Server\n(ludns)" as dnsserver
@@ -55,6 +55,8 @@ Esta guía se trata de una configuración básica así que no se verán todas la
 * es posible definir puntuaciones y umbrales de respuesta,
 * es posible diseñar un sistema de políticas que tenga en cuenta las distintas respuestas y puntuaciones,
 * es capaz de enviar eventos a un sistema SIEM,
+* es posible hacer uso de otros elementos además de las listas, como la geolocalización,
+* permite la integración con cortafuegos _netfilter_ de forma que el cortafuegos no permita la comunicación con una dirección IP si dicha dirección no ha sido previamente resuelta,
 * provee de instrumentación para su integración en un sistema de monitorización _Prometheus_ y así tener información en "tiempo real",
 * disponible en _Docker_ y con algunas características que lo hace ideal para su despliegue en entornos Cloud con herramientas como _Kubernetes_.
 
@@ -93,12 +95,13 @@ Para mantener todas las listas que hemos seleccionado sincronizadas, lo que hare
 
 Además de estos orígenes externos, también daremos a nuestro sistema cierta flexibilidad, incorporando nuestras propias listas blancas y negras.
 
+[[design-service]]
 === Diseño del servicio de listas
 
 Nuestro servicio de listas será un servicio típico muy básico, que compruebe primero en listas blancas y después en listas negras. Como no vamos a utilizar puntuaciones y tampoco vamos a discriminar entre los distintos tipos de orígenes, queremos que nuestro sistema chequee y devuelva inmediatamente si encuentra un resultado positivo.
 
 .Funcionamiento básico de nuestro sistema
-[plantuml, flow-basic-sinkhole, png,pdfwidth=50%]
+[plantuml, flow-basic-dns-sinkhole, png,pdfwidth=50%]
 ----
 start
 :read domain/
@@ -119,15 +122,15 @@ stop
 La definición gráfica del servicio mediante componentes de _xlistd_ sería la siguiente:
 
 .Definición del servicio _xlistd_ para el sinkhole
-image::design-basic-sinkhole.svg[design-sinkhole,width=85%,pdfwidth=100%]
+image::design-basic-dns-sinkhole.svg[design-sinkhole,width=85%,pdfwidth=100%]
 
-
+[[design-components]]
 === Despliegue de los componentes
 
 Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
 
 .*Diagrama de despliegue*
-[plantuml, deployment-basic-sinkhole, png,pdfwidth=70%]
+[plantuml, deployment-basic-dns-sinkhole, png,pdfwidth=70%]
 ----
 cloud "Blacklists" {
  [Web server] -down- HTTP
@@ -144,9 +147,9 @@ node "DNS Sinkhole" {
     }
   }
   [xlget] --> [blacklist.xlist]
-  [blacklist.xlist] --> [xlistd]
   [xlget] --> HTTP
   [xlistd] - GRPC
+	[xlistd] --> [blacklist.xlist]
   [ludns] --> GRPC
   [ludns] --> ExtDNS
   [ludns] - DNS
@@ -169,7 +172,7 @@ cualquier distribución. Si necesita más información o quiere instalarlo sobre
 otras plataformas puede consultar los xref:manuals:index.adoc[manuales de las
 herramientas].
 
-IMPORTANT: Recuerde que si prefiere usar `docker` también puede desplegar el escenario de esta guía https://github.com/luis-io/deploy/basic-sinkhole[usando docker compose].
+IMPORTANT: Recuerde que si prefiere usar `docker` también puede desplegar el escenario de esta guía https://github.com/luids-io/deploy/basic-dns-sinkhole[usando docker compose].
 
 include::{partialsdir}/install-xlist.adoc[leveloffset=2]
 
@@ -180,7 +183,7 @@ TIP: Si está instalando en una Raspberry debe definir la arquitectura al lanzar
 [[configuration]]
 == Configuración
 
-IMPORTANT: Puede descargar directamente los ficheros de configuración de esta guía https://github.com/luis-io/docs/blob/master/es/modules/guides/examples/basic-sinkhole[aquí].
+IMPORTANT: Puede descargar directamente los ficheros de configuración de esta guía https://github.com/luids-io/docs/blob/master/es/modules/guides/examples/basic-dns-sinkhole[aquí].
 
 === Descarga de base de datos xlist
 
@@ -211,7 +214,7 @@ Editaremos el fichero de configuración de `xlget` para incluir el directorio co
 .Contenido de `/etc/luids/xlist/xlget.toml`
 [source,toml]
 ----
-include::{examplesdir}/basic-sinkhole/etc/luids/xlist/xlget.toml[]
+include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/xlget.toml[]
 ----
 
 Una vez creados dichos ficheros podemos chequear su correcta sintaxis mediante el comando `xlget_check`.
@@ -288,15 +291,15 @@ Crearemos un fichero `custom-local.json` que contendrá la definición de nuestr
 .Contenido de `/etc/luids/xlist/services.d/custom-local.json`
 [source,json]
 ----
-include::{examplesdir}/basic-sinkhole/etc/luids/xlist/services.d/custom-local.json[]
+include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/services.d/custom-local.json[]
 ----
 
 Y crearemos nuestras listas locales.
 
 [source,bash]
 ----
-sudo touch /var/lib/luis/xlist/my-blacklist.xlist
-sudo touch /var/lib/luis/xlist/my-whitelist.xlist
+sudo touch /var/lib/luids/xlist/my-blacklist.xlist
+sudo touch /var/lib/luids/xlist/my-whitelist.xlist
 ----
 
 
@@ -305,7 +308,7 @@ Finalmente daremos forma a nuestro servicio de agregación.
 .Contenido de `/etc/luids/xlist/service.json`
 [source,json]
 ----
-include::{examplesdir}/basic-sinkhole/etc/luids/xlist/service.json[]
+include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/service.json[]
 ----
 
 Editaremos el fichero de configuración del servidor `xlistd` para que utilice nuestra nueva definición de servicio.
@@ -313,7 +316,7 @@ Editaremos el fichero de configuración del servidor `xlistd` para que utilice n
 .Contenido de `/etc/luids/xlist/xlistd.toml`
 [source,toml]
 ----
-include::{examplesdir}/basic-sinkhole/etc/luids/xlist/xlistd.toml[]
+include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/xlistd.toml[]
 ----
 
 Comprobaremos que la configuración es correcta, como se muestra a continuación.
@@ -377,7 +380,7 @@ En primer lugar, debemos "publicar" (de forma local) el servicio de listas negra
 .Contenido de `/etc/luids/apiservices.json`
 [source,json]
 ----
-include::{examplesdir}/basic-sinkhole/etc/luids/apiservices.json[]
+include::{examplesdir}/advanced-dns-sinkhole/etc/luids/apiservices.json[]
 ----
 
 Una vez hecho esto, la configuración del servicio `ludns`es muy sencilla, basta editar el fichero `/etc/luids/dns/Corefile`.

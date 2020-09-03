@@ -5,8 +5,7 @@
         "resources": [ "domain" ],
         "opts": { "first": true },
         "wrappers": [
-            { "class": "metrics" },
-            { "class": "policy", "opts": { "dns": "nxdomain", "event": "medium" } },
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=medium" } },
             { "class": "response", "opts": { "preffixid": true } }
         ],
         "contains": [
@@ -22,8 +21,7 @@
         "resources": [ "domain" ],
         "opts": { "first": true },
         "wrappers": [
-            { "class": "metrics" },
-            { "class": "policy", "opts": { "dns": "nxdomain", "event": "low" } },
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=low" } },
             { "class": "response", "opts": { "preffixid": true } }
         ],
         "contains": [
@@ -37,8 +35,7 @@
         "resources": [ "domain" ],
         "opts": { "first": true },
         "wrappers": [
-            { "class": "metrics" },
-            { "class": "policy", "opts": { "dns": "nxdomain", "event": "info" } },
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=info" } },
             { "class": "response", "opts": { "preffixid": true } }
         ],
         "contains": [
@@ -52,8 +49,7 @@
         "resources": [ "domain" ],
         "opts": { "first": true },
         "wrappers": [
-            { "class": "metrics" },
-            { "class": "policy", "opts": { "dns": "nxdomain", "event": "info" } },
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=info" } },
             { "class": "response", "opts": { "preffixid": true } }
         ],
         "contains": [
@@ -68,8 +64,7 @@
         "resources": [ "domain" ],
         "opts": { "first": true },
         "wrappers": [
-            { "class": "metrics" },
-            { "class": "policy", "opts": { "dns": "nxdomain", "event": "none" } },
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=none" } },
             { "class": "response", "opts": { "preffixid": true } }
         ],
         "contains": [
@@ -82,8 +77,7 @@
         "resources": [ "domain" ],
         "opts": { "first": true },
         "wrappers": [
-            { "class": "metrics" },
-            { "class": "policy", "opts": { "dns": "nxdomain", "event": "none" } },
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=none" } },
             { "class": "response", "opts": { "preffixid": true } }
         ],
         "contains": [
@@ -97,8 +91,7 @@
         "resources": [ "domain" ],
         "opts": { "first": true },
         "wrappers": [
-            { "class": "metrics" },
-            { "class": "policy", "opts": { "dns": "checkip", "event": "info" } },
+            { "class": "policy", "opts": { "value": "dns=checkip,event=info" } },
             { "class": "response", "opts": { "preffixid": true } }
         ],
         "contains": [
@@ -111,8 +104,7 @@
         "resources": [ "ip4" ],
         "opts": { "first": true },
         "wrappers": [
-            { "class": "metrics" },
-            { "class": "policy", "opts": { "dns": "nxdomain", "event": "medium" } },
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=medium" } },
             { "class": "response", "opts": { "preffixid": true } }
         ],
         "contains": [
@@ -130,8 +122,7 @@
         "resources": [ "ip4" ],
         "opts": { "first": true },
         "wrappers": [
-            { "class": "metrics" },
-            { "class": "policy", "opts": { "dns": "nxdomain", "event": "low" } },
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=low" } },
             { "class": "response", "opts": { "preffixid": true } }
         ],
         "contains": [
@@ -144,8 +135,7 @@
         "resources": [ "ip4" ],
         "opts": { "first": true },
         "wrappers": [
-            { "class": "metrics" },
-            { "class": "policy", "opts": { "dns": "nxdomain", "event": "low" } },
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=low" } },
             { "class": "response", "opts": { "preffixid": true } }
         ],
         "contains": [
@@ -161,8 +151,7 @@
         "resources": [ "ip4" ],
         "opts": { "first": true },
         "wrappers": [
-            { "class": "metrics" },
-            { "class": "policy", "opts": { "dns": "nxdomain", "event": "none" } },
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=none" } },
             { "class": "response", "opts": { "preffixid": true } }
         ],
         "contains": [

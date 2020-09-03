@@ -1,0 +1,13 @@
+= Instalación de event
+
+Instalar *event* es muy sencillo, basta descargar el instalador ya existente y ejecutarlo. Para ello simplemente tiene que copiar y pegar lo siguiente en una consola de comandos.
+
+[source,bash]
+----
+RELEASE="v0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/event/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+wget $DOWNLOAD_URI  -O installer_event.sh
+chmod 755 installer_event.sh
+sudo ./installer_event.sh
+----

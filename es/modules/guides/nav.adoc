@@ -1,2 +1,3 @@
 .xref:index.adoc[Guías]
 * xref:basic-dns-sinkhole.adoc[Sumidero DNS básico]
+* xref:advanced-dns-sinkhole.adoc[Sumidero DNS avanzado]

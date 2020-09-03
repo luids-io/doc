@@ -1,0 +1,13 @@
+= Instalación de archive
+
+Instalar *archive* es muy sencillo, basta descargar el instalador ya existente y ejecutarlo. Para ello simplemente tiene que copiar y pegar lo siguiente en una consola de comandos.
+
+[source,bash]
+----
+RELEASE="v0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/archive/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+wget $DOWNLOAD_URI  -O installer_archive.sh
+chmod 755 installer_archive.sh
+sudo ./installer_archive.sh
+----

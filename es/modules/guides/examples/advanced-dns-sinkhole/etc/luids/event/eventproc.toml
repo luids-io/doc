@@ -2,7 +2,7 @@
 datadir   = "/var/lib/luids/event"
 
 [eventproc.db]
-dirs    = [ "/etc/luids/event/event.d" ]
+dirs    = [ "/etc/luids/event/events.d" ]
 
 [eventproc.stack]
 files   = [ "/etc/luids/event/stacks.json" ]
