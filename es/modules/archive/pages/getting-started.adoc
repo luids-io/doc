@@ -1,0 +1,157 @@
+= Empezando
+include::{partialsdir}/attributes-es.adoc[]
+
+A continuación veremos un pequeño tutorial en el que instalaremos un pequeño resolvedor DNS del que archivaremos las peticiones de resolución utilizando nuestro software `archive`. El objetivo de este tutorial es familiarizar al usuario con las herramientas y mostrar una pequeña parte de lo que nos ofrece el software, si desea ver su uso en algún escenario "real" puede ver alguna de las guías disponibles.
+
+== Instalando
+
+Antes de instalar el software, es necesario que dispongamos de una base de datos _MongoDB_ instalada.
+
+[source,bash]
+----
+sudo apt install mongodb-server
+----
+
+Para instalar el software, usaremos el instalador del paquete, para ello simplemente copiaremos y pegaremos el siguiente contenido en una shell.
+
+[source,bash]
+----
+RELEASE="v0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/archive/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+wget $DOWNLOAD_URI -O installer_archive.sh
+chmod 755 installer_archive.sh
+sudo ./installer_archive.sh -u
+----
+
+El instalador instala unos scripts `systemd` para la inicialización de los servicios, pero no los inicia ni activa, esto debe hacerlo explícitamente el administrador de sistemas. Antes de hacerlo deberemos configurar nuestro servicio.
+
+== Configurando
+
+Para ello configuraremos en primer lugar un backend de almacenamiento con la base de datos _MongoDB_ que tenemos en nuestro servidor.
+
+.Contenido de `/etc/luids/archive/backends.json`
+[source,json]
+----
+[
+    {
+        "id": "mongo1",
+        "class": "mongodb",
+        "url": "localhost:27017"
+    }
+]
+----
+
+Pero esto no es suficiente, también hay que configurar los servicios de archivado. Configuraremos el servicio de archivado de resoluciones DNS.
+
+.Contenido de `/etc/luids/archive/services.json`
+[source,json]
+----
+[
+    {
+        "id": "dns",
+        "class": "dnsmdb",
+        "backend": "mongo1",
+        "opts": {
+            "dbname": "luidsdb"
+        }
+    }
+]
+----
+
+Lo habilitaremos en la configuración de archive.
+
+.Contenido de `/etc/luids/archive/luarchive.toml`
+[source,toml]
+----
+[archive.backend]
+files      = [ "/etc/luids/archive/backends.json" ]
+
+[archive.service]
+files      = [ "/etc/luids/archive/services.json" ]
+
+[service.dnsutil.archive]
+enable  = true
+service = "dns"
+----
+
+Iniciaremos el servicio.
+
+[source,bash]
+----
+sudo systemctl start luids-luarchive
+----
+
+Publicaremos nuestro servicio recién configurado en `apiservices.json` de forma que podamos usarlo en otros componentes.
+
+.Contenido de `/etc/luids/apiservices.json`
+[source,json]
+----
+[
+    {
+        "id": "resolvarchive",
+        "api": "luids.dnsutil.v1.Archive",
+        "endpoint": "tcp://127.0.0.1:5821"
+    }
+]
+----
+
+== Instalando nuestras dependencias
+
+Nuestro servicio de archivado necesita de algún sistema que lo "alimente", por ello vamos a configurar un servidor `ludns`.
+
+[source,bash]
+----
+RELEASE="v0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/dns/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+wget $DOWNLOAD_URI -O installer_dns.sh
+chmod 755 installer_dns.sh
+sudo ./installer_dns.sh -u
+----
+
+Configuraremos nuestro servidor DNS para que resuelva nombres y para que almacene las resoluciones.
+
+.Contenido de `/etc/dns/Corefile`
+[source]
+----
+.:1053 {
+  idsapi
+  resolvarchive
+  forward . 8.8.8.8 8.8.4.4
+}
+----
+
+Iniciaremos el servidor `ludns`.
+
+[source,bash]
+----
+sudo systemctl start luids-ludns
+----
+
+== Probando el sistema
+
+Probaremos la resolución de nombres y que se ha realizado la inserción en la base de datos _MongoDB_.
+
+[source,console]
+----
+$ dig +short @localhost -p 1053 www.google.com
+172.217.168.164
+$ mongo
+MongoDB shell version v3.6.8
+connecting to: mongodb://127.0.0.1:27017
+> use luidsdb
+switched to db luidsdb
+> db.getCollection("resolvs").find()
+{ "_id" : "ObjectIdHex(\"5f5256df99869d0939814225\")", "timestamp" : ISODate("2020-09-04T15:01:51.808Z"), "duration" : NumberLong(23), "serverip" : "::", "clientip" : "::1", "qid" : 29427, "name" : "www.google.com", "checkingdisabled" : false, "returncode" : 0, "authenticateddata" : false, "resolvedips" : [ "172.217.168.164" ] }
+----
+
+== Siguientes pasos
+
+En este tutorial hemos visto la construcción de un sencillo archivador de resoluciones DNS, pero no hemos entrado a entender el detalle de su configuración. Tampoco hemos visto muchas de las funcionalidades que el software *archive* nos ofrece. Todo eso se verá en los siguientes capítulos.
+
+TIP: La potencia real de los servicios *archive* radican de su combinación con otros servicios como servidores dns y analizadores de tráfico. Puede ver algunas de las posibles configuraciones se encuentran en el apartado de guías de despliegue.
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

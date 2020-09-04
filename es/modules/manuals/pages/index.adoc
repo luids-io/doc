@@ -7,3 +7,4 @@ libre disposición los manuales online y en formato PDF.
 
 * xref:xlist:index.adoc[*Manual xlist*]
 * xref:dns:index.adoc[*Manual dns*]
+* xref:archive:index.adoc[*Manual archive*]

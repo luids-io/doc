@@ -1,0 +1,17 @@
+[[options-service-dnsutil-archive]]
+= Sección `service.dnsutil.archive`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `enable` | _boolean_ | Sí | `false`
+|  Habilita la api `dnsutil.archive`.
+
+| `service` | _string__ | Sí |
+|  Define el identificador del servicio definido en los ficheros de configuración que proporcionará la api.
+
+| `log` | _boolean_ | No | `true`
+|  Habilita el log del servicio.
+
+|===

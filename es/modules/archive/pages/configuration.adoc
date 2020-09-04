@@ -1,0 +1,69 @@
+= Configuración
+include::{partialsdir}/attributes-es.adoc[]
+//ifdef::env-site,env-github[:toc:]
+
+La configuración del software se realiza de la misma forma que el resto de componentes del sistema _^lu^IDS_, tal y como se describe en <<config-bootstrap>>. Luego, cada componente tiene sus propias secciones particulares como se describirá en <<config-xlistd>> y <<config-xlget>>.
+
+ifdef::env-site,env-github[]
+include::manuals:partial$config-bootstrap.adoc[leveloffset=1]
+endif::env-site,env-github[]
+
+ifndef::env-site,env-github[]
+include::{moduledir}/../manuals/pages/_partials/config-bootstrap.adoc[leveloffset=2]
+endif::env-site,env-github[]
+
+[[config-luarchive]]
+== Configuración `luarchive`
+
+[[config-luarchive-sections]]
+=== Secciones
+
+* <<options-args>>
+* <<options-archive-backend>>
+* <<options-archive-service>>
+* <<options-service-dnsutil-archive>>
+* <<options-service-tlsutil-archive>>
+* <<options-service-event-archive>>
+* <<options-server>>
+* <<options-health>>
+* <<options-log>>
+
+[[config-luarchive-examples]]
+=== Ejemplos
+
+.Ejemplo de `/etc/luids/archive/luarchive.toml`
+[source,toml]
+----
+include::{examplesdir}/luarchive.toml[]
+----
+
+[[config-reference]]
+== Referencia de configuración
+
+ifdef::env-site,env-github[]
+include::manuals:partial$options-args.adoc[leveloffset=2]
+include::partial$options-archive-backend.adoc[leveloffset=2]
+include::partial$options-archive-service.adoc[leveloffset=2]
+include::partial$options-service-dnsutil-archive.adoc[leveloffset=2]
+include::partial$options-service-tlsutil-archive.adoc[leveloffset=2]
+include::partial$options-service-event-archive.adoc[leveloffset=2]
+include::manuals:partial$options-server.adoc[leveloffset=2]
+include::manuals:partial$options-health.adoc[leveloffset=2]
+include::manuals:partial$options-log.adoc[leveloffset=2]
+endif::env-site,env-github[]
+
+ifndef::env-site,env-github[]
+include::{moduledir}/../manuals/pages/_partials/options-args.adoc[leveloffset=3]
+include::{partialsdir}/options-archive-backend.adoc[leveloffset=3]
+include::{partialsdir}/options-archive-service.adoc[leveloffset=3]
+include::{partialsdir}/options-service-dnsutil-archive.adoc[leveloffset=3]
+include::{partialsdir}/options-service-tlsutil-archive.adoc[leveloffset=3]
+include::{partialsdir}/options-service-event-archive.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-server.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-health.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-log.adoc[leveloffset=3]
+endif::env-site,env-github[]
+
+ifdef::env-site,env-github[]
+A continuación: xref:service-definition.adoc[Definición del servicio]
+endif::env-site,env-github[]

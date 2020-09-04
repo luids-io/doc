@@ -1,0 +1,17 @@
+[archive.backend]
+files      = [ "/etc/luids/archive/backends.json" ]
+
+[archive.service]
+files      = [ "/etc/luids/archive/services.json" ]
+
+[service.event.archive]
+enable  = true
+service = "event"
+
+[service.dnsutil.archive]
+enable  = true
+service = "dns"
+
+[service.tlsutil.archive]
+enable  = true
+service = "tls"

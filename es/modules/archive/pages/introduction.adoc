@@ -1,0 +1,14 @@
+= Introducción
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+El paquete de software *archive* contiene todo lo necesario para integrar *servicios de archivado* en nuestro sistema de detección de intrusos _^lu^IDS_.
+
+El software provee las API de archivado para los diferentes componentes del sistema _luIDS_, encargándose de la tarea de almacenar la información en alguno de los gestores de base de datos para los que tiene soporte.
+
+.Diagrama de contexto
+image::introduction-archive.svg[introduction-archive,width=100%,pdfwidth=80%]
+
+ifdef::env-site,env-github[]
+A continuación: xref:getting-started.adoc[Empezando]
+endif::env-site,env-github[]

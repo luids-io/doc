@@ -8,7 +8,7 @@ export PRODUCT_VERSION=$(git describe --match 'v[0-9]*' --dirty='.m' --always)
 export PRODUCT_BUILD=$(date +%F)
 
 # list of products
-PRODUCTS="manual-xlist manual-dns"
+PRODUCTS="manual-xlist manual-dns manual-archive"
 PRODUCTS="$PRODUCTS guide-basic-dns-sinkhole guide-advanced-dns-sinkhole"
 
 mkdir -p $OUTDIR
@@ -19,4 +19,3 @@ for product in $PRODUCTS; do
 	mv output.pdf ${OUTDIR}/${product}_${PRODUCT_LANG}.pdf
 	popd >/dev/null
 done
-
