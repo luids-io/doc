@@ -1,0 +1,20 @@
+[[options-eventproc]]
+= Sección `eventproc`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `workers` | _int_ | No |
+|  Especifica el número de procesos ligeros que se encargan de procesar los eventos.
+
+| `certsdir` | _string_ | No |
+|  Especifica el directorio donde estarán los certificados referenciados en la configuración del stack de procesado.
+
+| `datadir` | _string_ | No |
+|  Especifica el directorio donde se almacenan los ficheros de datos.
+
+| `cachedir` | _string_ | No |
+|  Especifica el directorio para usar de cache por parte de los módulos.
+
+|===

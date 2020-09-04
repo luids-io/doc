@@ -1,0 +1,12 @@
+[eventproc]
+datadir   = "/var/lib/luids/event"
+cachedir  = "/var/cache/luids/event"
+
+[eventproc.stack]
+files     = [ "/etc/luids/stacks.json" ]
+
+[eventproc.db]
+dirs      = [ "/etc/luids/events.d" ]
+
+[ids.api]
+files     = [ "/etc/luids/apiservices.json" ]

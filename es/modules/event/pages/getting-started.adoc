@@ -1,0 +1,48 @@
+= Empezando
+include::{partialsdir}/attributes-es.adoc[]
+
+A continuación veremos un pequeño tutorial en el que instalaremos un pequeño gestor de eventos en un servidor GNU/Linux. El objetivo de este tutorial es familiarizar al usuario con las herramientas y mostrar una pequeña parte de lo que nos ofrece el software, si desea ver su uso en algún escenario "real" puede ver alguna de las guías disponibles.
+
+== Instalando
+
+Usaremos el instalador del paquete, para ello simplemente copiaremos y pegaremos el siguiente contenido en una shell.
+
+[source,bash]
+----
+RELEASE="v0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/event/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+wget $DOWNLOAD_URI -O installer_event.sh
+chmod 755 installer_event.sh
+sudo ./installer_event.sh -u
+----
+
+El instalador instala unos scripts `systemd` para la inicialización de los servicios, pero no los inicia ni activa, esto debe hacerlo explícitamente el administrador de sistemas. Para ello lo inicializaremos con `systemctl`.
+
+[source,bash]
+----
+systemctl start luids-eventproc
+----
+
+== Probando un evento
+
+Podemos probar a lanzar un evento con `eventnotify` de la siguiente forma.
+
+[source,console]
+----
+$ echo '[ { "code": 10000, "data": { "test": "test message" } } ]' | eventnotify --stdin
+e059aace-9d93-45e0-a541-7f107911182e
+$ sudo cat /var/lib/luids/event/security-events.json
+{"code":10000,"level":"info","created":"2020-09-04T16:25:53.919277172Z","source":{"hostname":"luids-router","program":"eventnotify","instance":"","pid":1187},"data":{"test":"test message"},"id":"e059aace-9d93-45e0-a541-7f107911182e","type":"security","codename":"test.security","description":"Test event with data: test message","processors":[{"received":"2020-09-04T18:25:53.920843505+02:00","processor":{"hostname":"luids-router","program":"eventproc","instance":"","pid":1180}}],"tags":["test"]}
+----
+
+== Siguientes pasos
+
+En este tutorial hemos visto la construcción de un sencillo sistema de procesamiento de eventos, pero no hemos entrado a entender el detalle de su configuración. Tampoco hemos visto muchas de las funcionalidades que el software *event* nos ofrece. Todo eso se verá en los siguientes capítulos.
+
+TIP: La potencia real de los servicios *event* radican de su combinación con otros servicios como servicio DNS, analizadores de tráfico, etc. Puede ver algunas de las posibles configuraciones se encuentran en el apartado de guías de despliegue.
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

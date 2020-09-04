@@ -1,0 +1,72 @@
+= Configuración
+include::{partialsdir}/attributes-es.adoc[]
+//ifdef::env-site,env-github[:toc:]
+
+La configuración del software se realiza de la misma forma que el resto de componentes del sistema _^lu^IDS_, tal y como se describe en <<config-bootstrap>>. Luego, cada componente tiene sus propias secciones particulares como se describirá en <<config-eventproc>>.
+
+ifdef::env-site,env-github[]
+include::manuals:partial$config-bootstrap.adoc[leveloffset=1]
+endif::env-site,env-github[]
+
+ifndef::env-site,env-github[]
+include::{moduledir}/../manuals/pages/_partials/config-bootstrap.adoc[leveloffset=2]
+endif::env-site,env-github[]
+
+[[config-eventproc]]
+== Configuración `eventproc`
+
+[[config-eventproc-sections]]
+=== Secciones
+
+* <<options-args>>
+* <<options-eventproc>>
+* <<options-eventproc-db>>
+* <<options-eventproc-stack>>
+* <<options-service-event-notify>>
+* <<options-service-event-forward>>
+* <<options-ids-api>>
+* <<options-health>>
+* <<options-log>>
+
+[[config-eventproc-examples]]
+=== Ejemplos
+
+.Ejemplo de `/etc/luids/event/eventproc.toml`
+[source,toml]
+----
+include::{examplesdir}/eventproc_example1.toml[]
+----
+
+[[config-reference]]
+== Referencia de configuración
+
+ifdef::env-site,env-github[]
+include::manuals:partial$options-args.adoc[leveloffset=2]
+include::partial$options-eventproc.adoc[leveloffset=2]
+include::partial$options-eventproc-db.adoc[leveloffset=2]
+include::partial$options-eventproc-stack.adoc[leveloffset=2]
+include::partial$options-service-event-notify.adoc[leveloffset=2]
+include::partial$options-service-event-forward.adoc[leveloffset=2]
+include::manuals:partial$options-ids-api.adoc[leveloffset=2]
+include::manuals:partial$options-server.adoc[leveloffset=2]
+include::manuals:partial$options-health.adoc[leveloffset=2]
+include::manuals:partial$options-log.adoc[leveloffset=2]
+endif::env-site,env-github[]
+
+ifndef::env-site,env-github[]
+include::{moduledir}/../manuals/pages/_partials/options-args.adoc[leveloffset=3]
+include::{partialsdir}/options-eventproc.adoc[leveloffset=3]
+include::{partialsdir}/options-eventproc-db.adoc[leveloffset=3]
+include::{partialsdir}/options-eventproc-stack.adoc[leveloffset=3]
+include::{partialsdir}/options-service-event-notify.adoc[leveloffset=3]
+include::{partialsdir}/options-service-event-forward.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-ids-api.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-server.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-health.adoc[leveloffset=3]
+include::{moduledir}/../manuals/pages/_partials/options-log.adoc[leveloffset=3]
+endif::env-site,env-github[]
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:service-definition.adoc[Definición del servicio]
+endif::env-site,env-github[]

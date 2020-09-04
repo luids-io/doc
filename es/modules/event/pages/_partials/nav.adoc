@@ -1,0 +1,7 @@
+* xref:event:index.adoc[event]
+** xref:event:introduction.adoc[Introducción]
+** xref:event:getting-started.adoc[Empezando]
+** xref:event:installation.adoc[Instalación]
+** xref:event:configuration.adoc[Configuración]
+** xref:event:service-definition.adoc[Definición del servicio]
+** xref:event:next-steps.adoc[Siguientes pasos]

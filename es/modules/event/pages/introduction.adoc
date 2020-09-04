@@ -1,0 +1,25 @@
+= Introducción
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+El paquete de software *event* contiene todo lo necesario para desplegar un
+*servicio de gestión de eventos* integrado con nuestro sistema _luIDS_.
+
+Para realizar esta tarea, se ha desarrollado una pequeña  *API de eventos* cuyo cliente se integra en los distintos componentes del sistema _luIDS_ y *un procesador de eventos* que permite implementa la parte servidor y una lógica de procesado de eventos mediante un sistema de filtros y plugins. El sistema se ha diseñado para un posible procesamiento distribuido, lo que permite la posibilidad de un tratamiento de los eventos tanto local como global.
+
+Las herramientas que componen el paquete de software son:
+
+* *eventproc*: es el *procesador de eventos* que ofrece las API de notificación y redireción.
+* *eventnotify*: es una pequeña herramienta _CLI_ que permite notificar eventos. Siendo especialmente útil en scripts y pruebas del sistema.
+
+.Diagrama de contexto
+image::introduction-event.svg[introduction-event,width=100%,pdfwidth=80%]
+
+Todo el software está escrito en _Go_, es software libre y está disponible en https://github.com/luids-io/event.
+
+Aunque el usuario puede crear sus propios eventos, existe una base de datos con los eventos predefinidos del sistema _luIDS_ https://github.com/luids-io/event-database
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:getting-started.adoc[Empezando]
+endif::env-site,env-github[]

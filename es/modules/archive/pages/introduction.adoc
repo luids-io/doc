@@ -9,6 +9,8 @@ El software provee las API de archivado para los diferentes componentes del sist
 .Diagrama de contexto
 image::introduction-archive.svg[introduction-archive,width=100%,pdfwidth=80%]
 
+Todo el software está escrito en _Go_, es software libre y está disponible en https://github.com/luids-io/archive.
+
 ifdef::env-site,env-github[]
 A continuación: xref:getting-started.adoc[Empezando]
 endif::env-site,env-github[]

@@ -2,3 +2,4 @@
 include::xlist:partial$nav.adoc[]
 include::dns:partial$nav.adoc[]
 include::archive:partial$nav.adoc[]
+include::event:partial$nav.adoc[]
