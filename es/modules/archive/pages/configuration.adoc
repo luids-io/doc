@@ -2,7 +2,7 @@
 include::{partialsdir}/attributes-es.adoc[]
 //ifdef::env-site,env-github[:toc:]
 
-La configuración del software se realiza de la misma forma que el resto de componentes del sistema _^lu^IDS_, tal y como se describe en <<config-bootstrap>>. Luego, cada componente tiene sus propias secciones particulares como se describirá en <<config-xlistd>> y <<config-xlget>>.
+La configuración del software se realiza de la misma forma que el resto de componentes del sistema _^lu^IDS_, tal y como se describe en <<config-bootstrap>>. Luego, cada componente tiene sus propias secciones particulares como se describirá en <<config-luarchive>>.
 
 ifdef::env-site,env-github[]
 include::manuals:partial$config-bootstrap.adoc[leveloffset=1]
