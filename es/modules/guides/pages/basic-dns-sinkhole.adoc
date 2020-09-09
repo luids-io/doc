@@ -337,30 +337,6 @@ sudo systemctl start luids-xlistd
 sudo systemctl enable luids-xlistd
 ----
 
-Podremos verificar que se inicia correctamente con el correspondiente `systemctl status luids-xlistd`.
-
-[source,console]
-----
-# systemctl status luids-xlistd
-● luids-xlistd.service - xlistd service
-     Loaded: loaded (/etc/systemd/system/luids-xlistd.service; enabled; vendor preset: enabled)
-     Active: active (running) since Mon 2020-08-17 08:09:55 CEST; 1min 9s ago
-   Main PID: 1780 (xlistd)
-      Tasks: 6 (limit: 1074)
-     Memory: 123.0M
-     CGroup: /system.slice/luids-xlistd.service
-             └─1780 /usr/local/bin/xlistd --config /etc/luids/xlist/xlistd.toml
-
-ago 17 08:09:55 luids-test systemd[1]: Started xlistd service.
-ago 17 08:09:55 luids-test xlistd[1780]: time="2020-08-17T08:09:55+02:00" level=info msg="xlistd (version: 341fe0>
-ago 17 08:09:55 luids-test xlistd[1780]: time="2020-08-17T08:09:55+02:00" level=info msg="starting services"
-ago 17 08:09:55 luids-test xlistd[1780]: time="2020-08-17T08:09:55+02:00" level=info msg="starting ids.api"
-ago 17 08:09:55 luids-test xlistd[1780]: time="2020-08-17T08:09:55+02:00" level=info msg="starting xlist.service"
-ago 17 08:09:55 luids-test xlistd[1780]: time="2020-08-17T08:09:55+02:00" level=info msg="starting xlist-builder >
-ago 17 08:10:00 luids-test xlistd[1780]: time="2020-08-17T08:10:00+02:00" level=info msg="starting server.[tcp://>
-ago 17 08:10:00 luids-test xlistd[1780]: time="2020-08-17T08:10:00+02:00" level=info msg="starting service.xlist.>
-----
-
 Podremos probar el correcto funcionamiento del servidor utilizando el comando `xlistc` para hacerle consultas.
 
 [source,console]
