@@ -9,7 +9,7 @@ export PRODUCT_BUILD=$(date +%F)
 
 # list of products
 PRODUCTS="manual-xlist manual-dns manual-archive manual-event"
-PRODUCTS="$PRODUCTS guide-basic-dns-sinkhole guide-advanced-dns-sinkhole"
+PRODUCTS="$PRODUCTS guide-basic-dns-sinkhole guide-advanced-dns-sinkhole guide-basic-dns-rblzone"
 
 mkdir -p $OUTDIR
 for product in $PRODUCTS; do

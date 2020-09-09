@@ -3,3 +3,4 @@ include::{partialsdir}/attributes-es.adoc[]
 
 * xref:basic-dns-sinkhole.adoc[Sumidero DNS básico]: configuración de un sencillo sumidero con el que bloquear publicidad, phising y malware.
 * xref:advanced-dns-sinkhole.adoc[Sumidero DNS avanzado]: configuración de un sumidero con el que bloquear publicidad, phising y malware. Este sumidero archiva las peticiones DNS realizadas y genera eventos.
+* xref:basic-dns-rblzone.adoc[Zona DNS RBL básica]: configuración de una sencilla zona DNS RBL para su uso como sistema antispam.

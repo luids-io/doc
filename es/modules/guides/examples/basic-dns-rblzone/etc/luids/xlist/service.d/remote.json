@@ -1,0 +1,77 @@
+[
+    {
+        "id": "remote-blacklists",
+        "class": "parallel",
+        "resources": [ "ip4" ],
+        "contains": [
+            {
+                "id": "barracudacentral.org",
+                "wrappers": [
+                    { "class": "score", "opts": { "value": 10 } }
+                ]
+            },
+            {
+                "id": "any-sorbs",
+                "class": "parallel",
+                "resources": [ "ip4" ],
+                "opts": {
+                    "first": true,
+                    "skiperrors": true
+                },
+                "contains": [
+                    { "id": "sorbs.net-dul"    },
+                    { "id": "sorbs.net-recent" },
+                    { "id": "sorbs.net-new"    }
+                ],
+                "wrappers": [
+                    { "class": "score", "opts": { "value": 10 } }
+                ]
+            },
+            {
+                "id": "spamcop.net",
+                "wrappers": [
+                    { "class": "score", "opts": { "value": 10 } }
+                ]
+            },
+            {
+                "id": "spamhaus.org-zen",
+                "wrappers": [
+                    { "class": "score", "opts": { "value": 10 } }
+                ]
+            },
+            {
+                "id": "gbudb.net",
+                "wrappers": [
+                    { "class": "score", "opts": { "value": 30 } }
+                ]
+            },
+            {
+                "id": "junkemailfilter.com-black",
+                "wrappers": [
+                    { "class": "score", "opts": { "value": 10 } }
+                ]
+            },
+            {
+                "id": "mailspike.net-bl",
+                "wrappers": [
+                    { "class": "score", "opts": { "value": 10 } }
+                ]
+            },
+            {
+                "id": "mcafee.com",
+                "wrappers": [
+                    { "class": "score", "opts": { "value": 10 } }
+                ]
+            },
+            {
+                "id": "surriel.com-psbl",
+                "wrappers": [
+                    { "class": "score", "opts": { "value": 10 } }
+                ]
+            }
+        ],
+        "wrappers": [
+            { "class": "response", "opts": { "clean": true, "threshold": 20 } }
+        ]
+    }
+]

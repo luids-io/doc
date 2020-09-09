@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="34cm" height="22cm" viewBox="107 -6 679 422" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs/>
+  <g id="Fondo">
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="512" y="156" width="108" height="104" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:Ubuntu;font-style:normal;font-weight:normal" x="566" y="204.57">
+      <tspan x="566" y="204.57">xlistdns</tspan>
+      <tspan x="566" y="220.57">rbl.mizone.com</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="374.8" y="88" width="59.2" height="245" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:Ubuntu;font-style:normal;font-weight:normal" x="404.4" y="207.25">
+      <tspan x="404.4" y="207.25">xlistd</tspan>
+      <tspan x="404.4" y="223.25">API</tspan>
+    </text>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="511.005" y1="209.042" x2="443.734" y2="210.316"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="436.236,210.458 446.139,205.269 443.734,210.316 446.329,215.267 "/>
+    </g>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="445.8" y="202.9">
+      <tspan x="445.8" y="202.9">GRPC</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="134.8" y="23" width="59.2" height="55" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:Ubuntu;font-style:normal;font-weight:normal" x="164.4" y="47.25">
+      <tspan x="164.4" y="47.25">other</tspan>
+      <tspan x="164.4" y="63.25">api</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="108.8" y="103" width="59.2" height="55" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:Ubuntu;font-style:normal;font-weight:normal" x="138.4" y="127.25">
+      <tspan x="138.4" y="127.25">dnsxl</tspan>
+      <tspan x="138.4" y="143.25">zone1</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="120.8" y="179" width="59.2" height="55" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:Ubuntu;font-style:normal;font-weight:normal" x="150.4" y="203.25">
+      <tspan x="150.4" y="203.25">dnsxl</tspan>
+      <tspan x="150.4" y="219.25">zone2</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="142.6" y="252" width="59.2" height="55" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:Ubuntu;font-style:normal;font-weight:normal" x="172.2" y="276.25">
+      <tspan x="172.2" y="276.25">dnsxl</tspan>
+      <tspan x="172.2" y="292.25">zone3</tspan>
+    </text>
+    <g>
+      <path style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" d="M 167 331.667 C 178.8,322.167 184.7,319 196.5,319 C 208.3,319 214.2,322.167 226,331.667 L 226,382.333 C 214.2,391.833 208.3,395 196.5,395 C 184.7,395 178.8,391.833 167,382.333 L 167,331.667z"/>
+      <path style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" d="M 167 331.667 C 178.8,341.167 184.7,344.333 196.5,344.333 C 208.3,344.333 214.2,341.167 226,331.667"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="196.5" y="359.333">
+        <tspan x="196.5" y="359.333">local</tspan>
+        <tspan x="196.5" y="375.333">list1</tspan>
+      </text>
+    </g>
+    <g>
+      <path style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" d="M 247.8 349.667 C 259.6,340.167 265.5,337 277.3,337 C 289.1,337 295,340.167 306.8,349.667 L 306.8,400.333 C 295,409.833 289.1,413 277.3,413 C 265.5,413 259.6,409.833 247.8,400.333 L 247.8,349.667z"/>
+      <path style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" d="M 247.8 349.667 C 259.6,359.167 265.5,362.333 277.3,362.333 C 289.1,362.333 295,359.167 306.8,349.667"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="277.3" y="377.333">
+        <tspan x="277.3" y="377.333">local</tspan>
+        <tspan x="277.3" y="393.333">list2</tspan>
+      </text>
+    </g>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="218.8" y="-5" width="59.2" height="55" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:Ubuntu;font-style:normal;font-weight:normal" x="248.4" y="19.25">
+      <tspan x="248.4" y="19.25">remote</tspan>
+      <tspan x="248.4" y="35.25">xlistapi1</tspan>
+    </text>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="373.807" y1="173.632" x2="278.25" y2="58.4725"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="273.46,52.7008 283.694,57.2035 278.25,58.4725 275.998,63.5893 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="373.799" y1="190.1" x2="203.101" y2="76.301"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="196.861,72.1407 207.955,73.5275 203.101,76.301 202.408,81.848 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="373.796" y1="201.296" x2="178.327" y2="142.508"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="171.145,140.348 182.161,138.44 178.327,142.508 179.281,148.016 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="373.813" y1="210.018" x2="190.722" y2="207.135"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="183.223,207.017 193.301,202.175 190.722,207.135 193.143,212.174 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="373.807" y1="220.919" x2="211.016" y2="276.361"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="203.917,278.779 211.771,270.822 211.016,276.361 214.995,280.288 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="373.819" y1="232.049" x2="234.938" y2="329.914"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="228.807,334.234 234.102,324.387 234.938,329.914 239.862,332.561 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="373.796" y1="250.109" x2="307.115" y2="336.412"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="302.529,342.347 304.687,331.376 307.115,336.412 312.6,337.491 "/>
+    </g>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="627.8" y="41" width="72.2" height="61" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:Ubuntu;font-style:normal;font-weight:normal" x="663.9" y="68.25">
+      <tspan x="663.9" y="68.25">postfix</tspan>
+      <tspan x="663.9" y="84.25">mta1</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="709.8" y="139" width="72.2" height="61" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:Ubuntu;font-style:normal;font-weight:normal" x="745.9" y="166.25">
+      <tspan x="745.9" y="166.25">postfix</tspan>
+      <tspan x="745.9" y="182.25">mta2</tspan>
+    </text>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="641.307" y1="103.001" x2="609.683" y2="147.093"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="605.312,153.188 607.077,142.147 609.683,147.093 615.204,147.976 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="708.809" y1="177.438" x2="630.52" y2="194.192"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="623.187,195.762 631.919,188.78 630.52,194.192 634.011,198.558 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="712.599" y1="260.431" x2="630.163" y2="230.948"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="623.101,228.422 634.201,227.082 630.163,230.948 630.833,236.498 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x1="653.015" y1="316.4" x2="614.426" y2="268.328"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" fill-rule="evenodd" points="609.732,262.48 619.891,267.148 614.426,268.328 612.092,273.408 "/>
+    </g>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="631.8" y="137">
+      <tspan x="631.8" y="137">DNS</tspan>
+    </text>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="656.6" y="173.9">
+      <tspan x="656.6" y="173.9">DNS</tspan>
+    </text>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="655.4" y="235.9">
+      <tspan x="655.4" y="235.9">DNS</tspan>
+    </text>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="635.2" y="282.9">
+      <tspan x="635.2" y="282.9">DNS</tspan>
+    </text>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="291.8" y="77">
+      <tspan x="291.8" y="77">GRPC</tspan>
+    </text>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="231.6" y="95.9">
+      <tspan x="231.6" y="95.9">HTTP</tspan>
+    </text>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="203.6" y="144.9">
+      <tspan x="203.6" y="144.9">DNS</tspan>
+    </text>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="202.6" y="196.9">
+      <tspan x="202.6" y="196.9">DNS</tspan>
+    </text>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="226.4" y="250.9">
+      <tspan x="226.4" y="250.9">DNS</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="713.6" y="243.2" width="72.2" height="61" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:Ubuntu;font-style:normal;font-weight:normal" x="749.7" y="270.27">
+      <tspan x="749.7" y="270.27">postfix</tspan>
+      <tspan x="749.7" y="286.27">mta3</tspan>
+    </text>
+    <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 2; stroke: #000000" x="642.2" y="317.4" width="72.2" height="61" rx="0" ry="0"/>
+    <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:Ubuntu;font-style:normal;font-weight:normal" x="678.3" y="344.65">
+      <tspan x="678.3" y="344.65">postfix</tspan>
+      <tspan x="678.3" y="360.65">mta4</tspan>
+    </text>
+  </g>
+</svg>

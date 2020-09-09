@@ -1,0 +1,9 @@
+[xlistd]
+datadir = "/var/lib/luids/xlist"
+
+[xlistd.service]
+files      = [ "/etc/luids/xlist/service.json" ]
+dirs       = [ "/etc/luids/xlist/services.d/remote", "/etc/luids/xlist/services.d" ]
+
+[xlistd.plugin.dnsxl]
+timeout = 4000

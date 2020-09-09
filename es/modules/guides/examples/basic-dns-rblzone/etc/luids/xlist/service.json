@@ -1,0 +1,28 @@
+[
+    {
+        "id": "root",
+        "class": "wbefore",
+        "resources": [ "ip4" ],
+        "contains": [
+            { "id": "my-whitelist" },
+            {
+                "id": "blacklist",
+                "class": "sequence",
+                "resources": [ "ip4" ],
+                "opts": { "first": true },
+                "contains": [
+                    { "id": "my-blacklist" },
+                    {
+                        "id": "remote-blacklists",
+                        "wrappers": [
+                            { "class": "cache", "opts": { "ttl": 150 } }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "wrappers": [
+            { "class": "logger" }
+        ]
+    }
+]
