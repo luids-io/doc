@@ -1,0 +1,14 @@
+= Introducción
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+El paquete de software *netfilter* contiene las utilidades necesarias para integrar un sistema cortafuegos _Netfilter_ con nuestro sistema _^lu^IDS_.
+
+Las herramientas que componen el paquete de software son:
+
+* *lunfqueue*: permite agregar lógica de chequeo a colas _nfqueue_.
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:getting-started.adoc[Empezando]
+endif::env-site,env-github[]

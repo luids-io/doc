@@ -8,8 +8,9 @@ export PRODUCT_VERSION=$(git describe --match 'v[0-9]*' --dirty='.m' --always)
 export PRODUCT_BUILD=$(date +%F)
 
 # list of products
-PRODUCTS="manual-xlist manual-dns manual-archive manual-event"
-PRODUCTS="$PRODUCTS guide-basic-dns-sinkhole guide-advanced-dns-sinkhole guide-basic-dns-rblzone"
+MANUALS="manual-xlist manual-dns manual-archive manual-event manual-netfilter"
+GUIDES="guide-basic-dns-sinkhole guide-advanced-dns-sinkhole guide-basic-dns-rblzone"
+PRODUCTS="$MANUALS $GUIDES"
 
 mkdir -p $OUTDIR
 for product in $PRODUCTS; do

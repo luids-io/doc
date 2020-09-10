@@ -1,0 +1,180 @@
+= Empezando
+include::{partialsdir}/attributes-es.adoc[]
+
+A continuación veremos un pequeño tutorial en el que configuraremos un pequeño cortafuegos para que haga uso de un servicio de listas negras en un servidor GNU/Linux. El objetivo de este tutorial es familiarizar al usuario con las herramientas y mostrar una pequeña parte de lo que nos ofrece el software, si desea ver su uso en algún escenario "real" puede ver alguna de las guías disponibles.
+
+== Instalando
+
+Usaremos el instalador del paquete, para ello simplemente copiaremos y pegaremos el siguiente contenido en una shell.
+
+[source,bash]
+----
+RELEASE="v0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/netfilter/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+wget $DOWNLOAD_URI -O installer_netfilter.sh
+chmod 755 installer_netfilter.sh
+sudo ./installer_netfilter.sh -u
+----
+
+El instalador instala unos scripts `systemd` para la inicialización de los servicios, pero no los inicia ni activa, esto debe hacerlo explícitamente el administrador de sistemas. Lo haremos posteriormente cuando tengamos el sistema listo.
+
+== Instalando nuestras dependencias
+
+Debido a que nuestro cortafuegos va a hacer uso de un sistema de listas negras, necesitamos un servidor `xlistd` que de soporte al sistema. Por ello procederemos a instalar dicho servidor.
+
+[source,bash]
+----
+RELEASE="v0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+wget $DOWNLOAD_URI -O installer_xlist.sh
+chmod 755 installer_xlist.sh
+sudo ./installer_xlist.sh -u
+----
+
+== Nuestra primera lista negra
+
+En una instalación estándar, la configuración del servicio `xlistd` se realiza en el fichero `/etc/luids/xlist/xlistd.toml`. Dentro de dicho fichero se hace referencia a la definición del servicio que, en la instalación estándar, se encuentra en el fichero `/etc/luids/xlist/services.json`. Lo configuraremos para que utilice una lista negra que dejaremos en `/var/lib/luids/xlist/my-blacklist.xlist`.
+
+.Contenido de `/etc/luids/xlist/services.json`
+[source,json]
+----
+[
+  {
+    "id": "root",
+    "class": "file",
+    "resources": [ "ip4", "ip6" ],
+    "source": "my-blacklist.xlist",
+    "opts": { "reason": "found in 'my-blacklist'" }
+  }
+]
+----
+
+.Contenido de `/var/lib/luids/xlist/my-blacklist.xlist`
+[source]
+----
+ip4,plain,1.2.3.4
+ip4,cidr,69.69.69.0/24
+ip4,plain,8.8.4.4
+----
+
+Reiniciaremos el servicio...
+
+[source,bash]
+----
+sudo systemctl restart luids-xlistd
+----
+
+Probaremos nuestro sistema de listas negras recién configurado...
+
+[source,console]
+----
+$ xlistc
+[ip4 ip6] (1.317265ms)
+$ xlistc 8.8.8.8
+ip4,8.8.8.8: false,"",0 (199.248µs)
+$ xlistc 8.8.4.4
+ip4,8.8.4.4: true,"found in 'my-blacklist'",0 (191.068µs)
+----
+
+Ya tenemos un sistema de listas negras funcionando. Aunque en la práctica no es de mucha utilidad, nos servirá para mostrar parte de la funcionalidad de nuestro software.
+
+== Integrando el sistema de listas negras
+
+Para que nuestro sistema pueda ser usado, debemos "publicarlo" en los servicios del host. Para ello editaremos el fichero `/etc/luids/apiservices.json`.
+
+.Contenido de `/etc/luids/apiservices.json`
+[source,json]
+----
+[
+    {
+        "id": "xlistnfq",
+        "api": "luids.xlist.v1.Check",
+        "endpoint": "tcp://127.0.0.1:5801"
+    }
+]
+----
+
+Editaremos el fichero de plugins usados por `lunfqueue` y configuraremos un procesador IP con una acción que chequee en listas negras.
+
+.Contenido de `/etc/luids/netfilter/plugins-nfqueue.json`
+[source,json]
+----
+[
+  {
+    "name": "ip-processor",
+    "class": "ipp",
+    "actions": [
+      {
+        "name": "checkip",
+        "class": "checkip",
+        "services": { "xlist": "xlistnfq" },
+        "rules": [
+          { "when": "listed", "rule": { "log": true, "verdict": "drop" } }
+        ]
+      }
+    ]
+  }
+]
+----
+
+Reiniciaremos nuestro servicio recién configurado.
+
+[source,bash]
+----
+sudo systemctl restart luids-lunfqueue
+----
+
+== Integrando con netfilter vía `iptables`
+
+Para nuestra configuración de prueba agregaremos una regla a la cadena `OUTPUT` del host que filtre los pings que realice.
+
+[source,bash]
+----
+sudo iptables -I OUTPUT -p icmp -j NFQUEUE
+----
+
+Ya podemos probar el sistema...
+
+[source,console]
+----
+$ ping -c 1 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=63 time=16.2 ms
+
+--- 8.8.8.8 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 16.189/16.189/16.189/0.000 ms
+
+$ ping -c 1 8.8.4.4
+PING 8.8.4.4 (8.8.4.4) 56(84) bytes of data.
+
+--- 8.8.4.4 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
+----
+
+Comprobaremos que ha sido nuestro sistema el que ha rechazado el paquete mirando el log del sistema.
+
+[source,console]
+----
+# grep lunfqueue /var/log/syslog
+.....
+Sep 10 07:51:59 luids-router lunfqueue[1304]: level=info msg="starting nfqueue #0"
+Sep 10 07:54:33 luids-router lunfqueue[1304]: level=info msg="ip-processor.checkip: 10.0.2.15->8.8.4.4 8.8.4.4 {Result:true Reason:found in 'my-blacklist' TTL:0}"
+----
+
+Podremos eliminar la regla recién creada con el siguiente comando.
+
+[source,bash]
+----
+sudo iptables -D OUTPUT -p icmp -j NFQUEUE
+----
+
+== Siguientes pasos
+
+En este tutorial hemos visto la construcción de una sencilla integración del cortafuegos _netfilter_ con un servicio de _^lu^IDS_, pero no hemos entrado a entender el detalle de su configuración. Tampoco hemos visto muchas de las funcionalidades que el software *netfilter*. Todo eso se verá en los siguientes capítulos.
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

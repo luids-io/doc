@@ -1,0 +1,9 @@
+= Definición del servicio
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+TODO
+
+ifdef::env-site,env-github[]
+A continuación: xref:next-steps.adoc[Siguientes pasos]
+endif::env-site,env-github[]

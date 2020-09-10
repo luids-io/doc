@@ -1,0 +1,11 @@
+[nfqueue]
+localnets     = [ "192.168.0.0/24" ]
+#qids    = [ 100 ]
+#onerror = "drop"
+#policy  = "drop"
+
+[nfqueue.plugin]
+files  = [ "/etc/luids/netfilter/plugins-nfqueue.json" ]
+
+[ids.api]
+files  = [ "/etc/luids/apiservices.json" ]
