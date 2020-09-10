@@ -29,7 +29,7 @@ El software viene en forma de ejecutables compilados estáticamente. Esto hace q
 Actualmente sólo hay instalador disponible para _GNU/Linux_. Para instalar, simplemente copie y pegue el siguiente contenido en una shell.
 
 [source,bash]
-.Instalación de dns mediante instalador
+.Instalación mediante instalador
 ----
 RELEASE="v0.0.1"
 DOWNLOAD_BASE="https://github.com/luids-io/event/releases/download"
