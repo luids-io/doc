@@ -5,5 +5,5 @@ ifdef::env-site,env-github[:toc:]
 TODO
 
 ifdef::env-site,env-github[]
-A continuación: xref:next-steps.adoc[Siguientes pasos]
+A continuación: xref:netfilter-integration.adoc[Integración netfilter]
 endif::env-site,env-github[]

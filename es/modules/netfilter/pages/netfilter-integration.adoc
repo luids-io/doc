@@ -1,0 +1,55 @@
+= Integración con Netfilter
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+_Netfilter_ es el framework de filtrado de paquetes del kernel de Linux y las utilidades más comunes para su gestión son `iptables` y el más moderno `nftables`.
+
+NOTE: En esta sección se hablará únicamente de `iptables` por ser la utilidad más conocida y usada, dejando la segunda para posteriores versiones de la documentación.
+
+Para la toma de decisiones en espacio de usuario, _netfilter_ implementa el módulo _NFQUEUE_. Usando dicho módulo, es posible enviar los paquetes que hacen match con la regla a través de una interfaz _netlink_ al proceso que esté registrado en la cola indicada. Posteriormente, dicho proceso emite un veredicto de si acepta o elimina el paquete.
+
+TIP: Puede ver el siguiente artículo, en el que hay una muy buena descripción de los parámetros del módulo y funcionamiento: https://home.regit.org/netfilter-en/using-nfqueue-and-libnetfilter_queue/
+
+Lo mejor es ver un sencillo ejemplo:
+
+----
+iptables -A INPUT -p tcp --dport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT //<1>
+iptables -A INPUT -p tcp --dport 80 -m conntrack --ctstate NEW -j NFQUEUE --queue-num 100 //<2>
+iptables -A OUTPUT -p tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT //<3>
+----
+<1> Aceptamos aquellas conexiones al servidor HTTP ya establecidas.
+<2> Las nuevas conexiones al servidor HTTP las enviamos a la cola con identificador `100`.
+<3> Permitimos las conexiones de salida del servidor HTTP que estén establecidas.
+
+Como puede verse, simplemente hay que indicar en la regla el módulo y la cola a la que enviamos el tráfico. Si no especificamos el identificador de cola, por defecto será 0.
+
+Un resumen de opciones que admite el módulo _netfilter_ son las siguientes:
+
+|===
+| Opción | Descripción
+
+| `queue-num` | Define el número de cola
+
+| `queue-bypass` | Si no encuentra proceso a la escucha, acepta el paquete
+
+| `fail-open` | Si la cola está llena (el proceso no maneja a la velocidad adecuada), acepta el paquete
+
+| `queue-balance` | Realiza un balanceo de carga determinista entre los identificadores de cola definidos
+
+|===
+
+Algunas consideraciones y consejos prácticos:
+
+* Utiliza cachés en los clientes de los servicios que se vayan a utilizar siempre que sea posible.
+* Ten cuidado a la hora de definir las reglas. Un error común es bloquear la comunicación con los servicios que utiliza (como servidores xlist, caches, etc).
+* Desde distintas reglas podemos enviar los paquetes a una misma cola. Esto puede ser útil para un servidor que tiene servicios en diferentes puertos.
+* Podemos combinar múltiples listas y múltiples reglas.
+* Utilizando `queue-balance` podemos desde una misma regla enviar a distintas colas.
+* Conviene minimizar el uso y utilizar la gestión de estados y enviar sólo las nuevas peticiones de conexión, sino se introduce una sobrecarga innecesaria.
+* En fases de prueba, puede ser conveniente utilizar los parámetros `queue-bypass` y `fail-open` para no afectar al servicio.
+* A partir de conexiones de gigabit puede ser conveniente utilizar `queue-balance`.
+* Puede ser conveniente también distribuir la carga entre distintos servidores de listas.
+
+ifdef::env-site,env-github[]
+A continuación: xref:next-steps.adoc[Siguientes pasos]
+endif::env-site,env-github[]

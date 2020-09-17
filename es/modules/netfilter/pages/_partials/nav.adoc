@@ -4,4 +4,5 @@
 ** xref:netfilter:installation.adoc[Instalación]
 ** xref:netfilter:configuration.adoc[Configuración]
 ** xref:netfilter:service-definition.adoc[Definición del servicio]
+** xref:netfilter-integration.adoc[Integración netfilter]
 ** xref:netfilter:next-steps.adoc[Siguientes pasos]
