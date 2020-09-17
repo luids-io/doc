@@ -2,4 +2,4 @@
 * xref:basic-dns-sinkhole.adoc[Sumidero DNS básico]
 * xref:advanced-dns-sinkhole.adoc[Sumidero DNS avanzado]
 * xref:basic-dns-rblzone.adoc[Zona DNS RBL básica]
-* xref:basic-nfqueue.adoc[Cortafuegos con listas negras]
+* xref:basic-nfqueue-xlist.adoc[Cortafuegos con listas negras]

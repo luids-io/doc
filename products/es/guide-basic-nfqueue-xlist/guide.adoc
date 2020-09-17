@@ -5,4 +5,4 @@ Luis Guillén Civera <luisguillenc@gmail.com>
 include::{moduledir}/_attributes.adoc[]
 :toc:
 
-include::{pagesdir}/basic-nfqueue.adoc[]
+include::{pagesdir}/basic-nfqueue-xlist.adoc[]

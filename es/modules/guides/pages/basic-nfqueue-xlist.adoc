@@ -4,7 +4,7 @@ ifdef::env-site,env-github[:toc:]
 
 En la siguiente guía vamos a ver cómo configurar un *firewall iptables* en nuestro servidor para bloquear las conexiones cuyo origen son botnets y atacantes conocidos. Para ello utilizaremos información de geolocalización y diversas listas negras gratuitas existentes en Internet.
 
-NOTE: A pesar de la extensión de esta guía, puedes realizar la configuración de esta guía *en menos de 5 minutos* únicamente con la información de los apartados de <<installation>> y <<configuration>>. Además tienes a tu disposición todos los ficheros de configuración de esta guía https://github.com/luids-io/docs/blob/master/es/modules/guides/examples/basic-nfqueue[aquí].
+NOTE: A pesar de la extensión de esta guía, puedes realizar la configuración de esta guía *en menos de 5 minutos* únicamente con la información de los apartados de <<installation>> y <<configuration>>. Además tienes a tu disposición todos los ficheros de configuración de esta guía https://github.com/luids-io/docs/blob/master/es/modules/guides/examples/basic-nfqueue-xlist[aquí].
 
 
 [[introduction]]
@@ -168,7 +168,7 @@ stop
 La definición gráfica del servicio mediante componentes de `xlistd` sería la siguiente:
 
 .Definición del servicio _xlistd_ para el firewall
-image::design-basic-nfqueue.svg[design-sinkhole,width=85%,pdfwidth=100%]
+image::design-basic-nfqueue-xlist.svg[design-sinkhole,width=85%,pdfwidth=100%]
 
 [[design-components]]
 === Despliegue de los componentes
@@ -176,7 +176,7 @@ image::design-basic-nfqueue.svg[design-sinkhole,width=85%,pdfwidth=100%]
 Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
 
 .*Diagrama de despliegue*
-[plantuml, basic-nfqueue-deployment, png,pdfwidth=70%]
+[plantuml, basic-nfqueue-xlist-deployment, png,pdfwidth=70%]
 ....
 cloud "Blacklists" {
  [Web server] -down- HTTP
@@ -216,7 +216,7 @@ TIP: Si está instalando en una Raspberry debe definir la arquitectura al lanzar
 [[configuration]]
 == Configuración
 
-IMPORTANT: Puede descargar directamente los ficheros de configuración de esta guía https://github.com/luids-io/docs/blob/master/es/modules/guides/examples/basic-nfqueue[aquí].
+IMPORTANT: Puede descargar directamente los ficheros de configuración de esta guía https://github.com/luids-io/docs/blob/master/es/modules/guides/examples/basic-nfqueue-xlist[aquí].
 
 === Descarga de base de datos xlist
 
@@ -264,7 +264,7 @@ Editaremos el fichero de configuración de `xlget` para incluir el directorio co
 .Contenido de `/etc/luids/xlist/xlget.toml`
 [source,toml]
 ----
-include::{examplesdir}/basic-nfqueue/etc/luids/xlist/xlget.toml[]
+include::{examplesdir}/basic-nfqueue-xlist/etc/luids/xlist/xlget.toml[]
 ----
 
 Una vez creados dichos ficheros podemos chequear su correcta sintaxis mediante el comando `xlget_check`.
@@ -349,31 +349,31 @@ Editaremos los ficheros `json` recién copiados y sustituiremos `"disabled": tru
 .Contenido de `/etc/luids/xlist/services.d/low/foreign-countries.json`
 [source,json]
 ----
-include::{examplesdir}/basic-nfqueue/etc/luids/xlist/services.d/low/foreign-countries.json[]
+include::{examplesdir}/basic-nfqueue-xlist/etc/luids/xlist/services.d/low/foreign-countries.json[]
 ----
 
 .Contenido de `/etc/luids/xlist/services.d/high-confidence.json`
 [source,json]
 ----
-include::{examplesdir}/basic-nfqueue/etc/luids/xlist/services.d/high-confidence.json[]
+include::{examplesdir}/basic-nfqueue-xlist/etc/luids/xlist/services.d/high-confidence.json[]
 ----
 
 .Contenido de `/etc/luids/xlist/services.d/low-confidence.json`
 [source,json]
 ----
-include::{examplesdir}/basic-nfqueue/etc/luids/xlist/services.d/low-confidence.json[]
+include::{examplesdir}/basic-nfqueue-xlist/etc/luids/xlist/services.d/low-confidence.json[]
 ----
 
 .Contenido de `/etc/luids/xlist/services.d/custom-local.json`
 [source,json]
 ----
-include::{examplesdir}/basic-nfqueue/etc/luids/xlist/services.d/custom-local.json[]
+include::{examplesdir}/basic-nfqueue-xlist/etc/luids/xlist/services.d/custom-local.json[]
 ----
 
 .Contenido de `/etc/luids/xlist/service.json`
 [source,json]
 ----
-include::{examplesdir}/basic-nfqueue/etc/luids/xlist/service.json[]
+include::{examplesdir}/basic-nfqueue-xlist/etc/luids/xlist/service.json[]
 ----
 
 Para esta configuración, es necesario crear los ficheros `my-blacklist.xlist` y `my-whitelist.xlist` a los que se hacen referencia en `custom-local.json` mediante los siguientes comandos.
@@ -401,7 +401,7 @@ Ahora creamos el fichero de configuración del servidor.
 .Contenido de `/etc/luids/xlist/xlistd.toml`
 [source,toml]
 ----
-include::{examplesdir}/basic-nfqueue/etc/luids/xlist/xlistd.toml[]
+include::{examplesdir}/basic-nfqueue-xlist/etc/luids/xlist/xlistd.toml[]
 ----
 
 Comprobaremos que la configuración es correcta, como se muestra a continuación.
@@ -437,7 +437,7 @@ Ya que lo tenemos correctamente funcionando, "publicaremos" (de forma local) el 
 .Contenido de `/etc/luids/apiservices.json`
 [source,json]
 ----
-include::{examplesdir}/basic-nfqueue/etc/luids/apiservices.json[]
+include::{examplesdir}/basic-nfqueue-xlist/etc/luids/apiservices.json[]
 ----
 
 === Configuración de lunfqueue
@@ -447,7 +447,7 @@ La configuración nuevamente se divide en configuración del servidor y definici
 .Contenido de `/etc/luids/netfilter/lunfqueue.toml`
 [source,toml]
 ----
-include::{examplesdir}/basic-nfqueue/etc/luids/netfilter/lunfqueue.toml[]
+include::{examplesdir}/basic-nfqueue-xlist/etc/luids/netfilter/lunfqueue.toml[]
 ----
 
 IMPORTANT: Deberás reemplazar la dirección de red `192.168.0.0/24` por la de tu red local.
@@ -457,7 +457,7 @@ El servicio se configurará mediante la definición de los plugins y acciones qu
 .Contenido de `/etc/luids/netfilter/plugins-nfqueue.json`
 [source,toml]
 ----
-include::{examplesdir}/basic-nfqueue/etc/luids/netfilter/plugins-nfqueue.json[]
+include::{examplesdir}/basic-nfqueue-xlist/etc/luids/netfilter/plugins-nfqueue.json[]
 ----
 
 
@@ -533,4 +533,4 @@ iptables -A OUTPUT -p tcp --match multiport --sport 80,443 -m conntrack --ctstat
 ----
 
 WARNING: A pesar de que el sistema ofrece bajas latencias, el chequeo debería limitarse a las nuevas conexiones. Puede leer más recomendaciones en
-xref:lunfqueue:netfilter-integration.adoc[Integración con Netfilter].
+xref:netfilter:netfilter-integration.adoc[Integración con Netfilter].
