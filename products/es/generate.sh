@@ -9,7 +9,7 @@ export PRODUCT_BUILD=$(date +%F)
 
 # list of products
 MANUALS="manual-xlist manual-dns manual-archive manual-event manual-netfilter"
-GUIDES="guide-basic-dns-sinkhole guide-advanced-dns-sinkhole guide-basic-dns-rblzone"
+GUIDES="guide-basic-dns-sinkhole guide-advanced-dns-sinkhole guide-basic-dns-rblzone guide-basic-nfqueue"
 PRODUCTS="$MANUALS $GUIDES"
 
 mkdir -p $OUTDIR

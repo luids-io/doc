@@ -1,0 +1,8 @@
+[xlistd]
+datadir = "/var/lib/luids/xlist"
+
+[xlistd.service]
+files   = [ "/etc/luids/xlist/service.json" ]
+dirs    = [ "/etc/luids/xlist/services.d/high",
+            "/etc/luids/xlist/services.d/low",
+            "/etc/luids/xlist/services.d" ]

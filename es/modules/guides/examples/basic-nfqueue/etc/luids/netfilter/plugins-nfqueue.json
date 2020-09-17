@@ -1,0 +1,19 @@
+[
+  {
+    "name": "ip-processor",
+    "class": "ipp",
+    "actions": [
+      {
+        "name": "checkip",
+        "class": "checkip",
+        "services": { "xlist": "xlist-check" },
+        "rules": [
+          {
+            "when": "listed",
+            "rule": { "log": true, "verdict": "drop" }
+          }
+        ]
+      }
+    ]
+  }
+]

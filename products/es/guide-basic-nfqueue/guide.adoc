@@ -1,0 +1,8 @@
+= Guía ^lu^IDS: Firewall iptables básico para bloquear botnets
+Luis Guillén Civera <luisguillenc@gmail.com>
+:doctype: book
+:icons: font
+include::{moduledir}/_attributes.adoc[]
+:toc:
+
+include::{pagesdir}/basic-nfqueue.adoc[]

@@ -1,0 +1,10 @@
+[nfqueue]
+localnets = [ "127.0.0.0/8", "192.168.0.0/24" ]
+qids      = [ 100 ]
+
+[nfqueue.plugin]
+files     = [ "/etc/luids/netfilter/plugins-nfqueue.json" ]
+
+[ids.api]
+files   = [ "/etc/luids/apiservices.json" ]
+

@@ -1,0 +1,536 @@
+ifdef::env-site,env-github[= Guía: Firewall iptables básico para bloquear botnets]
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+En la siguiente guía vamos a ver cómo configurar un *firewall iptables* en nuestro servidor para bloquear las conexiones cuyo origen son botnets y atacantes conocidos. Para ello utilizaremos información de geolocalización y diversas listas negras gratuitas existentes en Internet.
+
+NOTE: A pesar de la extensión de esta guía, puedes realizar la configuración de esta guía *en menos de 5 minutos* únicamente con la información de los apartados de <<installation>> y <<configuration>>. Además tienes a tu disposición todos los ficheros de configuración de esta guía https://github.com/luids-io/docs/blob/master/es/modules/guides/examples/basic-nfqueue[aquí].
+
+
+[[introduction]]
+== Introducción
+
+=== ¿Por qué esta configuración?
+
+Una tarea común en los cortafuegos es comprobar si alguno de los sistemas implicados en la comunicación está en una lista negra. Para llevar a cabo este proceso, en el caso de los cortafuegos basados en _Netfilter_, lo que generalmente se hace es cargar una lista enorme de direcciones baneadas mediante `ipset`.  Además, se suele utilizar algún software tipo `fail2ban` que directamente manipula una cadena _netfilter_ para agregar dichas direcciones.
+
+Esto funciona pero tiene sus problemas:
+
+* Realizar una carga completa de direcciones tiene un consumo grande en memoria en espacio de kernel.
+* Se agrega el problema de la recarga de estas listas, ¿cuándo se actualizan?, ¿qué tiempo de bloqueo conlleva?, etc.
+* Las utilidades que llevan a cabo el mantenimiento requieren privilegios especiales.
+* ¿Cómo realizamos la gestión cuando tenemos muchos sistemas cortafuegos?
+
+Aquí es donde entra en juego _lunfqueue_, que lleva al espacio de usuario esta tarea y utiliza un servidor _XList_ como origen de datos (con toda la potencia que esto supone) para la toma de decisión del cortafuegos.
+
+Para entender mejor el funcionamiento, puede verse el siguiente diagrama de secuencia.
+
+[[diagram-firewall-sequence]]
+.*Secuencia de un firewall Netfilter con xlist*
+[plantuml, diagram-firewall-sequence, png,pdfwidth=60%]
+....
+actor "Netfilter Queue\n(iptables)" as nfqueue
+participant lunfqueue
+participant xlistd
+
+nfqueue -> lunfqueue: packet{11.22.33.44->192.168.1.1}
+lunfqueue -> xlistd: Check(11.22.33.44)
+xlistd -> lunfqueue: {result: false}
+lunfqueue -> nfqueue: verdict{accept}
+
+nfqueue -> lunfqueue: packet{66.66.66.66->192.168.1.1}
+lunfqueue -> xlistd: Check(66.66.66.66)
+xlistd -> lunfqueue: {result: true, reason: "evil"}
+lunfqueue -> nfqueue: verdict{drop}
+....
+
+=== ¿Qué tiene de especial nuestro sistema?
+
+Como ya se ha comentado, el procedimiento más común es utilizar `ipset` o scripts que generen reglas de cortafuegos en función de un fichero que contenga la lista de IPs, lo que genera alguno de los problemas enumerados.
+
+Como se vio en la figura <<diagram-firewall-sequence>>, nuestro sistema involucra diferentes componentes: por un lado tenemos un componente _lunfqueue_ en "espacio de usuario" que sirve los "veredictos" al sistema _Netfilter_ (que forma parte del Kernel) y, por otro lado, tenemos un servidor _XList_ que se encarga de la tarea de comprobar la existencia de las IPs en las listas. Esta separación de responsabilidades nos permitirá, además de una alta especialización de cada software en su correspondiente rol, implementar sistemas más robustos y escalables.
+
+Esta guía se trata de una configuración básica así que no se verán todas las funcionalidades que ofrece nuestro sistema. Sin embargo, conviene que el usuario las conozca por si se anima a continuar explorando más allá de esta guía. Algunas de las funcionalidades adicionales son:
+
+* es posible de comprobar origen, destino o ambos,
+* también ofrece soporte de ipv6,
+* es posible centralizar toda la lógica en un sistema y dar servicio a múltiples sistemas cortafuegos,
+* es posible definir puntuaciones y umbrales de respuesta,
+* es posible diseñar un sistema de políticas que tenga en cuenta las distintas respuestas y puntuaciones,
+* es capaz de enviar eventos a un sistema SIEM,
+* provee de instrumentación para su integración en un sistema de monitorización _Prometheus_ y así tener información en "tiempo real",
+* disponible en _Docker_ y con algunas características que lo hace ideal para su despliegue en entornos Cloud con herramientas como _Kubernetes_.
+
+Así que una vez visto qué es y qué ventajas aporta nuestro software sobre otros, pongámonos manos a la obra.
+
+[[design]]
+== Diseño del sistema
+
+[[design-sources]]
+=== Selección de los orígenes
+
+En primer lugar vamos a seleccionar los orígenes que vamos a utilizar. Un buen sitio por donde empezar es https://github.com/luids-io/xlist-database[la base de datos XList].
+
+Al tratarse de un sistema cortafuegos, vamos a demandar una baja latencia en las consultas a las listas. Aquí tenemos dos opciones:
+
+. Utilizar fuentes online de pago que nos garanticen calidad de servicio.
+. Utilizar fuentes que puedan descargarse para su uso "offline".
+
+Dado que el objetivo de esta guía es crear un sistema firewall para uso personal de forma gratuita, optaremos por la segunda opción. Además, debido a que se trata de un cortafuegos de IPv4, únicamente utilizaremos listas con el recurso `ip4`.
+
+Para la realización de esta guía utilizaremos las siguiente fuentes, que dividiremos entre _alta confianza_ y _baja confianza_:
+
+*Alta confianza*
+
+* `alienvault.com`
+* `cymru.com-fullbogons4`
+* `interserver.net`
+* `spamhaus.org-drop`
+* `talosintelligence.com`
+
+*Baja confianza*
+
+* `abuse.ch-feodo`
+* `abuse.ch-ssl`
+* `badips.com`
+* `blocklist.de`
+* `blocklist.site-malware`
+* `cinsscore.com`
+* `cruzit.com`
+* `darklist.de`
+* `dataplane.org-sshpwauth`
+* `dshield.org`
+* `emergingthreats.net`
+* `greensnow.co`
+* `myip.ms-full`
+* `rutgers.edu`
+* `turris.cz`
+
+Junto a la información de las listas enumeradas, utilizaremos geolocalización para minimizar posibles falsos positivos de las listas de _baja confianza_.
+
+Para mantener todas las listas que hemos seleccionado sincronizadas, lo que haremos será recurrir a la utilidad _xlget_. Para ello utilizaremos los https://github.com/luids-io/xlist-database/tree/master/database/feeds[feeds de la base de datos] correspondientes.
+
+Además de estos orígenes externos, también daremos a nuestro sistema cierta flexibilidad, incorporando nuestras propias listas blancas y negras junto a información de geolocalización.
+
+[[design-service]]
+=== Diseño del servicio de listas
+
+Nuestro servicio de listas utilizará en primer lugar una lista blanca y posteriormente buscará en las listas negras de _alta y baja confianza_ de la siguiente forma:
+
+.Funcionamiento básico de nuestro sistema
+[plantuml, flow-basic-firewall, png,pdfwidth=80%]
+----
+start
+:read ip4/
+if (my-whitelist.check(ip4)?) then (true)
+	:result = false|
+else (false)
+	if (my-blacklist.check(ip4)?) then (true)
+		:result = true|
+	else (false)
+		if (high-confidence.check(ip4)?) then (true)
+			:result = true|
+		else (false)
+			if (low-confidence.check(ip4)?) then (true)
+				:result = true|
+			else (false)
+				:result = false|
+			endif
+		endif
+	endif
+endif
+stop
+----
+
+La presencia de la IP en cualquier lista negra de _alta confianza_ hará que se rechace inmediatamente la comunicación. Sin embargo, como se adelantó, las listas enumeradas como de _baja confianza_ las trataremos de forma distinta para evitar falsos positivos: agregaremos una lista "virtual" adicional de geolocalización que dará positivo a cualquier IP de fuera de España (nótese que podrían agregarse o quitarse países), daremos una puntuación de 10 a cada lista y estableceremos un umbral de 10. Con este umbral cualquier puntuación mayor de 10 dará positivo, de forma que si una IP se encuentra en dos listas de _baja confianza_ o si se encuentra en una y la IP es de fuera de España, entonces dará positivo. El chequeo se realizará de la siguiente forma:
+
+.Chequeo en listas de baja confianza
+[plantuml, flow-basic-firewall-low-confidence, png,pdfwidth=30%]
+----
+start
+:read ip4/
+:score = 0|
+repeat
+	:next = low-confidence.Next()|
+	if (next.check(ip4)?) then (true)
+		:score = score +10|
+	endif
+repeat while (low-confidence.HasNext()?)
+
+if (score > 10) then (true)
+	:result = true|
+else (false)
+	:result = false|
+endif
+stop
+----
+
+La definición gráfica del servicio mediante componentes de `xlistd` sería la siguiente:
+
+.Definición del servicio _xlistd_ para el firewall
+image::design-basic-nfqueue.svg[design-sinkhole,width=85%,pdfwidth=100%]
+
+[[design-components]]
+=== Despliegue de los componentes
+
+Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
+
+.*Diagrama de despliegue*
+[plantuml, basic-nfqueue-deployment, png,pdfwidth=70%]
+....
+cloud "Blacklists" {
+ [Web server] -down- HTTP
+}
+
+node "Firewall" {
+  [netfilter] - Netlink
+  [iptables] --> Netlink
+  database "Filesystem" {
+    folder "/var/lib/xlist" {
+       [blacklist.xlist]
+    }
+  }
+  [xlget] --> [blacklist.xlist]
+  [blacklist.xlist] --> [xlistd]
+  [xlget] --> HTTP
+  [xlistd] - GRPC
+  [lunfqueue] --> GRPC
+  [lunfqueue] --> Netlink
+}
+....
+
+NOTE: En esta guía únicamente desplegaremos los componentes `xlistd`, `xlget` y `lunfqueue` vistos en el diagrama.
+
+[[installation]]
+== Instalación
+
+WARNING: Este proceso está probado únicamente en un sistema _Ubuntu 20.04LTS_ server. Los binarios están compilados estáticamente y las rutas empleadas son las de una distribución estándar, por lo que el instalador debería funcionar en cualquier distribución. Si necesita más información o quiere instalarlo sobre otras plataformas puede consultar los xref:manuals:index.adoc[manuales de las herramientas].
+
+include::{partialsdir}/install-xlist.adoc[leveloffset=2]
+
+include::{partialsdir}/install-netfilter.adoc[leveloffset=2]
+
+TIP: Si está instalando en una Raspberry debe definir la arquitectura al lanzar el instalador con `sudo ARCH=arm64 ./installer.sh`
+
+
+[[configuration]]
+== Configuración
+
+IMPORTANT: Puede descargar directamente los ficheros de configuración de esta guía https://github.com/luids-io/docs/blob/master/es/modules/guides/examples/basic-nfqueue[aquí].
+
+=== Descarga de base de datos xlist
+
+La manera más sencilla de obtener la base de datos es con un `git clone` o descargando la última release. Podremos dejar la base de datos
+
+[source,bash]
+----
+git clone https://github.com/luids-io/xlist-database
+sudo mv xlist-database /usr/local/share
+----
+
+=== Configuración de xlget
+
+En primer lugar hay que configurar los orígenes de las listas negras definidas, para ello copiaremos de la base de datos xlist los ficheros de definición de `feeds` en `/etc/luids/xlist/sources.d`.
+
+[source,bash]
+----
+cd /usr/local/share/xlist-database/database
+sudo mkdir -p /etc/luids/xlist/sources.d
+sudo cp feeds/abuse-ch.json /etc/luids/xlist/sources.d
+sudo cp feeds/alienvault-com.json /etc/luids/xlist/sources.d
+sudo cp feeds/badips-com.json /etc/luids/xlist/sources.d
+sudo cp feeds/blocklist-de.json /etc/luids/xlist/sources.d
+sudo cp feeds/blocklist-site.json /etc/luids/xlist/sources.d
+sudo cp feeds/cinsscore-com.json /etc/luids/xlist/sources.d
+sudo cp feeds/cruzit-com.json /etc/luids/xlist/sources.d
+sudo cp feeds/cymru-com.json /etc/luids/xlist/sources.d
+sudo cp feeds/darklist-de.json /etc/luids/xlist/sources.d
+sudo cp feeds/dataplane-org.json /etc/luids/xlist/sources.d
+sudo cp feeds/dshield-org.json /etc/luids/xlist/sources.d
+sudo cp feeds/emergingthreats-net.json /etc/luids/xlist/sources.d
+sudo cp feeds/greensnow-co.json /etc/luids/xlist/sources.d
+sudo cp feeds/interserver-net.json /etc/luids/xlist/sources.d
+sudo cp feeds/myip-ms.json /etc/luids/xlist/sources.d
+sudo cp feeds/rutgers-edu.json /etc/luids/xlist/sources.d
+sudo cp feeds/spamhaus-org.json /etc/luids/xlist/sources.d
+sudo cp feeds/talosintelligence-com.json /etc/luids/xlist/sources.d
+sudo cp feeds/turris-cz.json /etc/luids/xlist/sources.d
+----
+
+Editaremos los ficheros `json` recién copiados y sustituiremos `"disabled": true` por `false` en la definición de las listas enumeradas en el apartado <<design-sources>>.
+
+Editaremos el fichero de configuración de `xlget` para incluir el directorio como fuentes.
+
+.Contenido de `/etc/luids/xlist/xlget.toml`
+[source,toml]
+----
+include::{examplesdir}/basic-nfqueue/etc/luids/xlist/xlget.toml[]
+----
+
+Una vez creados dichos ficheros podemos chequear su correcta sintaxis mediante el comando `xlget_check`.
+
+[source,console]
+----
+$ sudo xlget_check
+INFO[0000] xlget (version: adf9e50 build: 2020-09-10T06:39:57+0200)
+configuration ok
+needs update: 'abuse.ch-feodo' 'abuse.ch-ssl' 'alienvault.com' 'badips.com' 'blocklist.de' 'blocklist.site-malware' 'cinsscore.com' 'cruzit.com' 'cymru.com-fullbogons4' 'darklist.de' 'dataplane.org-sshpwauth' 'dshield.org' 'emergingthreats.net' 'greensnow.co' 'interserver.net' 'myip.ms-full' 'rutgers.edu' 'spamhaus.org-drop' 'talosintelligence.com' 'turris.cz'
+----
+
+Tras la validación, vamos a realizar la descarga de las listas. Para ello utilizaremos el comando `xlget_update`.
+
+[source,console]
+----
+$ sudo xlget_update
+INFO[0000] xlget (version: adf9e50 build: 2020-09-10T06:39:57+0200)
+INFO[0000] getting 'abuse.ch-feodo'
+INFO[0000] summary 'abuse.ch-feodo': updated=true ip4=840 ip6=0 domain=0 md5=0 sha1=0 sha256=0
+...
+INFO[0034] getting 'talosintelligence.com'
+INFO[0036] summary 'talosintelligence.com': updated=true ip4=838 ip6=0 domain=0 md5=0 sha1=0 sha256=0
+INFO[0036] getting 'turris.cz'
+INFO[0037] summary 'turris.cz': updated=true ip4=24249 ip6=12 domain=0 md5=0 sha1=0 sha256=0
+INFO[0037] xlget finished
+----
+
+En la salida se mostrarán algunos _warnings_ (que podremos ignorar) y el número de elementos que se han extraído de cada una de las listas. Podemos ver que las listas se han descargado correctamente en el directorio `/var/lib/luids/xlist`.
+
+Para despreocuparnos completamente de la actualización de las listas, inicializaremos el servicio `xlget` para que chequee automáticamente y actualice las listas si es necesario. Además lo habilitaremos para que se inicie con el sistema.
+
+[source,bash]
+----
+sudo systemctl start luids-xlget
+sudo systemctl enable luids-xlget
+----
+
+=== Configuración de xlistd
+
+La configuración de `xlistd` se divide en dos partes:
+
+* Definición del servicio.
+* Parámetros de configuración del servidor.
+
+La definición del servicio la realizaremos utilizando múltiples ficheros para que se entienda mejor. Deberemos crear los siguientes ficheros con su correspondiente contenido.
+
+[source,bash]
+----
+cd /usr/local/share/xlist-database/database
+sudo mkdir -p /etc/luids/xlist/services.d/high
+sudo cp file/alienvault-com.json /etc/luids/xlist/services.d/high
+sudo cp file/cymru-com.json /etc/luids/xlist/services.d/high
+sudo cp file/interserver-net.json /etc/luids/xlist/services.d/high
+sudo cp file/spamhaus-org.json /etc/luids/xlist/services.d/high
+sudo cp file/talosintelligence-com.json /etc/luids/xlist/services.d/high
+----
+
+[source,bash]
+----
+cd /usr/local/share/xlist-database/database
+sudo mkdir -p /etc/luids/xlist/services.d/low
+sudo cp file/abuse-ch.json /etc/luids/xlist/services.d/low
+sudo cp file/badips-com.json /etc/luids/xlist/services.d/low
+sudo cp file/blocklist-de.json /etc/luids/xlist/services.d/low
+sudo cp file/blocklist-site.json /etc/luids/xlist/services.d/low
+sudo cp file/cinsscore-com.json /etc/luids/xlist/services.d/low
+sudo cp file/cruzit-com.json /etc/luids/xlist/services.d/low
+sudo cp file/darklist-de.json /etc/luids/xlist/services.d/low
+sudo cp file/dataplane-org.json /etc/luids/xlist/services.d/low
+sudo cp file/dshield-org.json /etc/luids/xlist/services.d/low
+sudo cp file/emergingthreats-net.json /etc/luids/xlist/services.d/low
+sudo cp file/greensnow-co.json /etc/luids/xlist/services.d/low
+sudo cp file/myip-ms.json /etc/luids/xlist/services.d/low
+sudo cp file/rutgers-edu.json /etc/luids/xlist/services.d/low
+sudo cp file/turris-cz.json /etc/luids/xlist/services.d/low
+----
+
+Editaremos los ficheros `json` recién copiados y sustituiremos `"disabled": true` por `false` en la definición de las listas enumeradas en el apartado <<design-sources>>. También editaremos la configuración relativa a las listas `abuse.ch-ssl` y `blocklist.site-malware`, dejando únicamente el recurso `ip4` para ahorrar memoria.
+
+
+.Contenido de `/etc/luids/xlist/services.d/low/foreign-countries.json`
+[source,json]
+----
+include::{examplesdir}/basic-nfqueue/etc/luids/xlist/services.d/low/foreign-countries.json[]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/high-confidence.json`
+[source,json]
+----
+include::{examplesdir}/basic-nfqueue/etc/luids/xlist/services.d/high-confidence.json[]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/low-confidence.json`
+[source,json]
+----
+include::{examplesdir}/basic-nfqueue/etc/luids/xlist/services.d/low-confidence.json[]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/custom-local.json`
+[source,json]
+----
+include::{examplesdir}/basic-nfqueue/etc/luids/xlist/services.d/custom-local.json[]
+----
+
+.Contenido de `/etc/luids/xlist/service.json`
+[source,json]
+----
+include::{examplesdir}/basic-nfqueue/etc/luids/xlist/service.json[]
+----
+
+Para esta configuración, es necesario crear los ficheros `my-blacklist.xlist` y `my-whitelist.xlist` a los que se hacen referencia en `custom-local.json` mediante los siguientes comandos.
+
+[source,bash]
+----
+sudo touch /var/lib/luids/xlist/my-blacklist.xlist
+sudo touch /var/lib/luids/xlist/my-whitelist.xlist
+----
+
+Nótese que también es necesario descargar la base de datos de _geoip2_. A partir de Enero de 2020 ya no está accesible de forma abierta y es necesario descargar manualmente (previo registro) desde https://dev.maxmind.com/geoip/geoip2/geolite2/. Hay que descargar el _tar.gz_ de `GeoLite2 Country` en formato _mmdb_. Una vez descargado descomprimirlo y copiarlo al directorio de datos de xlist.
+
+[source,console]
+----
+$ tar zxvf GeoLite2-Country_20200915.tar.gz
+GeoLite2-Country_20200915/
+GeoLite2-Country_20200915/COPYRIGHT.txt
+GeoLite2-Country_20200915/GeoLite2-Country.mmdb
+GeoLite2-Country_20200915/LICENSE.txt
+$ sudo cp GeoLite2-Country_20200915/GeoLite2-Country.mmdb /var/lib/luids/xlist/
+----
+
+Ahora creamos el fichero de configuración del servidor.
+
+.Contenido de `/etc/luids/xlist/xlistd.toml`
+[source,toml]
+----
+include::{examplesdir}/basic-nfqueue/etc/luids/xlist/xlistd.toml[]
+----
+
+Comprobaremos que la configuración es correcta, como se muestra a continuación.
+
+[source,console]
+----
+# xlistd --config /etc/luids/xlist/xlistd.toml --dry-run
+INFO[0000] xlistd (version: adf9e50 build: 2020-09-10T06:39:54+0200)
+configuration seems ok
+----
+
+Inicializaremos y habilitaremos el servicio `xlistd`.
+
+.Inicializa servicio `xlistd` y habilita al inicio
+[source,bash]
+----
+sudo systemctl start luids-xlistd
+sudo systemctl enable luids-xlistd
+----
+
+Tras unos segundos, podremos probar el correcto funcionamiento del servidor utilizando el comando `xlistc` para hacerle consultas.
+
+[source,console]
+----
+$ xlistc
+[ip4] (1.361466ms)
+$ xlistc 8.8.8.8
+ip4,8.8.8.8: false,"",0 (381.32µs)
+----
+
+Ya que lo tenemos correctamente funcionando, "publicaremos" (de forma local) el servicio de listas negras que hemos creado para que esté disponible para el resto de servicios. Esto lo haremos editando el fichero `/etc/luids/apiservices.json`
+
+.Contenido de `/etc/luids/apiservices.json`
+[source,json]
+----
+include::{examplesdir}/basic-nfqueue/etc/luids/apiservices.json[]
+----
+
+=== Configuración de lunfqueue
+
+La configuración nuevamente se divide en configuración del servidor y definición del servicio.
+
+.Contenido de `/etc/luids/netfilter/lunfqueue.toml`
+[source,toml]
+----
+include::{examplesdir}/basic-nfqueue/etc/luids/netfilter/lunfqueue.toml[]
+----
+
+IMPORTANT: Deberás reemplazar la dirección de red `192.168.0.0/24` por la de tu red local.
+
+El servicio se configurará mediante la definición de los plugins y acciones que se van a aplicar. Esto se realizará mediante el siguiente fichero de configuración.
+
+.Contenido de `/etc/luids/netfilter/plugins-nfqueue.json`
+[source,toml]
+----
+include::{examplesdir}/basic-nfqueue/etc/luids/netfilter/plugins-nfqueue.json[]
+----
+
+
+[source,console]
+----
+# lunfqueue --config /etc/luids/netfilter/lunfqueue.toml --dry-run
+INFO[0000] lunfqueue (version: f096c19 build: 2020-09-10T06:45:40+0200)
+configuration seems ok
+----
+
+Una vez probado, inicializaremos y habilitaremos el servicio
+
+[source,bash]
+----
+sudo systemctl start luids-lunfqueue
+sudo systemctl enable luids-lunfqueue
+----
+
+=== Prueba de configuración de Netfilter
+
+Ya tenemos el componente _lunfqueue_ respondiendo a las peticiones de la cola netfilter con identificador `100`. Lo siguiente es establecer las reglas del cortafuegos en las cuales se realizará la comprobación. Sin embargo, antes de hacerlo puede ser conveniente probar que el sistema funciona correctamente. Para ello puede probar agregando la siguiente regla de prueba:
+
+[source,bash]
+----
+sudo iptables -I OUTPUT -p icmp -j NFQUEUE --queue-num 100
+----
+
+De esta forma, para cualquier ping que se lance se realizará la comprobación. Podemos ver que funciona correctamente procediendo de la forma que se muestra a continuación.
+
+[source,console]
+----
+$ ping -c 3 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=63 time=14.7 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=63 time=15.9 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=63 time=15.7 ms
+
+--- 8.8.8.8 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2004ms
+rtt min/avg/max/mdev = 14.704/15.420/15.905/0.516 ms
+$ sudo head -1 /var/lib/luids/xlist/alienvault.com.xlist
+ip4,plain,2.81.219.150
+$ ping -c 3 2.81.219.150
+PING 2.81.219.150 (2.81.219.150) 56(84) bytes of data.
+
+--- 2.81.219.150 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2045ms
+
+$ sudo tail -5 /var/log/syslog
+Sep 17 07:51:15 luids-router lunfqueue[2381]: time="2020-09-17T07:51:15+02:00" level=info msg="starting netfilter queue processing service"
+Sep 17 07:51:15 luids-router lunfqueue[2381]: time="2020-09-17T07:51:15+02:00" level=info msg="starting nfqueue #100"
+Sep 17 07:53:19 luids-router lunfqueue[2381]: time="2020-09-17T07:53:19+02:00" level=info msg="ip-processor.checkip: 10.0.2.15->2.81.219.150 2.81.219.150 {Result:true Reason:found in 'alienvault.com' TTL:0}"
+Sep 17 07:53:20 luids-router lunfqueue[2381]: time="2020-09-17T07:53:20+02:00" level=info msg="ip-processor.checkip: 10.0.2.15->2.81.219.150 2.81.219.150 {Result:true Reason:found in 'alienvault.com' TTL:0}"
+Sep 17 07:53:21 luids-router lunfqueue[2381]: time="2020-09-17T07:53:21+02:00" level=info msg="ip-processor.checkip: 10.0.2.15->2.81.219.150 2.81.219.150 {Result:true Reason:found in 'alienvault.com' TTL:0}"
+----
+
+Una vez testeado, eliminaremos la regla recién creada para las pruebas.
+
+[source,bash]
+----
+sudo iptables -D OUTPUT -p icmp -j NFQUEUE --queue-num 100
+----
+
+=== Consolidación del firewall
+
+Ahora que hemos comprobado que el sistema funciona correctamente sólo falta agregar a nuestro cortafuegos las reglas que necesitamos. Una posible regla que chequease las nuevas conexiones a nuestro servidor web podrían ser las siguientes:
+
+[source,bash]
+----
+iptables -A INPUT -p tcp --match multiport --dport 80,443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp --match multiport --dport 80,443 -m conntrack --ctstate NEW -j NFQUEUE --queue-num 100
+iptables -A OUTPUT -p tcp --match multiport --sport 80,443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+----
+
+WARNING: A pesar de que el sistema ofrece bajas latencias, el chequeo debería limitarse a las nuevas conexiones. Puede leer más recomendaciones en
+xref:lunfqueue:netfilter-integration.adoc[Integración con Netfilter].
