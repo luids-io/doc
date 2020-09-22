@@ -1,0 +1,8 @@
+= Guía ^lu^IDS: Cortafuegos integrado con resoluciones DNS
+Luis Guillén Civera <luisguillenc@gmail.com>
+:doctype: book
+:icons: font
+include::{moduledir}/_attributes.adoc[]
+:toc:
+
+include::{pagesdir}/basic-nfqueue-resolv.adoc[]
