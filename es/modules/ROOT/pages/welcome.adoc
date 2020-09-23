@@ -1,4 +1,4 @@
-= ^lu^IDS
+= Bienvenido
 
 Bienvenido a la documentación de ^lu^IDS.
 

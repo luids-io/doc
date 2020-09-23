@@ -6,7 +6,7 @@ name: luids
 # MANDATORY. Title of the document as we want it to appear in
 # menus and navigation links.
 # Example: "My Awesome Document" (quotes not needed)
-title: luIDS
+title: luIDS docs
 
 # MANDATORY. "en" or "es". If more than one revision of the document is
 # going to be shown, then append the revision as it appears in README.adoc's
