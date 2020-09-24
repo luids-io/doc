@@ -2,7 +2,7 @@ runtime:
   cache_dir: ./.cache/antora
 site:
   title: luIDS docs
-  url: https://luids.io/docs
+  url: https://docs.luids.io
   start_page: es@luids::welcome.adoc
 content:
   edit_url: ~
