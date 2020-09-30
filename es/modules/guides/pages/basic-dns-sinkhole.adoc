@@ -214,7 +214,7 @@ Editaremos el fichero de configuración de `xlget` para incluir el directorio co
 .Contenido de `/etc/luids/xlist/xlget.toml`
 [source,toml]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/xlget.toml[]
+include::{examplesdir}/basic-dns-sinkhole/etc/luids/xlist/xlget.toml[]
 ----
 
 Una vez creados dichos ficheros podemos chequear su correcta sintaxis mediante el comando `xlget_check`.
@@ -291,7 +291,7 @@ Crearemos un fichero `custom-local.json` que contendrá la definición de nuestr
 .Contenido de `/etc/luids/xlist/services.d/custom-local.json`
 [source,json]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/services.d/custom-local.json[]
+include::{examplesdir}/basic-dns-sinkhole/etc/luids/xlist/services.d/custom-local.json[]
 ----
 
 Y crearemos nuestras listas locales.
@@ -308,7 +308,7 @@ Finalmente daremos forma a nuestro servicio de agregación.
 .Contenido de `/etc/luids/xlist/service.json`
 [source,json]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/service.json[]
+include::{examplesdir}/basic-dns-sinkhole/etc/luids/xlist/service.json[]
 ----
 
 Editaremos el fichero de configuración del servidor `xlistd` para que utilice nuestra nueva definición de servicio.
@@ -316,7 +316,7 @@ Editaremos el fichero de configuración del servidor `xlistd` para que utilice n
 .Contenido de `/etc/luids/xlist/xlistd.toml`
 [source,toml]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/xlistd.toml[]
+include::{examplesdir}/basic-dns-sinkhole/etc/luids/xlist/xlistd.toml[]
 ----
 
 Comprobaremos que la configuración es correcta, como se muestra a continuación.
@@ -356,7 +356,7 @@ En primer lugar, debemos "publicar" (de forma local) el servicio de listas negra
 .Contenido de `/etc/luids/apiservices.json`
 [source,json]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/apiservices.json[]
+include::{examplesdir}/basic-dns-sinkhole/etc/luids/apiservices.json[]
 ----
 
 Una vez hecho esto, la configuración del servicio `ludns`es muy sencilla, basta editar el fichero `/etc/luids/dns/Corefile`.
