@@ -6,6 +6,7 @@
         "name": "My custom blacklist malware",
         "resources": [
             "ip4",
+            "ip6",
             "domain"
         ],
         "opts": {
@@ -20,6 +21,7 @@
         "name": "My custom blacklist phising",
         "resources": [
             "ip4",
+            "ip6",
             "domain"
         ],
         "opts": {
@@ -34,6 +36,7 @@
         "name": "My custom blacklist reputation",
         "resources": [
             "ip4",
+            "ip6",
             "domain"
         ],
         "opts": {
@@ -48,6 +51,7 @@
         "name": "My custom blacklist ads",
         "resources": [
             "ip4",
+            "ip6",
             "domain"
         ],
         "opts": {
@@ -62,6 +66,7 @@
         "name": "My custom whitelist",
         "resources": [
             "ip4",
+            "ip6",
             "domain"
         ],
         "opts": {

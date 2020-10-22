@@ -159,9 +159,63 @@
         ]
     },
     {
+        "id": "ip6-malware",
+        "class": "sequence",
+        "resources": [ "ip6" ],
+        "opts": { "first": true },
+        "wrappers": [
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=medium" } },
+            { "class": "response", "opts": { "preffixid": true } }
+        ],
+        "contains": [
+            { "id": "my-blacklist-malware"   }
+        ]
+    },
+    {
+        "id": "ip6-phising",
+        "class": "sequence",
+        "resources": [ "ip6" ],
+        "opts": { "first": true },
+        "wrappers": [
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=low" } },
+            { "class": "response", "opts": { "preffixid": true } }
+        ],
+        "contains": [
+            { "id": "my-blacklist-phising" }
+        ]
+    },
+    {
+        "id": "ip6-reputation",
+        "class": "sequence",
+        "resources": [ "ip6" ],
+        "opts": { "first": true },
+        "wrappers": [
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=low" } },
+            { "class": "response", "opts": { "preffixid": true } }
+        ],
+        "contains": [
+            { "id": "my-blacklist-reputation" },
+            { "id": "myip.ms-full"            },
+            { "id": "spamhaus.org-drop"       }
+        ]
+    },
+    {
+        "id": "ip6-ads",
+        "class": "sequence",
+        "resources": [ "ip6" ],
+        "opts": { "first": true },
+        "wrappers": [
+            { "class": "policy", "opts": { "value": "dns=nxdomain,event=none" } },
+            { "class": "response", "opts": { "preffixid": true } }
+        ],
+        "contains": [
+            { "id": "my-blacklist-ads" }
+        ]
+    },
+    {
         "id": "root",
         "class": "selector",
-        "resources": [ "ip4", "domain" ],
+        "resources": [ "ip4", "ip6", "domain" ],
         "contains": [
             {
                 "id": "service-ip4",
@@ -187,6 +241,34 @@
                             { "id": "ip4-phising"    },
                             { "id": "ip4-reputation" },
                             { "id": "ip4-ads"        }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "service-ip6",
+                "class": "wbefore",
+                "resources": [ "ip6" ],
+                "contains": [
+                    {
+                        "id": "ip6-wl",
+                        "class": "sequence",
+                        "resources": [ "ip6" ],
+                        "opts": { "first": true },
+                        "contains": [
+                            { "id": "my-whitelist" }
+                        ]
+                    },
+                    {
+                        "id": "ip6-bl",
+                        "class": "sequence",
+                        "resources": [ "ip6" ],
+                        "opts": { "first": true },
+                        "contains": [
+                            { "id": "ip6-malware"    },
+                            { "id": "ip6-phising"    },
+                            { "id": "ip6-reputation" },
+                            { "id": "ip6-ads"        }
                         ]
                     }
                 ]
