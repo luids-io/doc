@@ -19,6 +19,7 @@
 **** xref:xlist:components/apicheck.adoc[apicheck]
 **** xref:xlist:components/grpc.adoc[grpc]
 **** xref:xlist:components/geoip2.adoc[geoip2]
+**** xref:xlist:components/sblookup.adoc[sblookup]
 **** xref:xlist:components/sequence.adoc[sequence]
 **** xref:xlist:components/parallel.adoc[parallel]
 **** xref:xlist:components/wbefore.adoc[wbefore]

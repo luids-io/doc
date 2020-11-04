@@ -1,0 +1,73 @@
+[[component-sblookup]]
+= sblookup
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+== Resumen
+
+=== Descripción
+
+El componente *sblookup* permite la creación de RBLs que utilizan la API de *Google Safe Browsing* como origen de datos.
+
+=== Configuración
+
+* El valor de `class` debe de ser `sblookup`.
+* Únicamente `domain` en el campo `resources`.
+* El campo `source` es opcional y puede indicar la ruta a la base de datos que se descargará automáticamente el componente.
+* Es necesario disponer de una `apikey`, que deberá proporcionarse o bien mediante la sección de configuración `xlistd.plugin.sblookup` o bien mediante el campo `apikey` en `opts`.
+* Admite campos opcionales en `opts`.
+
+[[sblookup-table-opts]]
+[cols="1,1,2"]
+.Campos opcionales de _sblookup_
+|===
+| Opción | Tipo de dato | Explicación
+
+| `reason`
+| _string_
+| motivo que devolverá en caso de resultado afirmativo
+
+| `apikey`
+| _string_
+| api key para utilizar el servicio
+
+| `serverurl`
+| _string_
+| url del servidor que tiene el servicio de safebrowsing (dejar vacío si no se sabe lo que es)
+
+| `threads`
+| _[]string_
+| listado de amenazas a las que se suscribe, disponible `malware`, `phising` y `unwanted` (si vacío, entonces todas).
+
+|===
+
+== Ejemplos de uso
+
+=== Uso básico
+
+Para crear una lista *sblookup* es necesario definir el identificador, la clase `sblookup`, el tipo de recurso `domain`. Además será necesario especificar la zona DNS contra la que se realizarán las consultas.
+
+[[sblookup-example1]]
+.Ejemplo de lista _sblookup_
+[source,json]
+----
+include::{examplesdir}/components/sblookup/example1.json[]
+----
+
+=== Uso avanzado
+
+[[sblookup-example2]]
+.Ejemplo con `apikey` y `threats` personalizados
+[source,json]
+----
+include::{examplesdir}/components/sblookup/example2.json[]
+----
+
+[[sblookup-example3]]
+.Múltiples componentes _sblookup_
+[source,json]
+----
+include::{examplesdir}/components/sblookup/example3.json[]
+----
+
+IMPORTANT: Si se usan múltiples componentes no se debe utilizar nunca el mismo `source` ya que la base de datos no puede ser compartida.

@@ -1,0 +1,14 @@
+[[options-xlistd-plugin-sblookup]]
+= Sección `xlistd.plugin.sblookup`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `apikey` | _string_ | No | `false`
+|  Define la api key de _Google Safe Browsing_ que usará por defecto en todos los componentes de la clase `sblookup`.
+
+| `serverurl` | _string_ | No |
+|  Define la URL del servidor que tiene la API de _Google Safe Browsing_ en todos los componentes de la clase `sblookup`. Si no se definirá utilizará los de google.
+
+|===

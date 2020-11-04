@@ -1,0 +1,14 @@
+[
+    {
+        "id": "sblookup2",
+        "class": "sblookup",
+        "resources": [
+            "domain"
+        ],
+        "opts": {
+            "reason": "found in safe-browsing malware",
+            "apikey": "apikeyaqui",
+            "threats": [ "malware", "unwanted" ]
+        }
+    }
+]

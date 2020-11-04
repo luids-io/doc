@@ -22,6 +22,7 @@ endif::env-site,env-github[]
 * <<options-xlistd>>
 * <<options-xlistd-service>>
 * <<options-xlistd-plugin-dnsxl>>
+* <<options-xlistd-plugin-sblookup>>
 * <<options-service-xlist-check>>
 * <<options-ids-api>>
 * <<options-server>>
@@ -71,6 +72,7 @@ include::manuals:partial$options-args.adoc[leveloffset=2]
 include::partial$options-xlistd.adoc[leveloffset=2]
 include::partial$options-xlistd-service.adoc[leveloffset=2]
 include::partial$options-xlistd-plugin-dnsxl.adoc[leveloffset=2]
+include::partial$options-xlistd-plugin-sblookup.adoc[leveloffset=2]
 include::partial$options-service-xlist-check.adoc[leveloffset=2]
 include::manuals:partial$options-ids-api.adoc[leveloffset=2]
 include::manuals:partial$options-server.adoc[leveloffset=2]

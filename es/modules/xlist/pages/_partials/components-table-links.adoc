@@ -37,6 +37,11 @@
 | _ip4_
 | _No_
 
+| <<component-sblookup>>
+| Chequea en una lista que utiliza la _api de Google Safe Browsing_
+| _domain_
+| _No_
+
 | <<component-sequence>>
 | Chequea en las listas de forma secuencial
 | _Todos_

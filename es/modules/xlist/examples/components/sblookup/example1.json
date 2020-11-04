@@ -1,0 +1,10 @@
+[
+    {
+        "id": "sblookup1",
+        "class": "sblookup",
+        "resources": [
+            "domain"
+        ],
+        "source": "safe-browsing.db"
+    }
+]
