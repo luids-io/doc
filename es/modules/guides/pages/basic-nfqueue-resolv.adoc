@@ -1,4 +1,5 @@
 ifdef::env-site,env-github[= Guía: Cortafuegos integrado con resoluciones DNS]
+:guidename: basic-nfqueue-resolv
 include::{partialsdir}/attributes-es.adoc[]
 ifdef::env-site,env-github[:toc:]
 
@@ -12,7 +13,7 @@ NOTE: A pesar de la extensión de esta guía, puedes realizar la configuración 
 TODO
 
 .Secuencia de resolución DNS con resolvcache
-[plantuml, diagram-basic-nfqueue-resolv-sequence1, png, pdfwidth=70%]
+[plantuml,{guidename}-sequence1,png,pdfwidth=70%]
 ----
 actor dnsclient
 participant "DNS Server\n(ludns)" as dnsserver
@@ -28,7 +29,7 @@ dnsserver --> dnsclient: 1.2.3.4
 ----
 
 .*Secuencia de un firewall Netfilter con resolvcache*
-[plantuml, diagram-basic-nfqueue-resolv-sequence2, png, pdfwidth=70%]
+[plantuml,{guidename}-sequence2,png,pdfwidth=70%]
 ----
 actor "Netfilter Queue\n(iptables)" as nfqueue
 participant "Queue Processor\n(lunfqueue)" as lunfqueue
@@ -54,7 +55,7 @@ TODO
 === Red
 
 .Diagrama de red
-image::net-basic-nfqueue-resolv.svg[net-basic-nfqueue-resolv, width=85%, pdfwidth=70%]
+image::{guidename}-network.svg[network,width=85%,pdfwidth=70%]
 
 [[design-components]]
 === Despliegue de los componentes
@@ -62,7 +63,7 @@ image::net-basic-nfqueue-resolv.svg[net-basic-nfqueue-resolv, width=85%, pdfwidt
 TODO
 
 .*Diagrama de despliegue*
-[plantuml, basic-nfqueue-resolv-deployment, png, pdfwidth=70%]
+[plantuml,{guidename}-deployment,png,pdfwidth=70%]
 ----
 cloud "External DNS" {
   [DNS Server] -left- ExtDNS
@@ -222,7 +223,7 @@ La configuración nuevamente se divide en configuración del servidor y definici
 .Contenido de `/etc/luids/netfilter/lunfqueue.toml`
 [source,toml]
 ----
-include::{examplesdir}/basic-nfqueue-resolv/etc/luids/netfilter/lunfqueue.toml[]
+include::{examplesdir}/{guidename}/etc/luids/netfilter/lunfqueue.toml[]
 ----
 
 IMPORTANT: Deberás reemplazar la dirección de red `192.168.250.0/24` por la de tu red local.
@@ -232,7 +233,7 @@ El servicio se configurará mediante la definición de los plugins y acciones qu
 .Contenido de `/etc/luids/netfilter/plugins-nfqueue.json`
 [source,toml]
 ----
-include::{examplesdir}/basic-nfqueue-resolv/etc/luids/netfilter/plugins-nfqueue.json[]
+include::{examplesdir}/{guidename}/etc/luids/netfilter/plugins-nfqueue.json[]
 ----
 
 Testearemos que la configuración es correcta.
@@ -261,7 +262,7 @@ Vamos a configurar el sencillo firewall mediante el siguiente script. Nótese qu
 .Contenido de `init-firewall.sh`
 [source,bash]
 ----
-include::{examplesdir}/basic-nfqueue-resolv/init-firewall.sh[]
+include::{examplesdir}/{guidename}/init-firewall.sh[]
 ----
 
 Lo ejecutaremos.

@@ -1,5 +1,5 @@
 :attachmentsdir: {moduledir}/assets/attachments
 :examplesdir: {moduledir}/examples
-:imagesdir: {moduledir}/assets/images
+:imagesdir: {moduledir}/assets/images/{guidename}
 :pagesdir: {moduledir}/pages
 :partialsdir: {moduledir}/pages/_partials

@@ -5,4 +5,4 @@ Luis Guillén Civera <luisguillenc@gmail.com>
 include::{moduledir}/_attributes.adoc[]
 :toc:
 
-include::{pagesdir}/basic-dns-sinkhole.adoc[]
+include::{pagesdir}/{guidename}.adoc[]

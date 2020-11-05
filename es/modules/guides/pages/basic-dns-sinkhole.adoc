@@ -1,4 +1,5 @@
 ifdef::env-site,env-github[= Guía: Sumidero DNS básico para bloquear publicidad, phising y malware]
+:guidename: basic-dns-sinkhole
 include::{partialsdir}/attributes-es.adoc[]
 ifdef::env-site,env-github[:toc:]
 
@@ -23,7 +24,7 @@ Para entender mejor el funcionamiento, puede verse el siguiente diagrama de secu
 
 [[diagram-sinkhole-sequence]]
 .Secuencia de un sumidero DNS con xlist
-[plantuml, diagram-basic-sinkhole-sequence, png, pdfwidth=70%]
+[plantuml,{guidename}-sequence,png,pdfwidth=70%]
 ----
 actor dnsclient
 participant "DNS Server\n(ludns)" as dnsserver
@@ -101,7 +102,7 @@ Además de estos orígenes externos, también daremos a nuestro sistema cierta f
 Nuestro servicio de listas será un servicio típico muy básico, que compruebe primero en listas blancas y después en listas negras. Como no vamos a utilizar puntuaciones y tampoco vamos a discriminar entre los distintos tipos de orígenes, queremos que nuestro sistema chequee y devuelva inmediatamente si encuentra un resultado positivo.
 
 .Funcionamiento básico de nuestro sistema
-[plantuml, flow-basic-dns-sinkhole, png,pdfwidth=50%]
+[plantuml,{guidename}-flow,png,pdfwidth=50%]
 ----
 start
 :read domain/
@@ -122,7 +123,7 @@ stop
 La definición gráfica del servicio mediante componentes de _xlistd_ sería la siguiente:
 
 .Definición del servicio _xlistd_ para el sinkhole
-image::design-basic-dns-sinkhole.svg[design-sinkhole,width=85%,pdfwidth=100%]
+image::{guidename}-design.svg[design-sinkhole,width=85%,pdfwidth=100%]
 
 [[design-components]]
 === Despliegue de los componentes
@@ -130,7 +131,7 @@ image::design-basic-dns-sinkhole.svg[design-sinkhole,width=85%,pdfwidth=100%]
 Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
 
 .*Diagrama de despliegue*
-[plantuml, deployment-basic-dns-sinkhole, png,pdfwidth=70%]
+[plantuml,{guidename}-deployment,png,pdfwidth=70%]
 ----
 cloud "Blacklists" {
  [Web server] -down- HTTP
@@ -214,7 +215,7 @@ Editaremos el fichero de configuración de `xlget` para incluir el directorio co
 .Contenido de `/etc/luids/xlist/xlget.toml`
 [source,toml]
 ----
-include::{examplesdir}/basic-dns-sinkhole/etc/luids/xlist/xlget.toml[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/xlget.toml[]
 ----
 
 Una vez creados dichos ficheros podemos chequear su correcta sintaxis mediante el comando `xlget_check`.
@@ -291,7 +292,7 @@ Crearemos un fichero `custom-local.json` que contendrá la definición de nuestr
 .Contenido de `/etc/luids/xlist/services.d/custom-local.json`
 [source,json]
 ----
-include::{examplesdir}/basic-dns-sinkhole/etc/luids/xlist/services.d/custom-local.json[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/services.d/custom-local.json[]
 ----
 
 Y crearemos nuestras listas locales.
@@ -308,7 +309,7 @@ Finalmente daremos forma a nuestro servicio de agregación.
 .Contenido de `/etc/luids/xlist/service.json`
 [source,json]
 ----
-include::{examplesdir}/basic-dns-sinkhole/etc/luids/xlist/service.json[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/service.json[]
 ----
 
 Editaremos el fichero de configuración del servidor `xlistd` para que utilice nuestra nueva definición de servicio.
@@ -316,7 +317,7 @@ Editaremos el fichero de configuración del servidor `xlistd` para que utilice n
 .Contenido de `/etc/luids/xlist/xlistd.toml`
 [source,toml]
 ----
-include::{examplesdir}/basic-dns-sinkhole/etc/luids/xlist/xlistd.toml[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/xlistd.toml[]
 ----
 
 Comprobaremos que la configuración es correcta, como se muestra a continuación.
@@ -356,7 +357,7 @@ En primer lugar, debemos "publicar" (de forma local) el servicio de listas negra
 .Contenido de `/etc/luids/apiservices.json`
 [source,json]
 ----
-include::{examplesdir}/basic-dns-sinkhole/etc/luids/apiservices.json[]
+include::{examplesdir}/{guidename}/etc/luids/apiservices.json[]
 ----
 
 Una vez hecho esto, la configuración del servicio `ludns`es muy sencilla, basta editar el fichero `/etc/luids/dns/Corefile`.

@@ -1,4 +1,5 @@
 ifdef::env-site,env-github[= Guía: Sumidero DNS avanzado para bloquear publicidad y malware]
+:guidename: advanced-dns-sinkhole
 include::{partialsdir}/attributes-es.adoc[]
 ifdef::env-site,env-github[:toc:]
 
@@ -28,7 +29,7 @@ Para entender mejor el funcionamiento, puede verse el siguiente diagrama de secu
 
 [[diagram-sinkhole-sequence]]
 .Secuencia de un sumidero DNS con xlist
-[plantuml, diagram-advanced-sinkhole-sequence, png, pdfwidth=70%]
+[plantuml,{guidename}-sequence,png,pdfwidth=70%]
 ----
 actor dnsclient
 participant "DNS Server\n(ludns)" as dnsserver
@@ -175,7 +176,7 @@ Nuestro servicio de listas, comprobará en primer lugar en las listas blancas qu
 Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
 
 .*Diagrama de despliegue*
-[plantuml, deployment-advanced-sinkhole, png,pdfwidth=70%]
+[plantuml,{guidename}-deployment,png,pdfwidth=70%]
 ----
 cloud "External Resolver" {
  [DNS Server] -right- ExtDNS
@@ -293,7 +294,7 @@ Editaremos el fichero de configuración de `xlget` para incluir el directorio co
 .Contenido de `/etc/luids/xlist/xlget.toml`
 [source,toml]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/xlget.toml[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/xlget.toml[]
 ----
 
 Una vez creados dichos ficheros podemos chequear su correcta sintaxis mediante el comando `xlget_check`.
@@ -363,7 +364,7 @@ Crearemos un fichero `custom-local.json` que contendrá la definición de nuestr
 .Contenido de `/etc/luids/xlist/services.d/custom-local.json`
 [source,json]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/services.d/custom-local.json[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/services.d/custom-local.json[]
 ----
 
 Y crearemos nuestras listas locales.
@@ -383,7 +384,7 @@ Finalmente daremos forma a nuestro servicio de agregación.
 .Contenido de `/etc/luids/xlist/service.json`
 [source,json]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/service.json[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/service.json[]
 ----
 
 Editaremos el fichero de configuración del servidor `xlistd` para que utilice nuestra nueva definición de servicio.
@@ -391,7 +392,7 @@ Editaremos el fichero de configuración del servidor `xlistd` para que utilice n
 .Contenido de `/etc/luids/xlist/xlistd.toml`
 [source,toml]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/xlist/xlistd.toml[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/xlistd.toml[]
 ----
 
 Comprobaremos que la configuración es correcta, como se muestra a continuación.
@@ -443,7 +444,7 @@ Definiremos los backends de archivado.
 .Contenido de `/etc/luids/archive/backends.json`
 [source,json]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/archive/backends.json[]
+include::{examplesdir}/{guidename}/etc/luids/archive/backends.json[]
 ----
 
 Definiremos los servicios a publicar por `luarchive`.
@@ -451,7 +452,7 @@ Definiremos los servicios a publicar por `luarchive`.
 .Contenido de `/etc/luids/archive/services.json`
 [source,json]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/archive/services.json[]
+include::{examplesdir}/{guidename}/etc/luids/archive/services.json[]
 ----
 
 Configuraremos los parámetros del servidor.
@@ -459,7 +460,7 @@ Configuraremos los parámetros del servidor.
 .Contenido de `/etc/luids/archive/luarchive.toml`
 [source,toml]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/archive/luarchive.toml[]
+include::{examplesdir}/{guidename}/etc/luids/archive/luarchive.toml[]
 ----
 
 Probaremos la correcta configuración.
@@ -530,7 +531,7 @@ Definiremos la configuración de las stack de procesado.
 .Contenido de `/etc/luids/event/stacks.json`
 [source,json]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/event/stacks.json[]
+include::{examplesdir}/{guidename}/etc/luids/event/stacks.json[]
 ----
 
 Configuraremos los parámetros del servidor.
@@ -538,7 +539,7 @@ Configuraremos los parámetros del servidor.
 .Contenido de `/etc/luids/event/eventproc.toml`
 [source,toml]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/event/eventproc.toml[]
+include::{examplesdir}/{guidename}/etc/luids/event/eventproc.toml[]
 ----
 
 Probaremos la configuración.
@@ -584,7 +585,7 @@ Con el servidor ya configurado y probado, publicaremos el servicio en `apiservic
 .Contenido de `/etc/luids/apiservices.json`
 [source,json]
 ----
-include::{examplesdir}/advanced-dns-sinkhole/etc/luids/apiservices.json[]
+include::{examplesdir}/{guidename}/etc/luids/apiservices.json[]
 ----
 
 === Configuración de ludns

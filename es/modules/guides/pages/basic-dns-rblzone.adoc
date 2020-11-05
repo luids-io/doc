@@ -1,4 +1,5 @@
 ifdef::env-site,env-github[= Guía: Servidor DNS con zona RBL para servicio Antispam]
+:guidename: basic-dns-rblzone
 include::{partialsdir}/attributes-es.adoc[]
 ifdef::env-site,env-github[:toc:]
 
@@ -28,7 +29,7 @@ image::why-antispam.svg[why-antispam,width=80%,pdfwidth=80%]
 Una posible secuencia de chequeo del sistema sería:
 
 .*Secuencia de chequeo positivo*
-[plantuml, antispam-rbl-positive, png,pdfwidth=100%]
+[plantuml,{guidename}-sequence, png,pdfwidth=100%]
 ....
 actor "MAIL Server\n(postfix)" as postfix
 participant "DNS Server\n(ludns)" as ludns
@@ -125,7 +126,7 @@ Además de estos orígenes externos, también daremos a nuestro sistema cierta f
 Nuestro servicio de listas utilizará en primer lugar una lista blanca y posteriormente buscará en las listas negras de la siguiente forma:
 
 .Funcionamiento básico de nuestro sistema
-[plantuml, flow-basic-dnsrbl, png,pdfwidth=80%]
+[plantuml,{guidename}-flow-basic, png,pdfwidth=80%]
 ----
 start
 :read ip4/
@@ -148,7 +149,7 @@ stop
 En el caso de las listas remotas además de implementar un sistema de caché, utilizaremos un sistema de puntuación, que se comportará de la siguiente forma:
 
 .Chequeo en listas remotas
-[plantuml, flow-basic-dnsrbl-remote, png,pdfwidth=30%]
+[plantuml,{guidename}-flow-remote,png,pdfwidth=30%]
 ----
 start
 :read ip4/
@@ -172,7 +173,7 @@ stop
 El servicio de listas negras lo modelaremos utilizando algunos de los componentes que ofrece el sistema _xlistd_. Una representación gráfica de dicha definición podría ser la siguiente:
 
 .Diseño del servicio _xlistd_ para la lista antispam
-image::design-basic-antispam.svg[design-sinkhole,width=85%,pdfwidth=100%]
+image::{guidename}-design.svg[design,width=85%,pdfwidth=100%]
 
 
 [[design-components]]
@@ -181,7 +182,7 @@ image::design-basic-antispam.svg[design-sinkhole,width=85%,pdfwidth=100%]
 Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
 
 .*Diagrama de despliegue*
-[plantuml, basic-antispam-deployment, png,pdfwidth=70%]
+[plantuml,{guidename}-deployment,png,pdfwidth=70%]
 ....
 cloud "Blacklists" {
  [DNS server] -down- ExtDNS
@@ -260,19 +261,19 @@ Crearemos los siguientes archivos.
 .Contenido de `/etc/luids/xlist/service.d/remote.json`
 [source,json]
 ----
-include::{examplesdir}/basic-dns-rblzone/etc/luids/xlist/service.d/remote.json[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/service.d/remote.json[]
 ----
 
 .Contenido de `/etc/luids/xlist/service.d/custom-local.json`
 [source,json]
 ----
-include::{examplesdir}/basic-dns-rblzone/etc/luids/xlist/service.d/custom-local.json[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/service.d/custom-local.json[]
 ----
 
 .Contenido de `/etc/luids/xlist/service.json`
 [source,json]
 ----
-include::{examplesdir}/basic-dns-rblzone/etc/luids/xlist/service.json[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/service.json[]
 ----
 
 Para esta configuración, es necesario crear los ficheros `my-blacklist.xlist` y `my-whitelist.xlist` a los que se hacen referencia en `custom-local.json` mediante los siguientes comandos.
@@ -288,7 +289,7 @@ Ahora creamos el fichero de configuración del servidor.
 .Contenido de `/etc/luids/xlist/xlistd.toml`
 [source,toml]
 ----
-include::{examplesdir}/basic-dns-rblzone/etc/luids/xlist/xlistd.toml[]
+include::{examplesdir}/{guidename}/etc/luids/xlist/xlistd.toml[]
 ----
 
 Comprobaremos que la configuración es correcta, como se muestra a continuación.
