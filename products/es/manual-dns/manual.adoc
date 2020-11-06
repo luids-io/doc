@@ -1,4 +1,4 @@
-= Manual ^lu^IDS: `dns`
+= Manual ^lu^IDS: {manualname}
 Luis Guillén Civera <luisguillenc@gmail.com>
 :doctype: book
 :icons: font
