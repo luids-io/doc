@@ -1,7 +1,7 @@
 ifdef::env-site,env-github[= Guía: Firewall iptables básico para bloquear botnets]
 :guidename: basic-nfqueue-xlist
 include::{partialsdir}/attributes-es.adoc[]
-ifdef::env-site,env-github[:toc:]
+//ifdef::env-site,env-github[:toc:]
 
 En la siguiente guía vamos a ver cómo configurar un *firewall iptables* en nuestro servidor para bloquear las conexiones cuyo origen son botnets y atacantes conocidos. Para ello utilizaremos información de geolocalización y diversas listas negras gratuitas existentes en Internet.
 

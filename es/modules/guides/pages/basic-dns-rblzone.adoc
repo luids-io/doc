@@ -1,7 +1,7 @@
 ifdef::env-site,env-github[= Guía: Servidor DNS con zona RBL para servicio Antispam]
 :guidename: basic-dns-rblzone
 include::{partialsdir}/attributes-es.adoc[]
-ifdef::env-site,env-github[:toc:]
+//ifdef::env-site,env-github[:toc:]
 
 En la siguiente guía vamos a ver cómo configurar *un servidor DNS con una zona que ofrezca servicio de lista negra de acuerdo al RFC5782*, posteriormente esta zona será consumida por un servicio de correo para admitir o denegar conexiones SMTP entrantes de direcciones conocidas de Spam. Para "crear" esta lista utilizaremos varios servicios ya disponibles en Internet que ofrecen su información también mediante una zona DNS.
 
