@@ -1,0 +1,22 @@
+= Añadiendo funcionalidades
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: full-dns-sinkhole
+
+== Yo no quiero pasar por el sumidero
+
+Sí te entiendo, también soy administrador de sistemas. En el mundo exterior siempre he sido un segundón, mi mejor amigo siempre acababa intimando con las chicas que a mi me gustaban, he tocado un instrumento secundario (el bajo eléctrico) y he visto un bolo tras otro cómo el mérito de la banda se lo llevaba el guitarra solista. Pero... *estos son mis dominios, aquí mando yo, aquí soy el P|_|T0 amo*.
+
+Hacerlo es tan fácil como incluir la directiva `exclude` en la configuración del plugin `xlisthole`.  Esta directiva admite un listado de subredes y/o IPs separadas por espacios. En el ejemplo siguiente, ninguna IP de la subred `127.0.0.0/8` ni la IP `192.168.12.1` pasarán por el sumidero: las resoluciones se harán directamente.
+
+.Ejemplo de exclude
+[source]
+----
+. {
+    idsapi
+    xlisthole {
+       exclude 127.0.0.0/8 192.168.12.1
+    }
+    cache
+    forward . 8.8.8.8 8.8.4.4
+}
+----

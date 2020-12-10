@@ -1,0 +1,8 @@
+= Archivando la información de nuestro sistema
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: full-dns-sinkhole
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:step-6.adoc[Integración con el cortafuegos]
+endif::env-site,env-github[]

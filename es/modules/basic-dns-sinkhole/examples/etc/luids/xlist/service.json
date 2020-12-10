@@ -1,0 +1,28 @@
+[
+  {
+    "id": "root",
+    "class": "wbefore",
+    "resources": [ "domain" ],
+    "contains": [
+      {
+        "id": "whitelist",
+        "class": "sequence",
+        "resources": [ "domain" ],
+        "opts": { "first": true },
+        "contains": [
+          { "id": "my-whitelist" }
+        ]
+      },
+      {
+        "id": "blacklist",
+        "class": "sequence",
+        "resources": [ "domain" ],
+        "opts": { "first": true },
+        "contains": [
+          { "id": "my-blacklist"   },
+          { "id": "blocklist.site" }
+        ]
+      }
+    ]
+  }
+]

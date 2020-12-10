@@ -1,0 +1,8 @@
+= Integración con el cortafuegos
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: full-dns-sinkhole
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:step-7.adoc[Añadiendo funcionalidades]
+endif::env-site,env-github[]

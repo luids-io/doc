@@ -1,0 +1,13 @@
+= Guía - Sumidero DNS paso a paso
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: full-dns-sinkhole
+
+include::{partialsdir}/preface.adoc[]
+
+* xref:step-1.adoc[Nuestro primer sumidero]
+* xref:step-2.adoc[Comprobando las respuestas del DNS]
+* xref:step-3.adoc[Configurando fuentes externas]
+* xref:step-4.adoc[Agregando políticas y eventos]
+* xref:step-5.adoc[Archivando la información de nuestro sistema]
+* xref:step-6.adoc[Integración con el cortafuegos]
+* xref:step-7.adoc[Añadiendo funcionalidades]

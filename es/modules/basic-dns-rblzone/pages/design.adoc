@@ -1,0 +1,130 @@
+= Diseño del sistema
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-rblzone
+
+[[design-sources]]
+== Selección de los orígenes
+
+En primer lugar vamos a seleccionar los orígenes que vamos a utilizar. Un buen sitio por donde empezar es https://github.com/luids-io/xlist-database[la base de datos XList].
+
+Para esta configuración me baso en esta configuración recomendada para un sistema Antispam:
+http://know.mailsbestfriend.com/papers/SmarterMail-Antispam-Settings.shtml
+
+Por motivos de brevedad, usaremos la siguiente configuración correspondiente al _SMTP Blocking_:
+
+----
+NOTE*** We do realize that only one weight can be specified per test. Since
+this is the case, we suggest that you use weight 10 for all of the tests below
+(use weight 30 for GBUDB) if you are going to use them for both Filtering and
+Incoming SMTP Blocking
+
+BARRACUDA – weight of 10
+ANY/ALL SORBS – weight of 10
+SPAMCOP – weight of 10
+ZEN – weight of 10
+GBUDB – weight of 30
+HOSTKARMA-BLACK – weight of 10
+MAILSPIKE – weight of 10
+MCAFEE – weight of 10
+SURRIEL – weight of 10
+----
+
+Las listas que usaremos serán:
+
+* `barracudacentra.org`
+* `gbudb.net`
+* `junkemailfilter.com`
+* `mailspike.net`
+* `mcafee.com`
+* `sorbs.net`
+* `spamcop.net`
+* `spamhaus.org`
+* `surriel.com`
+
+Además de estos orígenes externos, también daremos a nuestro sistema cierta flexibilidad, incorporando nuestras propias listas blancas y negras.
+
+[[design-service]]
+== Diseño del servicio de listas
+
+Nuestro servicio de listas utilizará en primer lugar una lista blanca y posteriormente buscará en las listas negras de la siguiente forma:
+
+.Funcionamiento básico de nuestro sistema
+[plantuml,{guidename}-flow-basic, png,pdfwidth=80%]
+----
+start
+:read ip4/
+if (my-whitelist.check(ip4)?) then (true)
+	:result = false|
+else (false)
+	if (my-blacklist.check(ip4)?) then (true)
+		:result = true|
+	else (false)
+		if (remote-blacklists.check(ip4)?) then (true)
+			:result = true|
+		else (false)
+			:result = false|
+		endif
+	endif
+endif
+stop
+----
+
+En el caso de las listas remotas además de implementar un sistema de caché, utilizaremos un sistema de puntuación, que se comportará de la siguiente forma:
+
+.Chequeo en listas remotas
+[plantuml,{guidename}-flow-remote,png,pdfwidth=30%]
+----
+start
+:read ip4/
+:score = 0|
+repeat
+	:next = remote-blacklists.Next()|
+	if (next.check(ip4)?) then (true)
+		:score = score +next.Score()|
+	endif
+repeat while (remote-blacklists.HasNext()?)
+
+if (score > 20) then (true)
+	:result = true|
+else (false)
+	:result = false|
+endif
+stop
+----
+
+
+El servicio de listas negras lo modelaremos utilizando algunos de los componentes que ofrece el sistema _xlistd_. Una representación gráfica de dicha definición podría ser la siguiente:
+
+.Diseño del servicio _xlistd_ para la lista antispam
+image::{guidename}-design.svg[design,width=85%,pdfwidth=100%]
+
+[[design-components]]
+== Despliegue de los componentes
+
+Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
+
+.*Diagrama de despliegue*
+[plantuml,{guidename}-deployment,png,pdfwidth=70%]
+----
+cloud "Blacklists" {
+ [DNS server] -down- ExtDNS
+}
+
+node "DNS RBL" {
+  [xlistd] --> ExtDNS
+  [xlistd] - GRPC
+  [ludns] --> GRPC
+  [ludns] - DNS
+}
+
+node "Mail Server" {
+  [Postfix] --> DNS
+  [SpamAssasin] --> DNS
+}
+----
+
+NOTE: En esta guía únicamente desplegaremos los componentes `xlistd` y `ludns` vistos en el diagrama.
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

@@ -1,0 +1,95 @@
+= Diseño del sistema
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-sinkhole
+
+[[design-sources]]
+== Selección de los orígenes
+
+En primer lugar vamos a seleccionar los orígenes que vamos a utilizar, un buen sitio por donde empezar es https://luids-io.github.io/xlist-database/README.html[la base de datos xlist]. Al tratarse de un sumidero DNS, vamos a necesitar una baja latencia en las consultas a las listas. Aquí tenemos dos opciones:
+
+. Utilizar fuentes online de pago que nos garanticen una determinada calidad de servicio.
+. Utilizar fuentes que puedan descargarse para su uso "offline".
+
+Dado que el objetivo de esta guía es obtener un sumidero DNS para uso personal de forma gratuita, optaremos por la segunda opción. Además, debido a que queremos un sumidero que no chequee las IPs retornadas, únicamente utilizaremos listas con el recurso `domain`.
+
+Para esta guía seleccionaremos las siguientes fuentes del magnífico proyecto https://blocklist.site y que ya se encuentran definidas en la base de datos.
+
+* `blocklist.site-abuse`
+* `blocklist.site-ads`
+* `blocklist.site-crypto`
+* `blocklist.site-malware`
+* `blocklist.site-phishing`
+* `blocklist.site-ransomware`
+* `blocklist.site-scam`
+* `blocklist.site-tracking`
+
+Para mantener todas las listas que hemos seleccionado sincronizadas, lo que haremos será recurrir a la utilidad _xlget_. Para ello utilizaremos los https://luids-io.github.io/xlist-database/README.html#xlget-sources[feeds de la base de datos] correspondientes.
+
+Además de estos orígenes externos, también daremos a nuestro sistema cierta flexibilidad, incorporando nuestras propias listas blancas y negras.
+
+[[design-service]]
+== Diseño del servicio de listas
+
+Nuestro servicio de listas será un servicio típico muy básico, que compruebe primero en listas blancas y después en listas negras. Como no vamos a utilizar puntuaciones y tampoco vamos a discriminar entre los distintos tipos de orígenes, queremos que nuestro sistema chequee y devuelva inmediatamente si encuentra un resultado positivo.
+
+.Funcionamiento básico de nuestro sistema
+[plantuml,{guidename}-flow,png,pdfwidth=40%]
+----
+start
+:read domain/
+:check in whitelists|
+if (check(domain)?) then (true)
+	:result = false|
+else (false)
+	:check in blacklists|
+	if (check(domain)?) then (true)
+		:result = true|
+	else (false)
+		:result = false|
+	endif
+endif
+stop
+----
+
+La definición gráfica del servicio mediante componentes de _xlistd_ sería la siguiente:
+
+.Definición del servicio _xlistd_ para el sinkhole
+image::{guidename}-design.svg[design-sinkhole,width=85%,pdfwidth=70%]
+
+[[design-components]]
+== Despliegue de los componentes
+
+Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
+
+.Diagrama de despliegue
+[plantuml,{guidename}-deployment,png,pdfwidth=70%]
+----
+cloud "Blacklists" {
+ [Web server] -down- HTTP
+}
+
+cloud "External Resolver" {
+ [DNS Server] -down- ExtDNS
+}
+
+node "DNS Sinkhole" {
+  database "locallists"
+  [xlget] --> locallists
+  [xlget] --> HTTP
+  [xlistd] - GRPC
+	[xlistd] --> locallists
+  [ludns] --> GRPC
+  [ludns] --> ExtDNS
+  [ludns] - DNS
+}
+
+node "Client" {
+  [DNS Resolver] --> DNS
+}
+----
+
+En esta guía únicamente desplegaremos los componentes `xlistd`, `xlget` y `ludns` vistos en el diagrama.
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

@@ -1,0 +1,10 @@
+= Guia rápida - Sumidero DNS Avanzado
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: advanced-dns-sinkhole
+
+include::{partialsdir}/preface.adoc[]
+
+* xref:introduction.adoc[Introducción]
+* xref:design.adoc[Diseño del sistema]
+* xref:installation.adoc[Instalación]
+* xref:configuration.adoc[Configuración]

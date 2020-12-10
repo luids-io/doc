@@ -1,0 +1,15 @@
+[
+    {
+        "name": "main",
+        "modules": [
+            {
+                "name": "archive",
+                "plugins": [
+                    { "class": "archiver",   "args": [ "event-archive" ] }
+                ],
+                "onsuccess": "next",
+                "onerror": "stop"
+            }
+        ]
+    }
+]

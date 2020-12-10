@@ -1,0 +1,46 @@
+= Diseño del sistema
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-nfqueue-resolv
+
+TODO
+
+[[design-network]]
+== Red
+
+.Diagrama de red
+image::{guidename}-network.svg[network,width=85%,pdfwidth=70%]
+
+[[design-components]]
+== Despliegue de los componentes
+
+TODO
+
+.*Diagrama de despliegue*
+[plantuml,{guidename}-deployment,png,pdfwidth=70%]
+----
+cloud "External DNS" {
+  [DNS Server] -left- ExtDNS
+}
+
+node "Firewall" {
+  [netfilter] - Netlink
+  [iptables] --> Netlink
+
+  [resolvcache] - GRPC
+
+  [ludns] - DNS
+  [ludns] --> ExtDNS
+  [ludns] --> GRPC
+
+  [lunfqueue] --> GRPC
+  [lunfqueue] --> Netlink
+}
+
+node "Client" {
+  [DNS Client] --> DNS
+}
+----
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

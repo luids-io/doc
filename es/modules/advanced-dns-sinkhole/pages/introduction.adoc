@@ -1,0 +1,56 @@
+= Introducción
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: advanced-dns-sinkhole
+
+== Qué es un sumidero DNS o DNS Sinkhole
+
+Un sumidero DNS es un servidor DNS que cumple el rol de _resolvedor_ en una red pero que, en lugar de devolver directamente a los clientes el resultado de una consulta DNS, comprobará si el nombre consultado se encuentra en una lista negra. Si se encontrase en la lista, entonces el sumidero no realizará la resolución y devolverá al cliente la dirección IP que nosotros deseemos o que el dominio no existe. Si el dominio no estuviese en la lista, el sumidero devolverá el resultado de la consulta al cliente.
+
+.Qué es un sumidero dns
+image::dns-sinkhole-what.png[dns-sinkhole-what,width=85%,pdfwidth=50%]
+
+== ¿Qué tiene de especial nuestro sumidero?
+
+Como probablemente conozca el lector, ya existe diverso software capaz de realizar esta labor, sin embargo la mayoría no es libre y el que es libre (como el popular _BIND_ o el nuevo _PiHole_), usa un planteamiento distinto y, a nuestro juicio, menos versátil.
+
+[[diagram-sinkhole-sequence]]
+.Secuencia de un sumidero DNS con xlist
+[plantuml,{guidename}-sequence,png,pdfwidth=70%]
+----
+actor dnsclient
+participant "DNS Server\n(ludns)" as dnsserver
+participant "XList Server\n(xlistd)" as xlist
+participant "External\nDNS Server" as dnsext #99FF99
+
+dnsclient -> dnsserver: query www.google.com
+dnsserver -> xlist: Check(wwww.google.com)
+xlist --> dnsserver: {result: false}
+dnsserver -> dnsext: query www.google.com
+dnsext --> dnsserver: 1.2.3.4, 9.8.7.6
+dnsserver -> xlist: Check(1.2.3.4)
+dnsserver -> xlist: Check(9.8.7.6)
+xlist --> dnsserver: {result: false}
+xlist --> dnsserver: {result: false}
+dnsserver --> dnsclient: 1.2.3.4, 9.8.7.6
+
+dnsclient -> dnsserver: query www.infected.com
+dnsserver -> xlist: Check(wwww.infected.com)
+xlist --> dnsserver:  {result: true, reason: "is malware"}
+dnsserver --> dnsclient: nxdomain
+----
+
+La particularidad de nuestro sumidero es que, como se vio en la figura <<diagram-sinkhole-sequence>>, involucra diferentes componentes: por un lado tenemos un servidor _DNS_ (basado en el popular _CoreDNS_) que realiza las tareas típicas de resolución y, por otro lado, tenemos un servidor _XList_ que se encarga de la tarea de comprobar la existencia en las listas. Esta separación de responsabilidades nos permitirá, además de una alta especialización de cada software en su correspondiente rol, implementar sistemas más robustos y escalables.
+
+Esta guía se trata de una configuración básica así que no se verán todas las funcionalidades que ofrece nuestro sumidero. Sin embargo, conviene que el usuario las conozca por si se anima a continuar explorando más allá de esta guía. Algunas de las funcionalidades adicionales son:
+
+* es posible definir puntuaciones y umbrales de respuesta,
+* es posible hacer uso de otros elementos además de las listas, como la geolocalización,
+* permite la integración con cortafuegos _netfilter_ de forma que el cortafuegos no permita la comunicación con una dirección IP si dicha dirección no ha sido previamente resuelta,
+* provee de instrumentación para su integración en un sistema de monitorización _Prometheus_ y así tener información en "tiempo real",
+* disponible en _Docker_ y con algunas características que lo hace ideal para su despliegue en entornos Cloud con herramientas como _Kubernetes_.
+
+Así que una vez visto qué es un sumidero y qué ventajas aporta nuestro software sobre otros, pongámonos manos a la obra.
+
+ifdef::env-site,env-github[]
+A continuación: xref:design.adoc[Diseño del sistema]
+endif::env-site,env-github[]

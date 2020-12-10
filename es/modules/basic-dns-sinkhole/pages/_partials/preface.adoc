@@ -1,0 +1,6 @@
+
+En la siguiente guía rápida vamos a ver cómo configurar un *sumidero DNS*, también conocido como _DNS Sinkhole_ o _DNS Blackhole_, en nuestra red para ocultar muchos _banners_ publicitarios, evitar el envío de información a sitios que espíen nuestra actividad y bloquear las conexiones a posibles páginas de fraude y robo de contraseñas en todos nuestros dispositivos (ordenadores, smartphones, tablets, etc). Por si esto fuese poco, también detectaremos y bloquearemos algunas de las posibles conexiones de _malware_ que pudieran existir en nuestros dispositivos.
+
+WARNING: Este proceso está probado únicamente en un sistema _Ubuntu 20.04LTS_ server. Los binarios están compilados estáticamente y las rutas empleadas son las de una distribución estándar, por lo que el instalador debería funcionar en cualquier distribución.
+
+TIP: Tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/{guidename}/examples/.

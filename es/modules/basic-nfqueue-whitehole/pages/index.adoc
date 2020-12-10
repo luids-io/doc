@@ -1,0 +1,10 @@
+= Guia rápida - Cortafuegos integrado con sumidero DNS de listas blancas
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-nfqueue-whitehole
+
+include::{partialsdir}/preface.adoc[]
+
+* xref:introduction.adoc[Introducción]
+* xref:design.adoc[Diseño del sistema]
+* xref:installation.adoc[Instalación]
+* xref:configuration.adoc[Configuración]

@@ -1,0 +1,13 @@
+= Agregando políticas y eventos
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: full-dns-sinkhole
+
+== Introducción
+
+== Configurando políticas
+
+== Instalando event
+
+ifdef::env-site,env-github[]
+A continuación: xref:step-5.adoc[Archivando la información de nuestro sistema]
+endif::env-site,env-github[]

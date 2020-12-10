@@ -1,0 +1,548 @@
+= Nuestro primer sumidero
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: full-dns-sinkhole
+
+== Introducción
+
+Empezaremos por el despliegue más fácil, en el que todos los componentes de nuestro sumidero estarán en un único servidor (físico o virtual) y que hará uso de nuestras propias listas. En dicho despliegue utilizaremos un servidor de listas _xlistd_ y un servidor DNS _ludns_. El diagrama de despliegue se muestra a continuación.
+
+.Diagrama de despliegue de nuestro primer sumidero
+[plantuml,{guidename}-deployment1,png,pdfwidth=45%]
+----
+cloud "External Resolver" {
+ [DNS Server] -left-> ExtDNS
+}
+
+node "DNS Sinkhole" {
+  database "locallists"
+  [xlistd] - GRPC
+	[xlistd] --> locallists
+  [ludns] --> GRPC
+  [ludns] --> ExtDNS
+  [ludns] - DNS
+}
+
+node "Client" {
+  [DNS Resolver] --> DNS
+}
+----
+
+En el diagrama observamos que el servidor DNS hace uso de un servidor DNS externo para el proceso de resolución y del servidor de listas, que estará disponible únicamente de forma local (mediante un socket utilizando el protocolo _GRPC_).
+
+La relación de los componentes y cómo interactúan entre sí viene descrita en el siguiente diagrama de secuencia.
+
+.Diagrama de secuencia de nuestro primer sumidero
+[plantuml,{guidename}-xlist-dns1,png,pdfwidth=50%]
+----
+actor dnsclient
+participant "DNS Server\n(ludns)" as dnsserver
+participant "XList Server\n(xlistd)" as xlist
+participant "External\nDNS Server" as dnsext #99FF99
+
+dnsclient -> dnsserver: query www.google.com
+dnsserver -> xlist: Check(wwww.google.com)
+xlist --> dnsserver: {result: false}
+dnsserver -> dnsext: query www.google.com
+dnsext --> dnsserver: 1.2.3.4
+dnsserver --> dnsclient: 1.2.3.4
+
+dnsclient -> dnsserver: query www.infected.com
+dnsserver -> xlist: Check(wwww.infected.com)
+xlist --> dnsserver:  {result: true, reason: "is malware"}
+dnsserver --> dnsclient: nxdomain
+----
+
+Como vemos en el diagrama, nuestro servidor DNS recibe las peticiones de resolución: en la primera petición recibe `www.google.com` y en la segunda `www.infected.com`. En ambos casos, el servidor DNS crea una nueva petición `check` al servidor de listas _xlistd_ con el nombre que se está consultando. En el caso de `www.google.com`, el servidor de listas devuelve que no se encuentra en la lista y el servidor DNS creará una nueva petición al servidor DNS externo (que será el que realmente haga el trabajo de resolución) y, una vez recibida la contestación, devolverá la petición tal cual la recibe. En el caso de `www.infected.com`, el servidor de listas devolverá que se encuentra en la lista y, por lo tanto, el servidor DNS devolverá que no existe el dominio con un `nxdomain`.
+
+== Instalando y probando xlist
+
+Empezaremos por instalar el primero de los componentes: `xlistd`, que se encuentra en el paquete *xlist*. Instalarlo es muy sencillo, para ello puede dirigirse a https://github.com/luids-io/xlist/releases, descargar la última versión del instalador (fichero `installer_linux.sh`) y ejecutarlo. También puede simplemente copiar y pegar lo siguiente en una consola de comandos.
+
+[source,bash]
+----
+RELEASE="0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
+wget $DOWNLOAD_URI -O installer_linux.sh
+chmod 755 installer_linux.sh
+sudo ./installer_linux.sh
+----
+
+En la salida del instalador, que vemos a continuación, nos indicará todos los cambios que se realizarán en el sistema. Es importante tener en cuenta que el instalador por defecto descargará los binarios de la arquitectura `amd64`. Si nuestra arquitectura es distinta (como en el caso de una raspberry pi), deberemos definirla en la variable de entorno `ARCH`. Tras verificar que todo está correcto, pulsaremos `y` para continuar.
+
+TIP: Todos los instaladores de _^lu^IDS_ ofrecen la opción de instalar el software en una arquitectura diferente a `amd64` haciendo uso de la variable de entorno `ARCH`. Por ejemplo: `ARCH=arm64 ./installer_linux.sh`. Las arquitecturas disponibles podrán variar en función del paquete de software a instalar, pero en general, se generan binarios para las siguientes arquitecturas: `amd64`, `arm`, `arm64`, `mips`, `mips64`, `mips64le`, `ppc64` y `s390x`.
+
+.Salida del instalador _xlist_
+----
+$ sudo ./installer_linux.sh
+
+======================
+- luIDS installer:
+   xlist a2f3575
+======================
+
+Warning! This script will commit the following changes to your system:
+. Download and install amd64 binaries in '/usr/local/bin'
+. Create system group 'luids'
+. Create system user 'luxlist'
+. Create data dirs in '/var/lib/luids'
+. Create cache dirs in '/var/cache/luids'
+. Create config dirs in '/etc/luids'
+. Copy systemd configurations to '/etc/systemd/system'
+. Install helper scripts in '/usr/local/bin'
+
+Are you sure? (y/n) y
+
+* Downloading and installing binaries... OK
+* Creating system group... OK
+* Creating system user... OK
+* Creating data dirs... OK
+* Creating cache dirs... OK
+* Creating base config... OK
+* Creating service config... OK
+* Installing systemd services... OK
+* Installing helper scripts... OK
+
+Installation success!. You can see /tmp/ins-TqueE7/installer.log for details.
+----
+
+NOTE: En el fichero que nos indica la salida del instalador podremos ver los cambios que ha realizado en nuestro sistema.
+
+El instalador no inicia ningún servicio, lo haremos mediante el comando `systemctl`.
+
+[source,bash]
+----
+sudo systemctl start luids-xlistd
+----
+
+Si lo deseamos, podremos ver la salida del servicio a través de `/var/log/syslog` o mediante el siguiente comando.
+
+[source,bash]
+----
+sudo journalctl -u luids-xlistd
+----
+
+A continuación, chequearemos que nuestro servidor de listas _xlist_ se encuentra funcionando en el puerto estándar mediante el comando `xlistc`.
+
+----
+$ xlistc //<1>
+[ip4 ip6 domain] (1.316764ms)
+$ xlistc www.google.com www.microsoft.com 8.8.8.8 54.37.157.73 //<2>
+domain,www.google.com: false,"",0 (209.03µs)
+domain,www.microsoft.com: false,"",0 (380.503µs)
+ip4,8.8.8.8: false,"",0 (316.129µs)
+ip4,54.37.157.73: false,"",0 (326.714µs)
+----
+<1> `xlistc` sin argumentos comprueba la disponibilidad del servidor _xlist_ y retorna los tipos de recursos a los que da respuesta.
+<2> `xlistc` con una lista de argumentos detecta el tipo de dato y realiza la consulta al servidor _xlist_.
+
+En la ejecución de los comandos anteriores podemos ver que el servidor sirve una lista en la que se incluyen recursos de tipo `ip4`, `ip6` y `domain`. También podemos comprobar que ninguna de las consultas realizadas da positivo ya que todavía no tenemos elementos en la lista.
+
+NOTE: El formato de salida de `xlistc` con argumentos es el siguiente: cada línea corresponde a un chequeo independiente y está dividida por el separador `:`. A la izquierda de dicho separador se indica la consulta realizada, que contiene el tipo de recurso y el nombre. Ej: `domain,www.google.com`. A la derecha del separador se encuentra la respuesta. En el primer campo se indica si se encuentra o no (mediante `true` o `false`) en la lista, en el segundo campo el motivo por el que está en la lista y, en el tercer campo, un valor de `TTL` que sirve de utilidad para los sistemas caché. Ej: `false,"",0`. Para finalizar, entre paréntesis tenemos una medida de latencia que indica el tiempo que tarda el cliente en enviar y recibir la consulta (una vez realizada la conexión).
+
+== Revisando la configuración por defecto de xlist
+
+El servidor _xlist_ está implementado mediante el binario `xlistd`, la configuración del software se encuentra en el directorio `/etc/luids/xlist` y en dicho directorio está el fichero `xlistd.toml`. Este fichero contiene la configuración de la instancia principal del servidor `xlistd`, que será invocada mediante la unidad de servicio `luids-xlistd.service` instalada en _systemd_.
+
+.Contenido de `/etc/luids/xlist/xlistd.toml`
+[source,toml]
+----
+[xlistd]
+certsdir   = "/etc/luids/ssl" //<1>
+datadir    = "/var/lib/luids/xlist" //<2>
+
+[xlistd.service]
+files      = [ "/etc/luids/xlist/services.json" ] //<3>
+----
+<1> Directorio base que contiene certificados de cliente utilizados por los componentes del servicio definido en _xlistd_.
+<2> Directorio base que almacena la información de las listas.
+<3> Ficheros que contienen la definición de los componentes que crean el servicio.
+
+TIP: Puede consultar la https://docs.luids.io/luids/es/xlist/configuration.html[referencia completa de configuración de xlist]. También puede ejecutar el comando `xlistd --help` para un listado completo de opciones de configuración.
+
+== Definiendo nuestro servicio e introducción a los componentes
+
+Como ha podido ver en el apartado anterior, en el fichero de configuración existe una sección `[xlistd.service]`. En dicha sección se encontrarán las opciones que hacen referencia a la "definición del servicio". Esto se debe a que, por un lado tenemos las opciones de lanzamiento del servidor que se encuentran en el fichero `xlistd.toml` y que darán respuesta a dónde están los ficheros de datos, cómo será el log, en qué puerto escucha el servidor, etc. Y por otro lado tenemos la propia definición del servicio, que se encuentra en ficheros en _formato json_ y que responde a la cuestión de cómo se tratan las solicitudes que llegan al servidor.
+
+Para responder a esta cuestión, realizaremos el _modelado del servicio_, que básicamente consistirá en la definición de _objetos json_ que describirán al servicio mediante un sistema de composición. Este sistema de composición será un sistema jerárquico en el que los objetos darán respuesta a la petición en función de su  _clase_ o _arquetipo_ y de sus propiedades o parámetros de configuración. A estos objetos los llamaremos componentes.
+
+En la definición de los componentes de nuestro servicio, deberá existir un componente especial al que llamaremos _componente raíz_ y que será el encargado de despachar todas las peticiones que reciba el servidor.
+
+Durante la instalación, el instalador crea el siguiente fichero de definición de servicio que contiene al _componente raíz_, que por defecto debe tener el identificador `root`, y a otros _componentes hijo_.
+
+.Contenido de `/etc/luids/xlist/services.json`
+[source,json]
+----
+[
+    {
+        "id": "root", //<1>
+        "class": "wbefore",
+        "resources": [ "ip4", "ip6", "domain" ],
+        "contains": [
+            {
+                "id": "local-whitelist", //<2>
+                "class": "file",
+                "resources": [ "ip4", "ip6", "domain" ],
+                "source": "local/whitelist.xlist",
+                "opts": {
+                    "autoreload": true,
+                    "reloadseconds": 5
+                }
+            },
+            {
+                "id": "local-blacklist", //<3>
+                "class": "file",
+                "resources": [ "ip4", "ip6", "domain" ],
+                "source": "local/blacklist.xlist",
+                "opts": {
+                    "autoreload": true,
+                    "reloadseconds": 5,
+                    "reason": "found in 'local-blacklist'"
+                }
+            }
+        ]
+    }
+]
+----
+<1> Definimos el _componente raíz_. El campo `id` contiene el valor `root`, un arquetipo o clase con el valor `wbefore` (_white before_), incluye los recursos `ip4`, `ip6` y `domain` y el campo `contains` incluye a sus _componentes hijo_.
+<2> Definimos el _componente hijo_ `local-whitelist` con los mismos recursos que su recurso padre, con la clase `file` y en `source` se indica la ubicación del fichero que contendrá la información de la lista (en este caso se hace forma relativa).
+<3> Definimos el _componente hijo_ `local-blacklist` de forma similar al anterior.
+
+Podríamos visualizar la jerarquía de componentes que viene por defecto mediante el siguiente diagrama.
+
+image::{guidename}-cmp1.png[components1,width=40%,pdfwidth=40%]
+
+Los componentes con la clase o arquetipo `file` cargarán en memoria los recursos del fichero `source` y responderán a las peticiones en función de esta información.
+
+NOTE: Como puede suponer, existen a nuestra disposición otras _clases_ que usarán otras fuentes de datos y que veremos en un posterior capítulo, como `dnsxl` que chequeará en servidores _DNSxL_ remotos, `sblookup` que chequeará en la _API Safe Browsing_, etc.
+
+En lo que respecta al componente `root`, hemos observado que pertenece a la clase `wbefore`. Esta clase nos permite implementar lógica en nuestro sistema. En este caso, se comportará como muestra el siguiente diagrama de flujo.
+
+.Funcionamiento de un componente `wbefore`
+[plantuml,{guidename}-flow1,png,pdfwidth=50%]
+----
+start
+:read name/
+:check in local-whitelist|
+if (check(domain)?) then (true)
+	:result = false|
+else (false)
+	:check in local-blacklist|
+	if (check(domain)?) then (true)
+		:result = true|
+	else (false)
+		:result = false|
+	endif
+endif
+stop
+----
+
+NOTE: También existen otras clases que nos permiten implementar otro tipo de lógica a nuestro sistema como `selector` que despachará las solicitudes en función del tipo de recurso, o como `serial` y `parallel` que chequearán en múltiples listas.
+
+En este apartado hemos rascado sólo la superficie de qué son los componentes y cómo interaccionan entre ellos. Como puede ver, esta arquitectura es muy potente, ya que nos permite implementar la lógica que necesitemos e incluir diversas fuentes de datos independientemente de cómo obtengan éstas la información. Para ello, simplemente bastará con definir un nuevo objeto, seleccionar el arquetipo o clase correspondiente y configurarlo adecuadamente.
+
+TIP: Tiene mucha más información y un completo catálogo de componentes que puede utilizar en https://docs.luids.io/luids/es/xlist/service-definition.html.
+
+== El formato xlist y agregando elementos a nuestra lista
+
+Como vimos en el apartado anterior, los componentes de la clase `file` indican un origen o `source`. Los campos `source` allí indicados, al no ser trayectorias absolutas, serán tratados como relativos al directorio `datadir` definido en el fichero `xlistd.toml`.
+
+NOTE: Cuando se omite el campo `source`, el software tratará de localizar en el directorio `datadir` un fichero con el nombre especificado en el campo `id` y la extensión `xlist`. Por ejemplo, para una lista definida como `top50-malware`, sino se explicita el campo `source`, se usará el fichero `top50-malware.xlist` que se encuentre dentro del directorio `datadir`.
+
+Los ficheros allí definidos son creados por el instalador por defecto y están en el _formato xlist_. Este formato no es más que un _formato csv_ que contiene 3 campos: _tipo de recurso_, _formato_ y _nombre_. Pero lo mejor, es verlo con un ejemplo.
+
+.Ejemplo de fichero de datos _xlist_
+[source,csv]
+----
+domain,plain,www.dominio.com //<1>
+domain,plain,smtp.dominio.com
+domain,sub,todoeldominio.com //<2>
+ip4,plain,1.2.3.4 //<3>
+ip4,cidr,10.0.0.0/8 //<4>
+----
+<1> Es un dominio con el formato `plain`, sólo el `www.dominio.com` estará en la lista.
+<2> Es un dominio con el formato `sub`, todos los subdominios de `todoeldominio.com` estarán en la lista.
+<3> Es una ipv4 con el formato `plain`, sólo la ip `1.2.3.4` estará en la lista.
+<4> Es una ipv4 con el formato `cidr`, toda la subred `10.0.0.0/8` estará en la lista.
+
+NOTE: No se preocupe si ya tuviese listas en otro formato, la utilidad `xlget` le ayudará a convertir la información desde otros formatos.
+
+Ahora que entendemos el formato, vamos a agregar algunos elementos a nuestra lista negra local.
+----
+$ sudo -s
+# cd /var/lib/luids/xlist/local
+# echo "domain,plain,www.microsoft.com" >> blacklist.xlist
+# echo "ip4,plain,54.37.157.73" >> blacklist.xlist
+# exit
+----
+
+Transcurridos `5` segundos probaremos de nuevo el comando `xlistc` que lanzamos en un apartado anterior para ver que nuestro sistema de listas funciona correctamente.
+----
+$ xlistc www.google.com www.microsoft.com 8.8.8.8 54.37.157.73
+domain,www.google.com: false,"",0 (1.046938ms)
+domain,www.microsoft.com: true,"found in 'local-blacklist'",0 (1.572388ms)
+ip4,8.8.8.8: false,"",0 (1.062734ms)
+ip4,54.37.157.73: true,"found in 'local-blacklist'",0 (658.072µs)
+----
+
+== Registrando el servicio xlist
+
+Para que nuestro servicio _xlist_ pueda ser usado por el resto de componentes del ecosistema _^lu^IDS_, deberá ser registrado en los servicios de la API disponibles. Esto se hace agregando una entrada al fichero `apiservices.json`.
+
+.Registrando en `/etc/luids/apiservices.json`
+[source,json]
+----
+[
+    {
+        "id": "xlisthole", //<1>
+        "api": "luids.xlist.v1.Check", //<2>
+        "endpoint": "tcp://127.0.0.1:5801" //<3>
+    }
+]
+----
+<1> Identificador de nuestro servicio.
+<2> Tipo de API que proporiona.
+<3> URI en la que está disponible.
+
+A partir de este momento, el servicio estará disponible para el resto de componentes haciendo referencia mediante el identificador `xlisthole`.
+
+NOTE: Podemos ver que no hay opciones relativas a la seguridad de la conexión, esto se debe a que estamos usando un servicio que sólo está accesible localmente. Más adelante veremos cómo dotamos de seguridad a la comunicaciones entre componentes del ecosistema _^lu^IDS_.
+
+IMPORTANT: El registro del servicio que hemos realizado es local. Esto decir, sólo aquellos procesos que tengan acceso al fichero podrán leerlo.
+
+== Instalando el servidor DNS
+
+Una vez que tenemos el componente `xlistd` funcionando y registrado localmente, procederemos a instalar el componente `ludns`. Dicho componente se incluye en el paquete *dns* y es muy sencillo de instalar, basta descargar el instalador ya existente y ejecutarlo. Para ello puede dirigirse a https://github.com/luids-io/dns/releases, descargar la última versión del instalador (fichero `installer_linux.sh`) y ejecutarlo. También puede simplemente copiar y pegar lo siguiente en una consola de comandos.
+
+[source,bash]
+----
+RELEASE="0.0.1"
+DOWNLOAD_BASE="https://github.com/luids-io/dns/releases/download"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
+wget $DOWNLOAD_URI  -O installer_linux.sh
+chmod 755 installer_linux.sh
+sudo ./installer_linux.sh
+----
+
+.Salida del instalador _dns_
+----
+$ sudo ./installer_linux.sh
+
+======================
+- luIDS installer:
+   dns c5ea4f8
+======================
+
+Warning! This script will commit the following changes to your system:
+. Download and install binaries in '/usr/local/bin'
+. Create system group 'luids'
+. Create system user 'ludns'
+. Create data dirs in '/var/lib/luids'
+. Create cache dirs in '/var/cache/luids'
+. Create config dirs in '/etc/luids'
+. Copy systemd configurations to '/etc/systemd/system'
+
+Are you sure? (y/n) y
+
+* Downloading and installing binaries... OK
+* Creating system group... OK
+* Creating system user... OK
+* Setting capabilities to binaries... OK
+* Creating data dirs... OK
+* Creating cache dirs... OK
+* Creating base config... OK
+* Creating service config... OK
+* Installing systemd services... OK
+
+Installation success!. You can see /tmp/ins-tVFlAh/installer.log for details.
+----
+
+NOTE: En el fichero que nos indica la salida del instalador podremos ver los cambios que ha realizado en nuestro sistema.
+
+El instalador por defecto no inicia ningún servicio, lo haremos mediante el comando `systemctl`.
+
+[source,bash]
+----
+sudo systemctl start luids-ludns
+----
+
+Podremos ver la salida del servicio a través de `/var/log/syslog` o mediante el siguiente comando.
+
+[source,bash]
+----
+sudo journalctl -u luids-ludns
+----
+
+Por defecto, el servidor DNS configurado escucha en el puerto no estándar `1053`. Esto se hace para evitar conflictos con el software existente en el sistema y poder realizar pruebas antes de poner en producción. Comprobaremos que está resolviendo nombres correctamente mediante el comando `dig`.
+----
+$ dig @localhost -p 1053 www.google.com +short
+216.58.201.164
+$ dig @localhost -p 1053 www.infected.com +short
+207.174.213.181
+$ dig @localhost -p 1053 www.microsoft.com +short
+www.microsoft.com-c-3.edgekey.net.
+www.microsoft.com-c-3.edgekey.net.globalredir.akadns.net.
+e13678.dspb.akamaiedge.net.
+23.210.45.45
+$ dig @localhost -p 1053 www.luisguillen.com +short
+vps01.luisguillen.com.
+54.37.157.73
+----
+
+Como hemos visto, el servidor DNS resuelve correctamente nombres, incluso aquellos nombres que hemos metido en nuestra lista negra. Esto se debe a que en la configuración por defecto, nuestro DNS únicamente hace de "resolvedor" (realmente `forwarder`) y no hace todavía de sumidero.
+
+== Integrando el DNS con nuestra lista
+
+El servidor DNS está implementado mediante el binario `ludns`. La configuración se encuentra en el fichero `/etc/luids/dns/Corefile` que será invocada mediante la unidad de servicio `luids-ludns.service` instalada en _systemd_.
+
+NOTE: El binario `ludns` realmente es una compilación del famoso servidor _CoreDNS_ con un subconjunto de sus principales plugins y los plugins específicos del sistema _^lu^IDS_. Es por ello que el aspecto de la configuración es completamente distinto del resto de componentes del ecosistema.
+
+Vamos a modificar el contenido de dicho fichero de configuración para que use el servidor _xlist_ que acabamos de configurar y registrar con el nombre de `xlisthole`.
+
+.Contenido de `/etc/luids/dns/Corefile`
+[source]
+----
+.:1053 { //<1>
+    idsapi //<2>
+    xlisthole //<3>
+    forward . 8.8.8.8 8.8.4.4 //<4>
+}
+----
+<1> Definimos un servidor que escucha en el puerto `1053` de todas las interfaces.
+<2> El plugin `idsapi` se encargará de crear bajo demanda los clientes de los servicios que se encuentran en el fichero `apiservices.json` y hacerlos disponibles al resto de plugins de _^luIDS^_.
+<3> El plugin `xlisthole` es el que proporcionará la funcionalidad de sumidero. Al no indicar configuración adicional, el plugin usará el servicio registrado como `xlisthole`.
+<4> El plugin `forward` es parte de _CoreDNS_ y enviará las solicitudes de resolución a los servidores indicados.
+
+Reiniciaremos el servicio.
+
+[source,bash]
+----
+sudo systemctl restart luids-ludns
+----
+
+Probaremos nuevamente nuestro sumidero y vemos que ya no resuelve las direcciones que incluimos anteriormente en nuestra lista.
+----
+$ dig @localhost -p 1053 www.google.com +short
+216.58.201.164
+$ dig @localhost -p 1053 www.infected.com +short
+207.174.213.181
+$ dig @localhost -p 1053 www.microsoft.com +short
+$ dig @localhost -p 1053 www.luisguillen.com +short
+vps01.luisguillen.com.
+54.37.157.73
+----
+
+Si observamos los logs, veremos que nuestro sumidero nos está advirtiendo.
+----
+TODO: escribir la salida de logs
+----
+
+También podemos observar que al chequear el dominio `www.luisguillen.com`, éste nos devuelve una dirección IP que incluimos anteriormente en nuestra lista negra. ¿Esto a qué se debe?, la respuesta es que por defecto el sumidero únicamente comprueba los dominios consultados y no las respuestas obtenidas. Como esto era parte de la especificación que definíamos al principio del capítulo, podemos dar por válida nuestra implementación y dejaremos esta cuestión para un capítulo posterior.
+
+== Agregando caché de resoluciones y consolidando nuestro sumidero
+
+Recordemos que hemos configurado nuestro sumidero en el puerto no estándar `1053` y que deberemos ponerlo a la escucha en el puerto `53`. Pero para hacer esto, existe un pequeño problema en la mayoría de distribuciones Linux:  probablemente ya exista un proceso escuchando en dicho puerto.
+
+En el caso de una distribución _Ubuntu server 20.04_ obtenemos el siguiente resultado.
+----
+$ sudo ss -lunp | grep :53
+UNCONN 0 0 127.0.0.53%lo:53 0.0.0.0:* users:(("systemd-resolve",pid=564,fd=12))
+----
+
+Esto se debe a que la instalación por defecto configura un pequeño servidor DNS que atiende las peticiones locales. Por lo tanto, para poner nuestro servicio en marcha, deberemos deshabilitar primero este servicio y configurar las resoluciones de nombres que necesiten realizar los procesos de nuestro servidor.
+
+Esto lo haremos copiando y pegando la siguiente secuencia de comandos.
+[source,bash]
+----
+## deshabilito systemd-resolved
+sudo systemctl disable systemd-resolved.service
+sudo systemctl stop systemd-resolved.service
+
+## borro symlink
+sudo rm -f /etc/resolv.conf
+
+## creo nuevo resolv.conf para resoluciones locales
+sudo cat >/etc/resolv.conf <<EOF
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+options edns0
+EOF
+
+----
+
+WARNING: Nótese que hemos definido los servidores `8.8.8.8` y `8.8.4.4` como resolvedores y no el servidor `127.0.0.1`. El motivo es porque en los capítulos vamos a seguir "trasteando" con la configuración del servidor y podemos necesitar resolver nombres en la máquina para descargar software, actualizaciones, etc. Si no va a realizar ninguna configuración más, puede dejar tranquilamente el `127.0.0.1`.
+
+Una vez se ha realizado esta acción, ya podemos cambiar la configuración del servidor DNS para eliminar el puerto `1053` y que escuche en `53`. También agregaremos la directiva `cache` para mantener una caché con las resoluciones realizadas y así responder más rápidamente a nuestros clientes.
+
+.Contenido de `/etc/luids/dns/Corefile` de nuestro primer sumidero
+[source]
+----
+. {
+    idsapi
+    xlisthole
+    cache
+    forward . 8.8.8.8 8.8.4.4
+}
+----
+
+Con la inclusión de la directiva `cache`, nuestro sistema DNS internamente tendrá el siguiente comportamiento.
+
+[plantuml,{guidename}-xlist-dns1-2,png,pdfwidth=100%]
+----
+actor dnsclient
+participant "DNS Server\n(ludns)" as dnsserver
+participant "DNS Plugin\n(xlisthole)" as xlisthole
+participant "DNS Plugin\n(cache)" as cache
+participant "DNS Plugin\n(forward)" as forward
+participant "XList Server\n(xlistd)" as xlist #99FF99
+participant "External\nDNS Server" as dnsext #99FF99
+
+dnsclient -> dnsserver: query www.somesite.com
+dnsserver -> xlisthole: query www.somesite.com
+xlisthole -> xlist: check(wwww.somesite.com,domain)
+xlist --> xlisthole: {result: false}
+xlisthole --> dnsserver: {result: false}
+dnsserver -> cache: query www.somesite.com
+cache --> dnsserver: cache miss
+dnsserver -> forward: query www.somesite.com
+forward -> dnsext: query www.somesite.com
+dnsext --> forward: 1.1.1.1
+forward --> dnsserver: 1.1.1.1
+dnsserver -> cache: set www.somesite.com 1.1.1.1
+cache --> dnsserver: cached ok
+dnsserver --> dnsclient: 1.1.1.1
+
+dnsclient -> dnsserver: query www.somesite.com
+dnsserver -> xlisthole: query www.somesite.com
+xlisthole -> xlist: check(wwww.somesite.com,domain)
+xlist --> xlisthole: {result: false}
+xlisthole --> dnsserver: {result: false}
+dnsserver -> cache: query www.somesite.com
+cache --> dnsserver: cache ok: 1.1.1.1
+dnsserver --> dnsclient: 1.1.1.1
+----
+
+Como puede observarse en el diagrama, en la segunda petición al servidor DNS ya no es necesario volver a consultar al servidor "resolvedor" externo ya que la respuesta se encuentra cacheada. Sin embargo, la consulta al servidor _xlist_ vuelve a realizarse. Esto no supone un problema, ya que nuestro servidor _xlist_ estará disponible de forma local y las latencias introducidas serán inferiores al milisegundo. Aun así, en un posterior capítulo se tratará cómo cachear las peticiones al servicio _xlist_.
+
+Reiniciaremos el servicio con la nueva configuración.
+[source,bash]
+----
+sudo systemctl restart luids-ludns
+----
+
+Habilitaremos los servicios en el arranque.
+[source,bash]
+----
+sudo systemctl enable luids-xlistd
+sudo systemctl enable luids-ludns
+----
+
+Finalmente, deberemos configurar nuestros clientes para que usen nuestro sumidero como resolvedor. La manera más adecuada de gestionar esto es mediante la configuración del servicio DHCP.
+
+== Recapitulación
+
+A lo largo de este capítulo hemos tratado la instalación de _xlist_, comprobado la configuración por defecto y realizado una pequeña introducción al sistema de componentes. También hemos visto el formato de datos _xlist_ y cómo insertar elementos a una lista en dicho formato. Posteriormente, hemos instalado el software _dns_ y configurado para que haga uso del sistema de listas _xlist_ configurado y registrado previamente. Para finalizar, hemos visto cómo consolidar el servicio para que los clientes puedan empezar a hacer uso del mismo.
+
+ifdef::env-site,env-github[]
+A continuación: xref:step-2.adoc[Comprobando las respuestas del DNS]
+endif::env-site,env-github[]

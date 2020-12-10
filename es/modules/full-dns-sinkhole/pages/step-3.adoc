@@ -1,0 +1,504 @@
+= Configurando fuentes externas
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: full-dns-sinkhole
+
+== Introducción
+
+Hemos configurado un sumidero pero lo cierto es que todavía no nos es muy útil ya que su utilidad dependerá fundamentalmente de cuánta información disponemos y de la calidad de dicha información.
+
+.Diagrama de despliegue utilizando fuentes externas
+[plantuml,{guidename}-deployment2,png,pdfwidth=100%]
+----
+cloud "External Resolver" {
+ [DNS Server] -left- ExtDNS
+}
+
+frame "Blacklist providers" {
+  cloud "Provider 1" {
+   [HTTP Server] -left- HTTP
+  }
+  cloud "Provider 2" {
+   [DNS RBL Zone] -left- DNSRBL
+  }
+  cloud "Provider 3" {
+   [REST API] -left- REST
+  }
+}
+
+node "DNS Sinkhole" {
+  database "locallists"
+
+  [xlistd] -up- GRPC
+	[xlistd] --> locallists
+
+  [ludns] --> GRPC
+  [ludns] --> ExtDNS
+  [ludns] - DNS
+
+  [xlget] --> locallists
+
+  [xlget] --> HTTP
+  [xlistd] --> DNSRBL
+  [xlistd] --> REST
+}
+
+node "Client" {
+  [DNS Resolver] --> DNS
+}
+----
+
+
+Por fortuna, existen numerosas fuentes de información gratuitas en Internet, pero hay un problema: cada una tiene su propio formato (ej: csv,_hostfile, etc), protocolo de acceso (ej: http, dnsxl, api rest, etc), categoría (ej: lista blanca, negra, etc) y contiene un determinado tipo de información (ej: ataques fuerza bruta, spam, phising, etc). Es por ello, por lo que en ^lu^IDS hemos hecho el esfuerzo de compilar la https://luids-io.github.io/xlist-database/README.html[*base de datos XList*], que contiene una clasificación de listas por tecnología, categoría y tipo de información, con la configuración ya creada para integrarlas en nuestro sistema.
+
+TODO: explicación
+
+== Instalar la base de datos xlist
+
+El instalador creó un script `xlist_database` con el que podremos descargar y mantener al día la base de datos de fuentes abiertas disponibles para su utilización en _xlist_. Es tan fácil como ejecutar dicho script como administrador y descargará o actualizará dicha base de datos en el directorio `/usr/local/share/xlist-database`.
+
+----
+$ sudo xlist_database
+Clonando en '/usr/local/share/xlist-database'...
+remote: Enumerating objects: 973, done.
+remote: Counting objects: 100% (973/973), done.
+remote: Compressing objects: 100% (244/244), done.
+remote: Total 973 (delta 850), reused 851 (delta 728), pack-reused 0
+Recibiendo objetos: 100% (973/973), 161.50 KiB | 879.00 KiB/s, listo.
+Resolviendo deltas: 100% (850/850), listo.
+----
+
+La base de datos se va actualizando con nuevas fuentes y va corrigiendo posibles cambios que se produzcan en las ya existentes: cambios de url, formato e incluso si la fuente deja de existir. Por ello, es más que recomendable que actualicemos regularmente la base de datos con el comando `xlist_database`.
+
+Si lo preferimos, podemos hacer que se actualice diariamente de forma automática. Para ello, basta con que habilitemos el _timer_ que crea el instalador para esta tarea.
+
+[source,bash]
+----
+sudo systemctl enable --now luids-xlist-updatedb.timer
+----
+
+WARNING: Para que la actualización automática funcione es necesario que hayamos ejecutado el comando `xlist_database` previamente.
+
+== Seleccionando las fuentes
+
+¿QUÉ FUENTES PONEMOS?
+
+== Configurando xlget
+
+Para poder utilizar las fuentes que requieren el consumo "offline" es necesario utilizar `xlget`. Por suerte, ya se instaló con el paquete _xlist_ por lo que no es necesario realizar ninguna instalación adicional. Junto a la utilidad `xlget`, se instalan dos scripts: `xlget_check` y `xlget_update` que facilitan la ejecución del mismo con los permisos adecuados y usando como fichero de configuración el fichero `/etc/luids/xlist/xlget.toml`.
+
+En dicho fichero, por defecto, espera que la configuración de los orígenes se encuentre un fichero `sources.json` (que por defecto trae un array vacío). Esto es un poco engorroso para incluir fuentes que ya se encuentran en la base de datos, por ello vamos a crear en primer lugar un directorio `sources.d` en el que incluiremos los ficheros que utilizaremos como fuentes mediante un enlace simbólico.
+
+[source,bash]
+----
+mkdir -p /etc/luids/xlist/sources.d
+cd /etc/luids/xlist/sources.d
+ln -s /usr/local/share/xlist-database/sources/blocklist-site-ransomware.json .
+ln -s /usr/local/share/xlist-database/sources/blocklist-site-malware.json .
+ln -s /usr/local/share/xlist-database/sources/alienvault-com.json .
+ln -s /usr/local/share/xlist-database/sources/abuse-ch-feodo.json .
+ln -s /usr/local/share/xlist-database/sources/abuse-ch-ssl.json .
+ln -s /usr/local/share/xlist-database/sources/abuse-ch-urlhaus.json .
+----
+
+TIP: Es recomendable el uso de enlaces simbólicos ya que si se realizan actualizaciones en la base de datos, nuestro sistema también se actualizará con los cambios si necesidad de hacer nada más.
+
+Una vez hecho esto, agregaremos a la configuración de `xlget.source` la carga del directorio.
+
+----
+[xlget]
+outputdir = "/var/lib/luids/xlist"
+cachedir  = "/var/cache/luids/xlist"
+statusdir = "/var/lib/luids/xlist/status"
+
+[xlget.source]
+files     = [ "/etc/luids/xlist/sources.json" ]
+dirs      = [ "/etc/luids/xlist/sources.d"    ]
+----
+
+Mediante el script `xlget_check` comprobaremos que si configuración es correcta y si existen listas que requieren de actualización.
+
+----
+$ sudo xlget_check
+INFO[0000] xlget (version: fd2242b build: 2020-11-14T18:01:51+0100)
+configuration ok
+needs update: 'abuse.ch-feodo' 'abuse.ch-ssl' 'abuse.ch-urlhaus' 'alienvault.com' 'blocklist.site-malware' 'blocklist.site-ransomware'
+----
+
+
+Procederemos a actualizar las listas mediante el script `xlget_update`.
+
+----
+sudo xlget_update
+INFO[0000] xlget (version: fd2242b build: 2020-11-14T18:01:51+0100)
+INFO[0000] getting 'abuse.ch-feodo'
+INFO[0000] summary 'abuse.ch-feodo': updated=true ip4=1061 ip6=0 domain=0 md5=0 sha1=0 sha256=0
+INFO[0000] getting 'abuse.ch-ssl'
+INFO[0000] summary 'abuse.ch-ssl': updated=true ip4=111 ip6=0 domain=0 md5=98 sha1=3628 sha256=0
+INFO[0000] getting 'abuse.ch-urlhaus'
+INFO[0000] summary 'abuse.ch-urlhaus': updated=true ip4=0 ip6=0 domain=1008 md5=0 sha1=0 sha256=0
+INFO[0000] getting 'alienvault.com'
+INFO[0002] summary 'alienvault.com': updated=true ip4=57568 ip6=0 domain=0 md5=0 sha1=0 sha256=0
+INFO[0002] getting 'blocklist.site-malware'
+INFO[0005] summary 'blocklist.site-malware': updated=true ip4=20643 ip6=0 domain=435404 md5=0 sha1=0 sha256=0
+INFO[0005] getting 'blocklist.site-ransomware'
+INFO[0006] summary 'blocklist.site-ransomware': updated=true ip4=0 ip6=0 domain=1903 md5=0 sha1=0 sha256=0
+INFO[0006] xlget finished
+----
+
+NOTE: Algunas listas pueden arrojar algunas advertencias con fallos en la conversión de algunos datos. En general esto puede ignorarse tranquilamente.
+
+Una vez que se han descargado las listas, podremos comprobar la existencia de las listas en el directorio `/var/lib/luids/xlist`. Junto a las listas, que estarán con la extensión `.xlist` (se econtrarán en ese formato), tendremos un fichero `.md5` que contendrá el hash de la lista.
+
+----
+# ls -lh /var/lib/luids/xlist/
+total 17M
+-rw-r--r-- 1 luxlist luids  26K nov 16 08:08 abuse.ch-feodo.xlist
+-rwxr-xr-x 1 luxlist luids   32 nov 16 08:08 abuse.ch-feodo.xlist.md5
+-rw-r--r-- 1 luxlist luids 191K nov 16 08:08 abuse.ch-ssl.xlist
+-rwxr-xr-x 1 luxlist luids   32 nov 16 08:08 abuse.ch-ssl.xlist.md5
+-rw-r--r-- 1 luxlist luids  29K nov 16 08:08 abuse.ch-urlhaus.xlist
+-rwxr-xr-x 1 luxlist luids   32 nov 16 08:08 abuse.ch-urlhaus.xlist.md5
+-rw-r--r-- 1 luxlist luids 1,4M nov 16 08:08 alienvault.com.xlist
+-rwxr-xr-x 1 luxlist luids   32 nov 16 08:08 alienvault.com.xlist.md5
+-rw-r--r-- 1 luxlist luids  15M nov 16 08:08 blocklist.site-malware.xlist
+-rwxr-xr-x 1 luxlist luids   32 nov 16 08:08 blocklist.site-malware.xlist.md5
+-rw-r--r-- 1 luxlist luids  74K nov 16 08:08 blocklist.site-ransomware.xlist
+-rwxr-xr-x 1 luxlist luids   32 nov 16 08:08 blocklist.site-ransomware.xlist.md5
+drwxrwx--T 2 root    luids 4,0K nov 16 07:48 local
+drwxrwx--T 2 root    luids 4,0K nov 16 08:08 status
+----
+
+CAUTION: No altere manualmente ninguno de los ficheros que se encuentran en este directorio.
+
+Por defecto se encuentra habilitada la directiva `statusdir` en la configuración de _xlget_. Esta directiva hace que la utilidad mantenga un directorio en el que podremos ver el estado actualización en el que se encuentran las listas. Esto no sólo nos servirá para comprobar que todo se está actualizando correctamente, sino que también nos indicará si la información de una lista lleva tiempo sin ser mantenida.
+
+----
+# cat /var/lib/luids/xlist/status/blocklist.site-malware.status
+{
+        "id": "blocklist.site-malware",
+        "first": "2020-11-16T08:08:27.310305764+01:00",
+        "last": "2020-11-16T08:08:31.233464414+01:00",
+        "updates": 1,
+        "lastupdate": "2020-11-16T08:08:31.233464414+01:00",
+        "changes": 1,
+        "lastchange": "2020-11-16T08:08:31.233464414+01:00",
+        "errors": 0,
+        "updatedok": true,
+        "account": [
+                {
+                        "resource": "ip4",
+                        "count": 20643
+                },
+                {
+                        "resource": "domain",
+                        "count": 435404
+                }
+        ]
+}
+----
+
+Una vez que hemos comprobado que todo funciona correctamente, podremos ejecutar y activar _xlget_ en modo automático. Esto lo podremos hacer mediante la unidad de servicio _systemd_ que se ha creado durante el proceso de ínstalación.
+
+[source,bash]
+----
+sudo systemctl start luids-xlget
+sudo systemctl enable luids-xlget
+----
+
+== Configuración de las listas agregadas
+
+Ya tenemos las listas descargadas, ahora necesitamos incluirlas en la configuración de nuestro servidor de listas.
+
+Pero antes, vamos a ordenar un poco la configuración que tenemos hasta el momento. Para ello vamos a crear una estructura de directorio en la que mantendremos la configuración.
+
+[source,bash]
+----
+sudo mkdir -p /etc/luids/xlist/services.d/local
+sudo mkdir -p /etc/luids/xlist/services.d/file
+sudo mkdir -p /etc/luids/xlist/services.d/dnsxl
+sudo mkdir -p /etc/luids/xlist/services.d/sblookup
+sudo mkdir -p /etc/luids/xlist/services.d/geoip2
+----
+
+Crearemos los siguientes ficheros en el directorio `local` que acabamos de crear.
+
+.Contenido `/etc/luids/xlist/services.d/local/whitelist.json`
+[source,json]
+----
+[
+  {
+    "id": "local-whitelist",
+    "class": "file",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "source": "local/whitelist.xlist",
+    "opts": {
+      "autoreload": true,
+      "reloadseconds": 5
+    }
+  }
+]
+----
+
+.Contenido `/etc/luids/xlist/services.d/local/blacklist.json`
+[source,json]
+----
+[
+  {
+    "id": "local-blacklist",
+    "class": "file",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "source": "local/blacklist.xlist",
+    "opts": {
+      "autoreload": true,
+      "reloadseconds": 5,
+      "reason": "found in 'local-blacklist'"
+    }
+  }
+]
+----
+
+Modificaremos el fichero `services.json` de la siguiente forma.
+
+.Contenido de `/etc/luids/xlist/services.json`
+[source,json]
+----
+[
+  {
+    "id": "root",
+    "class": "wbefore",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "contains": [
+      { "id": "local-whitelist" },
+      { "id": "local-blacklist" }
+    ]
+  }
+]
+----
+
+Finalmente, actualizaremos el fichero `xlistd.toml` para que utilice la nueva forma de configuración.
+
+.Contenido de `/etc/luids/xlist/xlistd.toml`
+[source,toml]
+----
+[xlistd]
+certsdir   = "/etc/luids/ssl"
+datadir    = "/var/lib/luids/xlist"
+
+[xlistd.service]
+dirs       = [ "/etc/luids/xlist/services.d/local",
+               "/etc/luids/xlist/services.d/file",
+               "/etc/luids/xlist/services.d/dnsxl",
+               "/etc/luids/xlist/services.d/sblookup",
+               "/etc/luids/xlist/services.d/geoip2",
+               "/etc/luids/xlist/services.d" ]
+
+files      = [ "/etc/luids/xlist/services.json" ]
+----
+
+Como se puede ver, hemos creado una estructura de directorios para la configuración, "extraído" los componentes hijo definidos en el `services.json` a dos nuevos ficheros que se encuentran en el directorio `local` e incluido dichos componentes en el fichero `services.json` definiendo únicamente su `id`. Finalmente hemos modificado la configuración de `xlistd.toml` mediante la inclusión de la directiva `dirs` en la que incluiremos los directorios que hemos creado. Esto hace que se construya el servicio de la siguiente forma:
+
+. Lee todos los ficheros con extensión `.json` en orden alfabético de cada uno de los directorios especificados en `dirs` en el orden definido. Esto es: leerá primero de `services.d/local`, luego de `services.d/file`, así hasta leer los de `services.d`.
+. Lee todos los ficheros especificados en `files` en el orden definido.
+
+Podremos comprobar que la configuración es correcta mediante el siguiente comando.
+
+[source,bash]
+----
+sudo xlistd --dry-run --config /etc/luids/xlist/xlistd.toml
+----
+
+Acabamos de refactorizar la configuración obteniendo exactamente el mismo resultado que la configuración que teníamos originalmente. En este caso la definición de las listas `local-whitelist` y `local-blacklist` se realizan en ficheros diferentes y se incluye una referencia a las mismas utilizando únicamente el campo `id` sin indicar la `class`.
+
+Ahora agregaremos la carga de las listas que hemos definido, lo haremos de forma similar a como hicimos con los `sources` pero en el directorio correspondiente.
+
+[source,bash]
+----
+cd /etc/luids/xlist/services.d/file
+DBDIR=/usr/local/share/xlist-database
+ln -s $DBDIR/services/file/blocklist-site-ransomware.json .
+ln -s $DBDIR/services/file/blocklist-site-malware.json .
+ln -s $DBDIR/services/file/alienvault-com.json .
+ln -s $DBDIR/services/file/abuse-ch-feodo.json .
+ln -s $DBDIR/services/file/abuse-ch-ssl.json .
+ln -s $DBDIR/services/file/abuse-ch-urlhaus.json .
+----
+
+Crearemos los siguientes ficheros.
+
+.Contenido de `/etc/luids/xlist/services.d/ip4-service.json`
+[source,json]
+----
+[
+  {
+    "id": "ip4-service",
+    "class": "wbefore",
+    "resources": [ "ip4" ],
+    "contains": [
+      { "id": "local-whitelist" },
+      {
+        "id": "ip4-blacklist",
+        "class": "sequence",
+        "resources": [ "ip4" ],
+        "contains": [
+          { "id": "local-blacklist"        },
+          { "id": "blocklist.site-malware" },
+          { "id": "alienvault.com"         },
+          { "id": "abuse.ch-feodo"         },
+          { "id": "abuse.ch-ssl"           }
+        ],
+        "opts": { "first": true }
+      }
+    ]
+  }
+]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/ip6-service.json`
+[source,json]
+----
+[
+  {
+    "id": "ip6-service",
+    "class": "wbefore",
+    "resources": [ "ip6" ],
+    "contains": [
+      { "id": "local-whitelist" },
+      {
+        "id": "ip6-blacklist",
+        "class": "sequence",
+        "resources": [ "ip6" ],
+        "contains": [
+          { "id": "local-blacklist" }
+        ],
+        "opts": { "first": true }
+      }
+    ]
+  }
+]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/domain-service.json`
+[source,json]
+----
+[
+  {
+    "id": "domain-service",
+    "class": "wbefore",
+    "resources": [ "domain" ],
+    "contains": [
+      { "id": "local-whitelist" },
+      {
+        "id": "domain-blacklist",
+        "class": "sequence",
+        "resources": [ "domain" ],
+        "contains": [
+          { "id": "local-blacklist"           },
+          { "id": "blocklist.site-ransomware" },
+          { "id": "blocklist.site-malware"    },
+          { "id": "abuse.ch-urlhaus"          }
+        ],
+        "opts": { "first": true }
+      }
+    ]
+  }
+]
+----
+
+Modificaremos una vez más el fichero `services.json`, pero en esta ocasión tendrá la siguiente forma.
+
+.Contenido de `/etc/luids/xlist/services.json`
+[source,json]
+----
+[
+  {
+    "id": "root",
+    "class": "selector",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "contains": [
+      { "id": "ip4-service"    },
+      { "id": "ip6-service"    },
+      { "id": "domain-service" },
+    ]
+  }
+]
+----
+
+A estas alturas seguramente se preguntará ¿por qué esta configuración?, ¿por qué dividimos el servicio en partes?. En primer lugar, hay que aclarar una restricción que tienen los componentes: *un componente hijo debe tener al menos los mismos recursos que el componente padre, salvo que este último sea un componente del tipo `selector`*. Esto implica que si un padre tipo `wbefore`, `parallel`, etc tiene los recursos `ip4`, `ip6` y `domain`, no puede tener un hijo que sólo proporcione el recurso `domain`.
+
+Como puede observar, los componentes incluidos disponen de diferentes tipos de recursos: algunos ofrecen sólo `ip4`, otros sólo `domain`, etc. Por ello se hace uso del componente `selector`. Este componente, en función del tipo de recurso de la petición enviará al correspondiente componente hijo. Sería una especie de "enrutador" de la petición en función del tipo de recurso.
+
+Posteriormente, los servicios definidos se hacen cargo de despachar las peticiones empleando un `wbefore` (que vimos con anterioridad) y un componente de tipo `sequence`. Este componente chequeará secuencialmente en las listas definidas y, al llevar la opción `first`, devolverá inmediatamente en caso de que encuentre un resultado afirmativo.
+
+== Configurando listas Google Safe Browsing
+
+Para poder incluir la api de _Google Safe Brosing_ *es necesario que previamente tengamos un token de acceso*. La obtención de dicho token se encuentra fuera del alcance de este documento, ya que existen numerosas guías sobre cómo obtenerlo.
+
+Una vez que lo hemos obtenido, incluiremos las listas disponibles que hacen uso de la api y que se encuentran incluidas en la base de datos de la misma forma que lo hicimos anteriormente.
+
+[source,bash]
+----
+cd /etc/luids/xlist/services.d/sblookup
+DBDIR=/usr/local/share/xlist-database
+ln -s $DBDIR/services/sblookup/safebrowsing-malware.json .
+ln -s $DBDIR/services/sblookup/safebrowsing-phising.json .
+----
+
+Modificaremos el fichero de servicio de `domain` para incluirlas.
+
+.Contenido de `/etc/luids/xlist/services.d/domain-service.json`
+[source,json]
+----
+[
+  {
+    "id": "domain-service",
+    "class": "wbefore",
+    "resources": [ "domain" ],
+    "contains": [
+      { "id": "local-whitelist" },
+      {
+        "id": "domain-blacklist",
+        "class": "sequence",
+        "resources": [ "domain" ],
+        "contains": [
+          { "id": "local-blacklist"           },
+          { "id": "blocklist.site-ransomware" },
+          { "id": "blocklist.site-malware"    },
+          { "id": "abuse.ch-urlhaus"          },
+          { "id": "safebrowsing-malware"      },
+          { "id": "safebrowsing-phising"      }
+        ],
+        "opts": { "first": true }
+      }
+    ]
+  }
+]
+----
+
+Para agregar la api key agregaremos una nueva sección al fichero `xlistd.toml` con el siguiente contenido.
+
+.Sección agregada a `/etc/luids/xlist/xlistd.toml`
+[source,toml]
+----
+[xlistd.plugin.sblookup]
+apikey  = "pon aquí tu api key"
+----
+
+Chequearemos que todo está correcto y reiniciaremos el servicio.
+
+== Configurando listas DNSxL
+
+EXPLICACIÓN
+
+== Configurando listas de geolocalización IP
+
+EXPLICACIÓN
+
+== Configurando otros servicios xlist
+
+EXPLICACIÓN
+
+== Recapitulación
+
+ifdef::env-site,env-github[]
+A continuación: xref:step-4.adoc[Agregando políticas y eventos]
+endif::env-site,env-github[]

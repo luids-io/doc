@@ -1,0 +1,51 @@
+= Diseño del sistema
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-nfqueue-whitehole
+
+TODO
+
+[[design-network]]
+== Red
+
+.Diagrama de red
+image::{guidename}-network.svg[network,width=85%,pdfwidth=70%]
+
+[[design-components]]
+== Despliegue de los componentes
+
+TODO
+
+.*Diagrama de despliegue*
+[plantuml,{guidename}-deployment,png,pdfwidth=70%]
+----
+cloud "External DNS" {
+  [DNS Server] -left- ExtDNS
+}
+
+node "Firewall" {
+  [netfilter] - Netlink
+  [iptables] --> Netlink
+
+  [resolvcache] - GRPC_R
+
+  database "whitelist"
+  [xlistd] -- GRPC_X
+  [xlistd] --> whitelist
+
+  [ludns] - DNS
+  [ludns] --> ExtDNS
+  [ludns] --> GRPC_R
+  [ludns] --> GRPC_X
+
+  [lunfqueue] --> GRPC_R
+  [lunfqueue] --> Netlink
+}
+
+node "Client" {
+  [DNS Client] --> DNS
+}
+----
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

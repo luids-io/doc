@@ -1,0 +1,43 @@
+= Introducción
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-nfqueue-resolv
+
+TODO
+
+.Secuencia de resolución DNS con resolvcache
+[plantuml,{guidename}-sequence1,png,pdfwidth=70%]
+----
+actor dnsclient
+participant "DNS Server\n(ludns)" as dnsserver
+participant "Cache Server\n(resolvcache)" as resolvcache
+participant "External\nDNS Server" as dnsext #99FF99
+
+dnsclient -> dnsserver: query www.google.com
+dnsserver -> dnsext: query www.google.com
+dnsext --> dnsserver: 1.2.3.4
+dnsserver -> resolvcache: collect(192.168.1.1,www.google.com,1.2.3.4)
+resolvcache --> dnsserver: ok
+dnsserver --> dnsclient: 1.2.3.4
+----
+
+.*Secuencia de un firewall Netfilter con resolvcache*
+[plantuml,{guidename}-sequence2,png,pdfwidth=70%]
+----
+actor "Netfilter Queue\n(iptables)" as nfqueue
+participant "Queue Processor\n(lunfqueue)" as lunfqueue
+participant "Cache Server\n(resolvcache)" as resolvcache
+
+nfqueue -> lunfqueue: packet{192.168.1.1->1.2.3.4}
+lunfqueue -> resolvcache: check(192.168.1.1,1.2.3.4)
+resolvcache --> lunfqueue: {resolved: true, timestamp: xxxxx}
+lunfqueue --> nfqueue: verdict{accept}
+
+nfqueue -> lunfqueue: packet{192.168.1.1->66.66.66.66}
+lunfqueue -> resolvcache: check(192.168.1.1,66.66.66.66)
+resolvcache --> lunfqueue: {resolved: false, cachetime: xxxxx}
+lunfqueue --> nfqueue: verdict{drop}
+----
+
+ifdef::env-site,env-github[]
+A continuación: xref:design.adoc[Diseño del sistema]
+endif::env-site,env-github[]

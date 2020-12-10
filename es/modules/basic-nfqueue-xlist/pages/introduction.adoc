@@ -1,0 +1,60 @@
+= Introducción
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-nfqueue-xlist
+
+== ¿Por qué esta configuración?
+
+Una tarea común en los cortafuegos es comprobar si alguno de los sistemas implicados en la comunicación está en una lista negra. Para llevar a cabo este proceso, en el caso de los cortafuegos basados en _Netfilter_, lo que generalmente se hace es cargar una lista enorme de direcciones baneadas mediante `ipset`.  Además, se suele utilizar algún software tipo `fail2ban` que directamente manipula una cadena _netfilter_ para agregar dichas direcciones.
+
+Esto funciona pero tiene sus problemas:
+
+* Realizar una carga completa de direcciones tiene un consumo grande en memoria en espacio de kernel.
+* Se agrega el problema de la recarga de estas listas, ¿cuándo se actualizan?, ¿qué tiempo de bloqueo conlleva?, etc.
+* Las utilidades que llevan a cabo el mantenimiento requieren privilegios especiales.
+* ¿Cómo realizamos la gestión cuando tenemos muchos sistemas cortafuegos?
+
+Aquí es donde entra en juego _lunfqueue_, que lleva al espacio de usuario esta tarea y utiliza un servidor _XList_ como origen de datos (con toda la potencia que esto supone) para la toma de decisión del cortafuegos.
+
+Para entender mejor el funcionamiento, puede verse el siguiente diagrama de secuencia.
+
+[[diagram-firewall-sequence]]
+.*Secuencia de un firewall Netfilter con xlist*
+[plantuml,{guidename}-sequence,png,pdfwidth=60%]
+----
+actor "Netfilter Queue\n(iptables)" as nfqueue
+participant lunfqueue
+participant xlistd
+
+nfqueue -> lunfqueue: packet{11.22.33.44->192.168.1.1}
+lunfqueue -> xlistd: Check(11.22.33.44)
+xlistd -> lunfqueue: {result: false}
+lunfqueue -> nfqueue: verdict{accept}
+
+nfqueue -> lunfqueue: packet{66.66.66.66->192.168.1.1}
+lunfqueue -> xlistd: Check(66.66.66.66)
+xlistd -> lunfqueue: {result: true, reason: "evil"}
+lunfqueue -> nfqueue: verdict{drop}
+----
+
+== ¿Qué tiene de especial nuestro sistema?
+
+Como ya se ha comentado, el procedimiento más común es utilizar `ipset` o scripts que generen reglas de cortafuegos en función de un fichero que contenga la lista de IPs, lo que genera alguno de los problemas enumerados.
+
+Como se vio en la figura <<diagram-firewall-sequence>>, nuestro sistema involucra diferentes componentes: por un lado tenemos un componente _lunfqueue_ en "espacio de usuario" que sirve los "veredictos" al sistema _Netfilter_ (que forma parte del Kernel) y, por otro lado, tenemos un servidor _XList_ que se encarga de la tarea de comprobar la existencia de las IPs en las listas. Esta separación de responsabilidades nos permitirá, además de una alta especialización de cada software en su correspondiente rol, implementar sistemas más robustos y escalables.
+
+Esta guía se trata de una configuración básica así que no se verán todas las funcionalidades que ofrece nuestro sistema. Sin embargo, conviene que el usuario las conozca por si se anima a continuar explorando más allá de esta guía. Algunas de las funcionalidades adicionales son:
+
+* es posible de comprobar origen, destino o ambos,
+* también ofrece soporte de ipv6,
+* es posible centralizar toda la lógica en un sistema y dar servicio a múltiples sistemas cortafuegos,
+* es posible definir puntuaciones y umbrales de respuesta,
+* es posible diseñar un sistema de políticas que tenga en cuenta las distintas respuestas y puntuaciones,
+* es capaz de enviar eventos a un sistema SIEM,
+* provee de instrumentación para su integración en un sistema de monitorización _Prometheus_ y así tener información en "tiempo real",
+* disponible en _Docker_ y con algunas características que lo hace ideal para su despliegue en entornos Cloud con herramientas como _Kubernetes_.
+
+Así que una vez visto qué es y qué ventajas aporta nuestro software sobre otros, pongámonos manos a la obra.
+
+ifdef::env-site,env-github[]
+A continuación: xref:design.adoc[Diseño del sistema]
+endif::env-site,env-github[]

@@ -1,0 +1,156 @@
+= Diseño del sistema
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: advanced-dns-sinkhole
+
+[[design-sources]]
+== Selección de los orígenes
+
+En primer lugar vamos a seleccionar los orígenes que vamos a utilizar. Un buen sitio por donde empezar es https://github.com/luids-io/xlist-database[la base de datos XList].
+
+Al tratarse de un sumidero DNS, vamos a querer una baja latencia en las consultas a las listas. Aquí tenemos dos opciones:
+
+. Utilizar fuentes online de pago que nos garanticen calidad de servicio.
+. Utilizar fuentes que puedan descargarse para su uso "offline".
+
+Dado que el objetivo de esta guía es obtener un sumidero DNS de forma gratuita, optaremos por la segunda opción. Además, debido a que queremos un sumidero que chequee las IPs retornadas, utilizaremos listas para los recursos `domain` e `ip4`.
+
+Haremos la siguiente categorización de listas en función del tipo de información que almacenan.
+
+.Tabla con listas incluídas
+[cols="1,3"]
+|===
+| Tipo | Listas
+
+| Dominios malware
+| `blocklist.site-malware` `blocklist.site-ransomware` `abuse.ch-urlhaus`
+
+| Dominios phising
+| `blocklist.site-phishing` `phising.army`
+
+| Dominios crypto
+| `blocklist.site-crypto` `zerodot1-coinblockerlists`
+
+| Dominios baja reputación
+| `blocklist.site-fraud` `blocklist.site-scam` `blocklist.site-abuse`
+
+| Dominios tracking
+| `blocklist.site-tracking`
+
+| Dominios ads
+| `blocklist.site-ads`
+
+| Dominios redirección
+| `blocklist.site-redirect`
+
+| IP malware
+| `blocklist.site-malware` `abuse.ch-ssl` `dshield.org` `emergingthreats.net` `interserver.net`
+
+| IP baja reputación
+| `alienvault.com` `myip.ms-full` `spamhaus.org-drop`
+
+|===
+
+Para eliminar el número de falsos positivos con los dominios, incluiremos una lista blanca con los primeros 1000 dominios de la base de datos _Majestic_ que viene identificada por `majestic-1000` y una lista blanca que rellenaremos manual mente para dominios y direcciones ip a la que llamaremos `my-whitelist`.
+
+Además incluiremos las siguientes listas negras propias a las que podremos agregar elementos (tanto dominios como ips): `my-blacklist-malware`, `my-blacklist-phising`, `my-blacklist-reputation` y `my-blacklist-ads`.
+
+[[design-service]]
+== Diseño del servicio de listas
+
+Nuestro servicio de listas, comprobará en primer lugar en las listas blancas que hemos definido y después en listas negras. Posteriormente, las políticas que se aplicarán para cada tipo de lista serán las siguientes.
+
+.Tabla con listas incluidas por categoría y política utilizada
+[cols="1,3"]
+|===
+| Tipo | Política
+
+| Dominios malware
+| `dns=nxdomain,event=medium`
+
+| Dominios phising
+| `dns=nxdomain,event=low`
+
+| Dominios crypto
+| `dns=nxdomain,event=info`
+
+| Dominios baja reputación
+| `dns=nxdomain,event=info`
+
+| Dominios tracking
+| `dns=nxdomain,event=none`
+
+| Dominios ads
+| `dns=nxdomain,event=none`
+
+| Dominios redirección
+| `dns=checkip,event=info`
+
+| IP malware
+| `dns=nxdomain,event=medium`
+
+| IP phising
+| `dns=nxdomain,event=low`
+
+| IP baja reputación
+| `dns=nxdomain,event=low`
+
+| IP ads
+| `dns=nxdomain,event=none`
+
+|===
+
+[[design-components]]
+== Despliegue de los componentes
+
+Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
+
+.*Diagrama de despliegue*
+[plantuml,{guidename}-deployment,png,pdfwidth=70%]
+----
+cloud "External Resolver" {
+ [DNS Server] -right- ExtDNS
+}
+
+cloud "Blacklists" {
+ [Web server] -down- HTTP
+}
+
+node "XList server" {
+  database "xlistdb"
+  [xlget] --> xlistdb
+  [xlget] --> HTTP
+  [xlistd] --> xlistdb
+  [xlistd] - GRPC_X
+}
+
+node "DNS server" {
+  [ludns] --> GRPC_X
+  [ludns] --> ExtDNS
+  [ludns] -up- DNS
+}
+
+node "Event server" {
+  [eventproc] -up- GRPC_E
+}
+
+[ludns] --> GRPC_E
+
+node "Archiver" {
+  database "MongoDB"
+  [luarchive] --> MongoDB
+  [luarchive] - GRPC_A
+}
+
+[ludns] --> GRPC_A
+[eventproc] --> GRPC_A
+
+node "Client" {
+  [DNS Resolver] --> DNS
+}
+----
+
+NOTE: En esta guía desplegaremos los componentes `xlistd`, `xlget`, `ludns`, `luarchive`, `eventproc` vistos en el diagrama.
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

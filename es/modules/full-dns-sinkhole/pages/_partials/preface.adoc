@@ -1,0 +1,18 @@
+
+El objetivo de esta guía es *mostrar de forma detallada y didáctica el proceso de instalación y configuración de un completo sudmidero dns o _dns sinkhole_ en un entorno empresarial* utilizando para ello algunos componentes del _sistema ^lu^IDS_. Dicho proceso será un *proceso iterativo*, en el que a cada iteración agregaremos nuevas funcionalidades, obteniendo *al final de cada iteración el sistema en un nuevo estado funcional*. De esta forma, el usuario podrá detener el proceso de configuración cuando el sumidero cumpla con sus requerimientos.
+
+NOTE: No se preocupe si no entiende lo que se describe a continuación, ya que a lo largo de la guía se explicarán los conceptos.
+
+Al final de todo el proceso tendremos un sistema sumidero DNS:
+
+* Será capaz de analizar tanto los nombres como las direcciones IP devueltas de las consultas al DNS.
+* Podrá hacer uso de DNS TLS para comunicarse con los servidores DNS resolvedores.
+* Incluirá *fuentes gratuitas* disponibles en internet que descargará de forma automática.
+* Incluirá la API *Google Safe Browsing* entre sus fuentes de datos.
+* Incluirá el uso de *geolocalización de IPs* para computar la pertencia a listas negras.
+* Incluirá sistemas de puntuación que podrá usarse para computar la pertenencia o no a una lista.
+* Políticas personalizadas.
+
+El proceso llevado a cabo en esta guía *es un proceso de despliegue manual*, en el que desplegaremos los diferentes componentes y realizaremos las configuraciones necesarias de forma manual. Esto *nos permitirá entender mejor cómo funcionan las herramientas y qué cambios realizamos en nuestros sistemas*. Para un despliegue completamente automatizado consulte alguna de las otras guías disponibles.
+
+WARNING: Este proceso está probado únicamente en un sistema _Ubuntu 20.04LTS_ server. Los binarios están compilados estáticamente y las rutas empleadas son las de una distribución estándar, por lo que el instalador debería funcionar en cualquier distribución.

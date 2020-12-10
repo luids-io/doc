@@ -1,0 +1,142 @@
+= Diseño del sistema
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-nfqueue-xlist
+
+[[design-sources]]
+== Selección de los orígenes
+
+En primer lugar vamos a seleccionar los orígenes que vamos a utilizar. Un buen sitio por donde empezar es https://luids-io.github.io/xlist-database/README.html[la base de datos xlist].
+
+Al tratarse de un sistema cortafuegos, vamos a demandar una baja latencia en las consultas a las listas. Aquí tenemos dos opciones:
+
+. Utilizar fuentes online de pago que nos garanticen calidad de servicio.
+. Utilizar fuentes que puedan descargarse para su uso "offline".
+
+Dado que el objetivo de esta guía es crear un sistema firewall para uso personal de forma gratuita, optaremos por la segunda opción. Además, debido a que se trata de un cortafuegos de IPv4, únicamente utilizaremos listas con el recurso `ip4`.
+
+Para la realización de esta guía utilizaremos las siguiente fuentes, que dividiremos entre _alta confianza_ y _baja confianza_:
+
+*Alta confianza*
+
+* `alienvault.com`
+* `cymru.com-fullbogons4`
+* `interserver.net`
+* `spamhaus.org-drop`
+* `talosintelligence.com`
+
+*Baja confianza*
+
+* `abuse.ch-feodo`
+* `abuse.ch-ssl`
+* `badips.com`
+* `blocklist.de`
+* `blocklist.site-malware`
+* `cinsscore.com`
+* `cruzit.com`
+* `darklist.de`
+* `dataplane.org-sshpwauth`
+* `dshield.org`
+* `emergingthreats.net`
+* `greensnow.co`
+* `myip.ms-full`
+* `rutgers.edu`
+* `turris.cz`
+
+Junto a la información de las listas enumeradas, utilizaremos geolocalización para minimizar posibles falsos positivos de las listas de _baja confianza_.
+
+Para mantener todas las listas que hemos seleccionado sincronizadas, lo que haremos será recurrir a la utilidad _xlget_. Para ello utilizaremos los https://github.com/luids-io/xlist-database/tree/master/database/feeds[feeds de la base de datos] correspondientes.
+
+Además de estos orígenes externos, también daremos a nuestro sistema cierta flexibilidad, incorporando nuestras propias listas blancas y negras junto a información de geolocalización.
+
+[[design-service]]
+== Diseño del servicio de listas
+
+Nuestro servicio de listas utilizará en primer lugar una lista blanca y posteriormente buscará en las listas negras de _alta y baja confianza_ de la siguiente forma:
+
+.Funcionamiento básico de nuestro sistema
+[plantuml,{guidename}-flow,png,pdfwidth=80%]
+----
+start
+:read ip4/
+if (my-whitelist.check(ip4)?) then (true)
+	:result = false|
+else (false)
+	if (my-blacklist.check(ip4)?) then (true)
+		:result = true|
+	else (false)
+		if (high-confidence.check(ip4)?) then (true)
+			:result = true|
+		else (false)
+			if (low-confidence.check(ip4)?) then (true)
+				:result = true|
+			else (false)
+				:result = false|
+			endif
+		endif
+	endif
+endif
+stop
+----
+
+La presencia de la IP en cualquier lista negra de _alta confianza_ hará que se rechace inmediatamente la comunicación. Sin embargo, como se adelantó, las listas enumeradas como de _baja confianza_ las trataremos de forma distinta para evitar falsos positivos: agregaremos una lista "virtual" adicional de geolocalización que dará positivo a cualquier IP de fuera de España (nótese que podrían agregarse o quitarse países), daremos una puntuación de 10 a cada lista y estableceremos un umbral de 10. Con este umbral cualquier puntuación mayor de 10 dará positivo, de forma que si una IP se encuentra en dos listas de _baja confianza_ o si se encuentra en una y la IP es de fuera de España, entonces dará positivo. El chequeo se realizará de la siguiente forma:
+
+.Chequeo en listas de baja confianza
+[plantuml,{guidename}-flow-low-confidence,png,pdfwidth=30%]
+----
+start
+:read ip4/
+:score = 0|
+repeat
+	:next = low-confidence.Next()|
+	if (next.check(ip4)?) then (true)
+		:score = score +10|
+	endif
+repeat while (low-confidence.HasNext()?)
+
+if (score > 10) then (true)
+	:result = true|
+else (false)
+	:result = false|
+endif
+stop
+----
+
+La definición gráfica del servicio mediante componentes de `xlistd` sería la siguiente:
+
+.Definición del servicio _xlistd_ para el firewall
+image::{guidename}-design.svg[design,width=85%,pdfwidth=100%]
+
+[[design-components]]
+== Despliegue de los componentes
+
+Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
+
+.*Diagrama de despliegue*
+[plantuml,{guidename}-deployment,png,pdfwidth=70%]
+----
+cloud "Blacklists" {
+ [Web server] -down- HTTP
+}
+
+node "Firewall" {
+  [netfilter] - Netlink
+  [iptables] --> Netlink
+  database "Filesystem" {
+    folder "/var/lib/xlist" {
+       [blacklist.xlist]
+    }
+  }
+  [xlget] --> [blacklist.xlist]
+  [blacklist.xlist] --> [xlistd]
+  [xlget] --> HTTP
+  [xlistd] - GRPC
+  [lunfqueue] --> GRPC
+  [lunfqueue] --> Netlink
+}
+----
+
+NOTE: En esta guía únicamente desplegaremos los componentes `xlistd`, `xlget` y `lunfqueue` vistos en el diagrama.
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

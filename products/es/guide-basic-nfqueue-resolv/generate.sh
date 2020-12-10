@@ -1,7 +1,7 @@
 #!/bin/bash
 
 GUIDE_NAME="basic-nfqueue-resolv"
-MODULE_DIR="../../../es/modules/guides"
+MODULE_DIR="../../../es/modules/${GUIDE_NAME}"
 THEME_NAME="luids"
 THEMES_DIR="../../resources/themes"
 FONTS_DIR="../../resources/fonts"
@@ -19,7 +19,7 @@ asciidoctor-pdf -o output.pdf -v --trace -r asciidoctor-diagram \
 	-a guidename=$guidename guide.adoc
 
 ## remove temporal files generated
-imagesdir=$MODULE_DIR/assets/images/${guidename}
+imagesdir=$MODULE_DIR/assets/images
 rm ${imagesdir}/${guidename}-sequence1.png
 rm ${imagesdir}/${guidename}-sequence2.png
 rm ${imagesdir}/${guidename}-deployment.png

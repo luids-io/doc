@@ -1,0 +1,18 @@
+[
+  {
+    "id": "blocklist.site",
+    "class": "sequence",
+    "resources": [ "domain" ],
+    "opts": { "first": true },
+    "contains": [
+      { "id": "blocklist.site-malware"    },
+      { "id": "blocklist.site-ransomware" },
+      { "id": "blocklist.site-phishing"   },
+      { "id": "blocklist.site-scam"       },
+      { "id": "blocklist.site-crypto"     },
+      { "id": "blocklist.site-abuse"      },
+      { "id": "blocklist.site-ads"        },
+      { "id": "blocklist.site-tracking"   }
+    ]
+  }
+]

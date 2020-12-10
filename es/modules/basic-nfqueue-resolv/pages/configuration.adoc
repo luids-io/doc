@@ -1,0 +1,210 @@
+= Configuración
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-nfqueue-resolv
+
+== Configuración de resolvcache
+
+Para este servicio no hay que hacer ninguna configuración, ya que la configuración por defecto es suficiente.
+
+Iniciaremos y habilitaremos el servicio.
+
+[source,bash]
+----
+sudo systemctl start luids-resolvcache
+sudo systemctl enable luids-resolvcache
+----
+
+Con el servidor ya configurado, publicaremos los servicios en `apiservices.json` para que el resto de servicios los puedan utilizar.
+
+.Contenido de `/etc/luids/apiservices.json`
+[source,json]
+----
+[
+    {
+        "id": "resolvcache",
+        "api": "luids.dnsutil.v1.ResolvCollect",
+        "endpoint": "tcp://127.0.0.1:5891"
+    },
+    {
+        "id": "resolvcheck",
+        "api": "luids.dnsutil.v1.ResolvCheck",
+        "endpoint": "tcp://127.0.0.1:5891"
+    }
+]
+----
+
+== Configuración de ludns
+
+Configuraremos inicialmente el servidor DNS en el puerto de `1053` para que utilice la API y el plugin `resolvcache`.
+
+.Contenido de `/etc/luids/dns/Corefile`
+[source]
+----
+.:1053 {
+    idsapi
+    resolvcache
+    forward . 8.8.8.8 8.8.4.4
+}
+----
+
+Iniciaremos y probaremos que el servicio de resolución está almacenando las peticiones.
+
+[source,bash]
+----
+sudo systemctl start luids-ludns
+----
+
+----
+$ dig +short @localhost -p 1053 www.google.com
+216.58.211.36
+$ sudo cat /var/lib/luids/dns/cache-trace.log
+20200922073233,collect,127.0.0.1:43448,::1,www.google.com,216.58.211.36
+----
+
+== Consolidación servicio DNS
+
+Ya tenemos un servidor DNS funcionando pero en un puerto no estándar, así que debemos cambiarlo al puerto que le corresponde. Sin embargo, aquí puede surgir un pequeño problema: puede existir un servidor DNS ya corriendo en dicho puerto.
+
+Esto se debe a que muchas distribuciones optan por poner un pequeño servidor DNS funcionando por defecto para resolver las peticiones locales. Los más habituales son `systemd-resolved` y `dnsmasqd`.
+
+Esta guía está realizada sobre un _Ubuntu 20.04_, por lo que desactivaremos `systemd-resolved` con los siguientes comandos.
+
+[source,bash]
+----
+sudo -s
+## deshabilito systemd-resolved
+systemctl disable systemd-resolved.service
+systemctl stop systemd-resolved.service
+
+## borro symlink
+rm -f /etc/resolv.conf
+
+## creo nuevo resolv.conf que use el servidor dns local
+cat >/etc/resolv.conf <<EOF
+nameserver 127.0.0.1
+options edns0
+EOF
+----
+
+Ahora modificaremos la configuración de nuestro servidor DNS con la configuración definitiva.
+
+.Contenido definitivo de `/etc/luids/dns/Corefile`
+[source]
+----
+. {
+    idsapi
+    resolvcache
+    forward . 8.8.8.8 8.8.4.4
+}
+----
+
+Reiniciaremos y habilitaremos el servicio.
+
+[source,bash]
+----
+sudo systemctl restart luids-ludns
+sudo systemctl enable luids-ludns
+----
+
+== Configuración de lunfqueue
+
+La configuración nuevamente se divide en configuración del servidor y definición del servicio.
+
+.Contenido de `/etc/luids/netfilter/lunfqueue.toml`
+[source,toml]
+----
+include::{examplesdir}/etc/luids/netfilter/lunfqueue.toml[]
+----
+
+IMPORTANT: Deberás reemplazar la dirección de red `192.168.250.0/24` por la de tu red local.
+
+El servicio se configurará mediante la definición de los plugins y acciones que se van a aplicar. Esto se realizará mediante el siguiente fichero de configuración.
+
+.Contenido de `/etc/luids/netfilter/plugins-nfqueue.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/netfilter/plugins-nfqueue.json[]
+----
+
+Testearemos que la configuración es correcta.
+----
+# lunfqueue --config /etc/luids/netfilter/lunfqueue.toml --dry-run
+INFO[0000] lunfqueue (version: f096c19 build: 2020-09-10T06:45:40+0200)
+configuration seems ok
+----
+
+Una vez probado, inicializaremos y habilitaremos el servicio
+
+[source,bash]
+----
+sudo systemctl start luids-lunfqueue
+sudo systemctl enable luids-lunfqueue
+----
+
+Ya tenemos configurado un servicio que escucha la entrada de paquetes en la cola netfilter `100`. Ahora deberemos dirigir los paquetes que deseemos filtrar a dicha cola.
+
+== Configuración de netfilter mediante iptables
+
+Vamos a configurar el sencillo firewall mediante el siguiente script. Nótese que únicamente dejaremos pasar el tráfico `icmp` para pruebas de conexión y el tráfico por los puertos `80` y `443` para navegación.
+
+.Contenido de `init-firewall.sh`
+[source,bash]
+----
+include::{examplesdir}/init-firewall.sh[]
+----
+
+Lo ejecutaremos.
+
+[source,bash]
+----
+chmod 755 init-firewall.sh
+sudo ./init-firewall.sh
+----
+
+Ya tendremos nuestro cortafuegos configurado, ahora *desde una máquina dentro de la red interna* testearemos.
+----
+(RED-INTERNA)$ ping -c 3 www.google.com
+PING www.google.com (216.58.201.164) 56(84) bytes of data.
+64 bytes from mad08s06-in-f4.1e100.net (216.58.201.164): icmp_seq=1 ttl=115 time=13.0 ms
+64 bytes from mad08s06-in-f4.1e100.net (216.58.201.164): icmp_seq=2 ttl=115 time=14.5 ms
+64 bytes from mad08s06-in-f4.1e100.net (216.58.201.164): icmp_seq=3 ttl=115 time=13.3 ms
+
+--- www.google.com ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2002ms
+rtt min/avg/max/mdev = 12.983/13.610/14.536/0.668 ms
+
+(RED-INTERNA)$ ping -c 3 8.8.8.8
+PING www.google.com (8.8.8.8) 56(84) bytes of data.
+
+--- 8.8.8.8 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2023ms
+
+----
+
+Veremos que el último ping no funciona porque hemos utilizado una IP directamente que no ha sido resuelta por el DNS.
+
+En el log de nuestro firewall tendremos algo parecido a lo siguiente.
+----
+# tail -f /var/log/syslog | grep -i lunfqueue
+Sep 22 07:41:31 luids-router lunfqueue[1387]: time="2020-09-22T07:41:31+02:00" level=info msg="starting netfilter queue processing service"
+Sep 22 07:41:31 luids-router lunfqueue[1387]: time="2020-09-22T07:41:31+02:00" level=info msg="starting nfqueue #100"
+Sep 22 07:43:45 luids-router lunfqueue[1387]: time="2020-09-22T07:43:45+02:00" level=info msg="ip-processor.checkresolv: 192.168.250.100->8.8.8.8 8.8.8.8 {Result:false Last:0001-01-01 00:00:00 +0000 UTC Store:2020-09-22 05:30:50.139843918 +0000 UTC}"
+Sep 22 07:43:46 luids-router lunfqueue[1387]: time="2020-09-22T07:43:46+02:00" level=info msg="ip-processor.checkresolv: 192.168.250.100->8.8.8.8 8.8.8.8 {Result:false Last:0001-01-01 00:00:00 +0000 UTC Store:2020-09-22 05:30:50.139843918 +0000 UTC}"
+Sep 22 07:43:47 luids-router lunfqueue[1387]: time="2020-09-22T07:43:47+02:00" level=info msg="ip-processor.checkresolv: 192.168.250.100->8.8.8.8 8.8.8.8 {Result:false Last:0001-01-01 00:00:00 +0000 UTC Store:2020-09-22 05:30:50.139843918 +0000 UTC}"
+----
+
+== Consolidación del firewall
+
+Ahora que hemos comprobado que el sistema funciona correctamente sólo falta hacer las reglas que hemos definido persistentes para ello simplemente introduciremos.
+
+[source,bash]
+----
+sudo -s
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+iptables-save > /etc/iptables/rules.v4
+ip6tables-save > /etc/iptables/rules.v6
+----
+
+ifdef::env-site,env-github[]
+A continuación: xref:next-steps.adoc[Siguientes pasos]
+endif::env-site,env-github[]

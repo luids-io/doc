@@ -1,8 +1,29 @@
 = Guías
 include::{partialsdir}/attributes-es.adoc[]
 
-* xref:basic-dns-sinkhole.adoc[Sumidero DNS básico]: configuración de un sencillo sumidero con el que bloquear publicidad, phising y malware.
-* xref:advanced-dns-sinkhole.adoc[Sumidero DNS avanzado]: configuración de un sumidero con el que bloquear publicidad, phising y malware. Este sumidero archiva las peticiones DNS realizadas y genera eventos.
-* xref:basic-dns-rblzone.adoc[Zona DNS RBL básica]: configuración de una sencilla zona DNS RBL para su uso como sistema antispam.
-* xref:basic-nfqueue-xlist.adoc[Cortafuegos con listas negras]: configuración de un firewall iptables para bloquear Botnets.
-* xref:basic-nfqueue-resolv.adoc[Cortafuegos integrado con DNS]: configuración de un firewall iptables integrado con una caché de resoluciones DNS para bloquear aquellas conexiones que no hayan pasado por el proceso de resolución de nombres.
+[cols="1,2"]
+|===
+| Guía | Descripción
+
+| xref:full-dns-sinkhole:index.adoc[Sumidero DNS paso a paso]
+| Guía completa de configuración de un sumidero DNS paso a paso.
+
+| xref:basic-dns-sinkhole:index.adoc[Sumidero DNS básico]
+| Configuración de un sencillo sumidero con el que bloquear publicidad, phising y malware.
+
+| xref:basic-dns-rblzone:index.adoc[Zona DNS RBL básica]
+| Configuración de una sencilla zona DNS RBL para su uso como sistema antispam.
+
+| xref:basic-nfqueue-xlist:index.adoc[Cortafuegos con listas negras]
+| Configuración de un firewall iptables para bloquear Botnets.
+
+| xref:basic-nfqueue-resolv:index.adoc[Cortafuegos integrado con DNS]
+| Configuración de un firewall iptables integrado con una caché de resoluciones DNS para bloquear aquellas conexiones que no hayan pasado por el proceso de resolución de nombres.
+
+| xref:basic-nfqueue-whitehole:index.adoc[Cortafuegos integrado con sumidero DNS]
+| Configuración de un firewall iptables junto a un sumidero DNS de lista blanca para que bloquee todas aquellas conexiones provenientes de equipos de nuestra red dirigidas a dispositivos que no hayan sido resueltos previamente por nuestro servidor DNS.
+
+| xref:advanced-dns-sinkhole:index.adoc[Sumidero DNS avanzado]
+| Configuración de un sumidero con el que bloquear publicidad, phising y malware. Este sumidero archiva las peticiones DNS realizadas y genera eventos.
+
+|===

@@ -1,0 +1,20 @@
+= Guía ^lu^IDS: Sumidero DNS paso a paso
+Luis Guillén Civera <luisguillenc@gmail.com>
+:doctype: book
+:icons: font
+:source-highlighter: rouge
+:rouge-style: monokai
+:numbered:
+:chapter-label: 
+include::{moduledir}/_attributes.adoc[]
+:toc:
+
+include::{partialsdir}/preface.adoc[leveloffset=1]
+include::{pagesdir}/step-1.adoc[leveloffset=1]
+include::{pagesdir}/step-2.adoc[leveloffset=1]
+include::{pagesdir}/step-3.adoc[leveloffset=1]
+include::{pagesdir}/step-4.adoc[leveloffset=1]
+include::{pagesdir}/step-5.adoc[leveloffset=1]
+include::{pagesdir}/step-6.adoc[leveloffset=1]
+include::{pagesdir}/step-7.adoc[leveloffset=1]
+

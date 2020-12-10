@@ -1,0 +1,10 @@
+= Guia rápida - Firewall iptables básico para bloquear botnets
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-nfqueue-xlist
+
+include::{partialsdir}/preface.adoc[]
+
+* xref:introduction.adoc[Introducción]
+* xref:design.adoc[Diseño del sistema]
+* xref:installation.adoc[Instalación]
+* xref:configuration.adoc[Configuración]

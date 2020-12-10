@@ -1,0 +1,272 @@
+= Comprobando las respuestas del DNS
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: full-dns-sinkhole
+
+== Introducción
+
+En el anterior capítulo implementamos un sumidero DNS básico, este sumidero comprobaba las peticiones de resolución pero vimos que tenía un "problema": no comprobaba las respuestas de dichas peticiones.
+
+En las respuestas a las peticiones de resolución de nombres pueden existir dos tipos de datos: nombres e IPs. Para ilustrarlo, podemos realizar las siguientes consultas a un servidor DNS.
+----
+$ dig @8.8.8.8 +short www.luisguillen.com
+vps01.luisguillen.com.
+54.37.157.73
+$ dig @8.8.8.8 +short vps01.luisguillen.com
+54.37.157.73
+$ dig @8.8.8.8 +short www.youtube.com
+youtube-ui.l.google.com.
+216.58.209.78
+216.58.211.46
+216.58.201.174
+216.58.215.142
+216.58.201.142
+172.217.17.14
+172.217.168.174
+----
+
+Que existan direcciones IPs es algo obvio, pero ¿por qué se devuelven también nombres? y ¿por qué no lo hace en todas las consultas?.  El motivo es simple: los nombres que consultamos realmente son _alias_ o _cname_ y el nombre devuelto es el que contiene realmente la dirección. Esto se ve en la repuesta de `www.luisguillen.com`, que realmente es un _alias_ del nombre `vps01.luisguillen.com` que es el que realmente "contiene" la dirección IP indicada.
+
+Por lo tanto, puede ser interesante...
+
+Esto hace que una botnet o cualquier tipo de agente malintencionado podría "saltarse" nuestro sumidero simplemente creando _alias_ al nombre que contenga el _C&C_.
+
+
+.Diagrama de secuencia de nuestro segundo sumidero
+[plantuml,{guidename}-xlist-dns2-1,png,pdfwidth=50%]
+----
+actor dnsclient
+participant "DNS Server\n(ludns)" as dnsserver
+participant "XList Server\n(xlistd)" as xlist
+participant "External\nDNS Server" as dnsext #99FF99
+
+dnsclient -> dnsserver: query www.google.com
+dnsserver -> xlist: Check(wwww.google.com)
+xlist --> dnsserver: {result: false}
+dnsserver -> dnsext: query www.google.com
+dnsext --> dnsserver: 1.2.3.4
+dnsserver ->xlist: Check(1.2.3.4)
+xlist --> dnsserver: {result: false}
+dnsserver --> dnsclient: 1.2.3.4
+
+dnsclient -> dnsserver: query www.hiddensuprise.com
+dnsserver -> xlist: Check(wwww.hiddensurprise.com)
+xlist --> dnsserver: {result: false}
+dnsserver -> dnsext: query www.hiddensurprise.com
+dnsext --> dnsserver: www.infected.com, 5.5.5.5
+dnsserver -> xlist: Check(wwww.infected.com)
+dnsserver -> xlist: Check(5.5.5.5)
+xlist --> dnsserver:  {result: true, reason: "is malware"}
+xlist --> dnsserver:  {result: false }
+dnsserver --> dnsclient: nxdomain
+----
+
+== Registrando y modificando las respuestas e introducción a los envoltorios
+
+En el capítulo anterior pudimos comprobar, lanzamos algunas peticiones... Acabamos de comprobar que el sistema funciona correctamente, sin embargo no vemos en los logs de nuestro servidor _xlist_ ningún tipo de información referente a las consultas realizadas, tan sólo vemos información de arranque y de posibles recargas de datos. Algo que puede ser de interés es mostrar en el log las respuestas afirmativas que proporciona nuestro sistema.
+
+Por otro lado, si observamos las líneas de salida del comando `xlistc` (se explicó anteriormente el formato), en todas se observa el campo `TTL` con el valor `0`.
+
+NOTE: El TTL servirá para definir el tiempo máximo que deberían fijar los posibles sistemas de caché que consuman la información devuelta. Como veremos en secciones posteriores, es posible implementar sistemas de caché en nuestros servidores para optimizar las consultas (especialmente si se hace uso de servicios remotos), y también es posible configurar cachés en los clientes que consuman la información de nuestras listas.
+
+Nuestro sistema de modelado del servicio es muy potente ya que, además del sistema de composición, dispone de un sistema de envoltorios o _wrappers_. Dicho sistema nos permite agregar diversas funcionalidades genéricas a nuestros componentes como pueden ser: registrar en el log las respuestas, agregar un sistema de caché, agregar métricas, alterar una repuesta, crear y evaluar puntuaciones, etc.
+
+.Agregando `wrappers` a `services.json`
+[source,json]
+----
+[
+    {
+        "id": "root",
+        // se omite por brevedad
+        "wrappers": [ //<1>
+            { "class": "logger",   "opts": { "showpeer": true } }, //<2>
+            { "class": "response", "opts": { "ttl": 60 } } //<3>
+        ]
+    }
+]
+----
+<1> El conjunto de `wrappers` que se aplicarán al componente root.
+<2> El envoltorio que agrega la funcionalidad de mostrar en el log. Incluye la opción de mostrar la dirección y puerto de la conexión que hace la consulta.
+<3> El envoltorio que altera las respuestas. En este caso incluye una opción que modificará el campo `ttl` de nuestra respuesta.
+
+Los envoltorios tienen como *único campo obligatorio la clase* o arquetipo al que pertenecen y es posible agregar múltiples envoltorios de la misma clase al mismo componente. Los envoltorios NO tienen identificador y *el orden en que se definan es determinante*. Opcionalmente, algunos envoltorios ofrecen opciones con las que alterar el comportamiento por defecto.
+
+A continuación podemos ver cómo queda la secuencia completa de chequeo de nuestro sistema de listas con los envoltorios que hemos introducido. Como se observa en la secuencia, el orden el que se definen es determinante en su funcionamiento.
+
+.Ejemplo de secuencia
+[plantuml,{guidename}-sequence-domain,png]
+----
+actor xlistc
+participant xlistapi
+participant "<<log>>" as log #99FF99
+participant "<<response>>" as response #99FF99
+participant "root\n<<wbefore>>" as root
+participant "local-whitelist\n<<file>>" as localwhitelist
+participant "local-blacklist\n<<file>>" as localblacklist
+
+xlistc -> xlistapi: Check(www.infected.com, domain)
+xlistapi -> log: Check(www.infected.com, domain)
+log -> response: Check(www.infected.com, domain)
+response -> root: Check(www.infected.com, domain)
+
+root -> localwhitelist: Check(www.infected.com, domain)
+localwhitelist --> root: {result: false}
+root -> localblacklist: Check(www.infected.com, domain)
+localblacklist --> root: {result: true, reason: "malware"}
+
+root --> response: {result: true, reason: "malware"}
+response --> log: {result: true, reason: "malware", ttl: 30}
+log -> log: write logfile
+log --> xlistapi: {result: true, reason: "malware", ttl: 30}
+
+xlistapi --> xlistc: {result: true, reason: "malware", ttl: 30}
+----
+
+
+Antes de aplicar los cambios, chequearemos la validez de la nueva configuración.
+
+[source,bash]
+----
+sudo xlistd --dry-run --config /etc/luids/xlist/xlistd.toml
+----
+
+Reiniciaremos el servicio.
+
+[source,bash]
+----
+sudo systemctl restart luids-xlistd
+----
+
+TODO: PONER LAS PRUEBAS
+
+== Comprobando las direcciones IP resueltas
+
+Chequear las direcciones IP devueltas es algo que los sumideros DNS no suelen hacer... pero que el nuestro sí puede ;). Chequear las direcciones devueltas implica lanzar una consulta para cada IP devuelta y... hay consultas al DNS que retornan múltiples direcciones IP que habrá que consultar. Por ejemplo, si un dominio devuelve 5 direcciones IPs, sería necesario realizar 1+5 peticiones al servidor de listas para satisfacer la resolución. Sin embargo, cabe matizar que, en términos de latencia, sería el equivalente a dos peticiones en serie ya que las 5 peticiones se realizan en paralelo. Es por esto que, si las peticiones al servidor de listas son resueltas con gran velocidad, en realidad tampoco supone un gran problema.
+
+TIP: Un caso en el que nos podríamos evitar el chequeo de direcciones IP y en el que podría ser conveniente no hacerlo, sería el caso en el que usásemos nuestro sumidero junto con un firewall integrado con _^lu^IDS_. En este caso, sería el firewall el que chequease las direcciones IP y, aunque el servidor DNS devolviese el nombre y las IPs, a la hora de conectarse a una IP que se encontrase en la lista, sería el sistema cortafuegos el que cortase la comunicación.
+
+Para realizar el chequeo también de IPs hay que configurar un poco más nuestro sumidero.
+
+----
+. {
+    idsapi
+    xlisthole {
+       listed-domain   dns=nxdomain,log=true  //<1>
+       unlisted-domain dns=checkip,log=false  //<2>
+       listed-ip       dns=nxdomain,log=true  //<3>
+       unlisted-ip     dns=returnip,log=false //<4>
+    }
+    forward . 8.8.8.8 8.8.4.4
+}
+----
+<1> `listed-domain` se aplica cuando el dominio que se quiere resolver se encuentra en la lista. En este caso retornaremos un `nxdomain` y escribiremos en el log.
+<2> `unlisted-domain` se aplica cuando el dominio que se quiere resolver NO se encuentra en la lista. En este caso, mediante `checkip`, le diremos que realice también un chequeo de direcciones IP devueltas.
+<3> `listed-ip` se aplica cuando una de las direcciones IP resueltas está en la lista. En este caso retornaremos un `nxdomain` y escribiremos en el log.
+<4> `unlisted-ip` se aplica cuando ninguna de las direcciones IP resueltas está en la lista. En este caso aplicaremos `returnip`, que hace que se retorne la información.
+
+Para entender mejor, vea el siguiente diagrama de flujo.
+
+[plantuml,{guidename}-flow2,png,pdfwidth=100%]
+----
+start
+:query domain/
+if (check(domain)?) then (true)
+	if (listed-domain.log?) then (true)
+		:log(query, domain);
+	endif
+	:action = listed-domain.action;
+else (false)
+	if (unlisted-domain.log?) then (true)
+		:log(query, domain);
+	endif
+	:action = unlisted-domain.action;
+endif
+
+if (action="nxdomain"?) then (yes)
+	:return = code.nxdomain|
+	stop
+elseif (action="refused"?) then (yes)
+	:return = code.refused|
+	stop
+elseif (action="ip?") then (yes)
+	:return = action.value|
+	stop
+elseif (action="return"?) then (yes)
+	:resolvedIP = resolve(domain);
+	:return = resolvedIP|
+	stop
+endif
+
+:resolvedIP = resolve(domain);
+if (check(resolvedIP)) then (true)
+	if (listed-ip.log?) then (true)
+		:log(query, ip);
+	endif
+	:action = listed-ip.action;
+else (false)
+	if (unlisted-ip.log?) then (true)
+		:log(query, ip);
+	endif
+	:action = unlisted-ip.action;
+endif
+
+if (action="nxdomain"?) then (yes)
+	:return = code.nxdomain|
+	stop
+elseif (action="refused"?) then (yes)
+	:return = code.refused|
+	stop
+elseif (action="ip"?) then (yes)
+	:return = action.value|
+	stop
+endif
+
+:return = resolvedIP/
+
+stop
+----
+
+Reiniciaremos el servidor.
+
+----
+$ dig @localhost -p 1053 www.luisguillen.com +short
+$ sudo grep 54.37.157.73 /var/log/syslog
+Nov 16 07:54:14 luids-router ludns[2206]: [INFO] plugin/xlisthole: [::1]:34140 check '54.37.157.73' response: true 'found in 'local-blacklist''
+----
+
+[plantuml,{guidename}-xlist-dns2-2,png,pdfwidth=100%]
+----
+actor dnsclient
+participant "DNS Server\n(ludns)" as dnsserver
+participant "DNS Plugin\n(xlisthole)" as xlisthole
+participant "DNS Plugin\n(cache)" as cache
+participant "DNS Plugin\n(forward)" as forward
+participant "XList Server\n(xlistd)" as xlist #99FF99
+participant "External\nDNS Server" as dnsext #99FF99
+
+dnsclient -> dnsserver: query www.hacked-domain.com
+dnsserver -> xlisthole: query www.hacked-domain.com
+xlisthole -> xlist: Check(wwww.hackend-domain.com)
+xlist --> xlisthole: {result: false}
+xlisthole --> dnsserver: {result: false}
+dnsserver -> cache: query www.hacked-domain.com
+cache --> dnsserver: cache miss
+dnsserver -> forward: query www.hacked-domain.com
+forward -> dnsext: query www.hacked-domain.com
+dnsext --> forward: 6.6.6.6
+forward --> dnsserver: 6.6.6.6
+dnsserver -> cache: cache www.hacked-domain.com 6.6.6.6
+cache --> dnsserver: cached ok
+
+dnsserver -> xlisthole: Check(6.6.6.6)
+xlisthole -> xlist: Check(6.6.6.6)
+xlist --> xlisthole: {result: true, reason: "ip in botnet"}
+xlisthole --> dnsserver: {result: true, reason: "ip in botnet"}
+
+dnsserver --> dnsclient: nxdomain
+----
+
+NOTE: Para los puristas, sí, en realidad _CoreDNS_ no realiza las llamadas en la secuencia mostrada, se pone así por claridad explicativa y no complicar todavía más la cosa ;).
+
+ifdef::env-site,env-github[]
+A continuación: xref:step-3.adoc[Configurando fuentes externas]
+endif::env-site,env-github[]
