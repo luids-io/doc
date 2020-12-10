@@ -1,7 +1,0 @@
-* xref:archive:index.adoc[archive]
-** xref:archive:introduction.adoc[Introducción]
-** xref:archive:getting-started.adoc[Empezando]
-** xref:archive:installation.adoc[Instalación]
-** xref:archive:configuration.adoc[Configuración]
-** xref:archive:service-definition.adoc[Definición del servicio]
-** xref:archive:next-steps.adoc[Siguientes pasos]

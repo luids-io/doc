@@ -1,0 +1,6 @@
+* xref:guide-advanced-dns-sinkhole:index.adoc[Sumidero DNS Avanzado]
+** xref:guide-advanced-dns-sinkhole:introduction.adoc[Introducción]
+** xref:guide-advanced-dns-sinkhole:design.adoc[Diseño del sistema]
+** xref:guide-advanced-dns-sinkhole:installation.adoc[Instalación]
+** xref:guide-advanced-dns-sinkhole:configuration.adoc[Configuración]
+** xref:guide-advanced-dns-sinkhole:next-steps.adoc[Siguientes pasos]

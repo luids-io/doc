@@ -1,6 +1,0 @@
-* xref:basic-dns-rblzone:index.adoc[Zona DNS RBL básica]
-** xref:basic-dns-rblzone:introduction.adoc[Introducción]
-** xref:basic-dns-rblzone:design.adoc[Diseño del sistema]
-** xref:basic-dns-rblzone:installation.adoc[Instalación]
-** xref:basic-dns-rblzone:configuration.adoc[Configuración]
-** xref:basic-dns-rblzone:next-steps.adoc[Siguientes pasos]

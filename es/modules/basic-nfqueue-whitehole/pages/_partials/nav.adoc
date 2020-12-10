@@ -1,6 +1,0 @@
-* xref:basic-nfqueue-whitehole:index.adoc[Cortafuegos integrado con sumidero DNS]
-** xref:basic-nfqueue-whitehole:introduction.adoc[Introducción]
-** xref:basic-nfqueue-whitehole:design.adoc[Diseño del sistema]
-** xref:basic-nfqueue-whitehole:installation.adoc[Instalación]
-** xref:basic-nfqueue-whitehole:configuration.adoc[Configuración]
-** xref:basic-nfqueue-whitehole:next-steps.adoc[Siguientes pasos]

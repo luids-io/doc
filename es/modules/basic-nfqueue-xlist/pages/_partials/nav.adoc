@@ -1,6 +1,0 @@
-* xref:basic-nfqueue-xlist:index.adoc[Cortafuegos con listas negras]
-** xref:basic-nfqueue-xlist:introduction.adoc[Introducción]
-** xref:basic-nfqueue-xlist:design.adoc[Diseño del sistema]
-** xref:basic-nfqueue-xlist:installation.adoc[Instalación]
-** xref:basic-nfqueue-xlist:configuration.adoc[Configuración]
-** xref:basic-nfqueue-xlist:next-steps.adoc[Siguientes pasos]

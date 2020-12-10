@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MANUAL_NAME="xlist"
-MODULE_DIR="../../../es/modules/${MANUAL_NAME}"
+MODULE_DIR="../../../es/modules/manual-${MANUAL_NAME}"
 THEME_NAME="luids"
 THEMES_DIR="../../resources/themes"
 FONTS_DIR="../../resources/fonts"

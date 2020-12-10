@@ -5,8 +5,8 @@ Si quieres conocer al detalle la instalación, configuración y mantenimiento
 de algunas de las aplicaciones que forman el ecosistema _^lu^IDS_, tienes a tu
 libre disposición los manuales online y en formato PDF.
 
-* xref:xlist:index.adoc[*Manual xlist*]
-* xref:dns:index.adoc[*Manual dns*]
-* xref:archive:index.adoc[*Manual archive*]
-* xref:event:index.adoc[*Manual event*]
-* xref:netfilter:index.adoc[*Manual netfilter*]
+* xref:manual-xlist:index.adoc[*Manual xlist*]
+* xref:manual-dns:index.adoc[*Manual dns*]
+* xref:manual-archive:index.adoc[*Manual archive*]
+* xref:manual-event:index.adoc[*Manual event*]
+* xref:manual-netfilter:index.adoc[*Manual netfilter*]

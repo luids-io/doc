@@ -1,0 +1,6 @@
+* xref:guide-basic-dns-sinkhole:index.adoc[Sumidero DNS Básico]
+** xref:guide-basic-dns-sinkhole:introduction.adoc[Introducción]
+** xref:guide-basic-dns-sinkhole:design.adoc[Diseño del sistema]
+** xref:guide-basic-dns-sinkhole:installation.adoc[Instalación]
+** xref:guide-basic-dns-sinkhole:configuration.adoc[Configuración]
+** xref:guide-basic-dns-sinkhole:next-steps.adoc[Siguientes pasos]

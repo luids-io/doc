@@ -1,0 +1,6 @@
+* xref:guide-basic-nfqueue-resolv:index.adoc[Cortafuegos integrado con DNS]
+** xref:guide-basic-nfqueue-resolv:introduction.adoc[Introducción]
+** xref:guide-basic-nfqueue-resolv:design.adoc[Diseño del sistema]
+** xref:guide-basic-nfqueue-resolv:installation.adoc[Instalación]
+** xref:guide-basic-nfqueue-resolv:configuration.adoc[Configuración]
+** xref:guide-basic-nfqueue-resolv:next-steps.adoc[Siguientes pasos]

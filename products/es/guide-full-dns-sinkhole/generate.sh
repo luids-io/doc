@@ -1,7 +1,7 @@
 #!/bin/bash
 
 GUIDE_NAME="full-dns-sinkhole"
-MODULE_DIR="../../../es/modules/${GUIDE_NAME}"
+MODULE_DIR="../../../es/modules/guide-${GUIDE_NAME}"
 THEME_NAME="luids"
 THEMES_DIR="../../resources/themes"
 FONTS_DIR="../../resources/fonts"

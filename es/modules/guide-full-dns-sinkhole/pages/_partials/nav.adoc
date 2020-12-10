@@ -1,0 +1,8 @@
+* xref:guide-full-dns-sinkhole:index.adoc[Sumidero DNS paso a paso]
+** xref:guide-full-dns-sinkhole:step-1.adoc[Nuestro primer sumidero]
+** xref:guide-full-dns-sinkhole:step-2.adoc[Comprobando las respuestas del DNS]
+** xref:guide-full-dns-sinkhole:step-3.adoc[Configurando fuentes externas]
+** xref:guide-full-dns-sinkhole:step-4.adoc[Agregando políticas y eventos]
+** xref:guide-full-dns-sinkhole:step-5.adoc[Archivando la información de nuestro sistema]
+** xref:guide-full-dns-sinkhole:step-6.adoc[Integración con el cortafuegos]
+** xref:guide-full-dns-sinkhole:step-7.adoc[Añadiendo funcionalidades]
