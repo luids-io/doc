@@ -4,7 +4,8 @@ include::{partialsdir}/attributes-es.adoc[]
 
 include::{partialsdir}/preface.adoc[]
 
-* xref:introduction.adoc[Introducción]
-* xref:design.adoc[Diseño del sistema]
-* xref:installation.adoc[Instalación]
-* xref:configuration.adoc[Configuración]
+. xref:introduction.adoc[Introducción]
+. xref:design.adoc[Diseño del sistema]
+. xref:installation.adoc[Instalación]
+. xref:configuration.adoc[Configuración]
+. xref:next-steps.adoc[Siguientes pasos]

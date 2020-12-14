@@ -4,6 +4,7 @@
         "class": "file",
         "name": "My custom blacklist",
         "resources": [ "domain" ],
+        "source": "local/blacklist.xlist",
         "opts": {
             "autoreload": true,
             "reloadseconds": 5,
@@ -15,6 +16,7 @@
         "class": "file",
         "name": "My custom whitelist",
         "resources": [ "domain" ],
+        "source": "local/whitelist.xlist",
         "opts": {
             "autoreload": true,
             "reloadseconds": 5,

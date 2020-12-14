@@ -4,10 +4,7 @@ include::{partialsdir}/attributes-es.adoc[]
 
 == Qué es un sumidero DNS o DNS Sinkhole
 
-Un sumidero DNS es un servidor DNS que cumple el rol de _resolvedor_ en una red pero que, en lugar de devolver directamente a los clientes el resultado de una consulta DNS, comprobará si el nombre consultado se encuentra en una lista negra. Si se encontrase en la lista, entonces el sumidero no realizará la resolución y devolverá al cliente la dirección IP que nosotros deseemos o que el dominio no existe. Si el dominio no estuviese en la lista, el sumidero devolverá el resultado de la consulta al cliente.
-
-.Qué es un sumidero dns
-image::dns-sinkhole-what.png[dns-sinkhole-what,width=85%,pdfwidth=50%]
+include::{partialsdir}/what-dns-sinkhole.adoc[]
 
 == ¿Qué tiene de especial nuestro sumidero?
 
