@@ -42,8 +42,6 @@ include::{examplesdir}/wrappers/score/example1.json[]
 ----
 
 El ejemplo <<score-example1>> responderá de la siguiente forma:
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"[score]10[/score]mock response",0 (875.219µs)
@@ -60,8 +58,6 @@ include::{examplesdir}/wrappers/score/example2.json[]
 ----
 
 El ejemplo <<score-example2>> responderá de la siguiente forma:
-
-[source,console]
 ----
 $ xlistc 127.0.0.2
 ip4,127.0.0.2: true,"[score]45[/score]ZEN2: Direct UBE sources, spam operations & spam services;ZEN10: End-user Non-MTA IP addresses set by ISP outbound mail policy;ZEN4: CBL (3rd party exploits such as proxies, trojans, etc.)",60 (94.529916ms)

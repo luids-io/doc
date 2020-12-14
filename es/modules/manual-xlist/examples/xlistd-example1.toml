@@ -13,12 +13,13 @@ dirs       = [ "/etc/luids/xlist/services.d" ]
 resolvers  = [ "8.8.8.8", "8.8.4.4" ]
 #resolvconf = true
 
+#[xlistd.plugin.sblookup]
+#apikey="TOKEN"
+
 [service.xlist.check]
 enable     = true
 rootid     = "root"
 log        = true
-#exposeping = true
-#disclosure = true
 
 #########################
 ## Client API settings ##

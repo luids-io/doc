@@ -20,43 +20,54 @@ La manera más sencilla de explicarlo es mediante un ejemplo y analizando los ca
 ----
 [
  {
-  "id": "quidsup.net-malware", //<1>
-  "sources": [ //<2>
+  "disabled": false, //<1>
+  "deprecated": false, //<2>
+  "removed": false, //<3>
+  "id": "quidsup.net-malware", //<4>
+  "sources": [ //<5>
     {
-      "uri": "https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-malware.txt", //<3>
-      "destination": "notrack-malware.txt", //<4>
-      "format": "flat", //<5>
-      "resources": [ "domain" ] //<6>
+      "format": "flat", //<6>
+      "resources": [ "domain" ], //<7>
+      "uri": "https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-malware.txt", //<8>
+      "destination": "notrack-malware.txt" //<9>
     }
   ],
-  "update": "24h", //<7>
-  "disabled": false //<8>
+  "transforms": { //<10>
+    "tldplusone": true,
+  },
+  "update": "24h" //<11>
  }
 ]
 ----
-<1> `id` es el identificador del origen. Se usará para crear directorios temporales en caché y para el nombre del fichero de salida
-<2> `sources` es un array en el que definiremos las fuentes. Es un array ya que un origen puede tener múltiples fuentes que descargar
-<3> `uri`, dirección de la fuente. Actualmente sólo hay implementados dos tipos de descarga:
+<1> `disabled` indica si la lista está deshabilitada
+<2> `deprecated` indica si la lista se ha dejado de actualizar
+<3> `removed` indica si la lista ya no existe
+<4> `id` es el identificador del origen. Se usará para crear directorios temporales en caché y para el nombre del fichero de salida
+<5> `sources` es un array en el que definiremos las fuentes. Es un array ya que un origen puede tener múltiples fuentes que descargar
+<6> `format` es el formato en el que se encuentra la fuente. Es necesario para poder procesar y convertir el fichero de salida al formato común. Actualmente hay dos formatos soportados:
+
+. _flat_: es cuando un fichero simplemente es un listado de elementos.
+. _hosts_: es un fichero en formato `/etc/hosts`. El conversor eliminará automáticamente todos los `localhost`, `127.0.0.1`, etc.
+. _csv_: es un fichero en formato csv.
+
+<7> `resources` son los tipos de recursos que hay que extraer. Esto es importante, ya que el fichero puede contener diferentes tipos, pero mediante este parámetro de tipo array, se indicará de manera explícita qué tipos de recursos se han de extraer.
+
+<8> `uri`, dirección de la fuente. Actualmente sólo hay implementados dos tipos de descarga:
 
 . _http/https_: descargará desde un servidor
 . _file_: utilizará un fichero del sistema local
 
-<4> `destination`, nombre del fichero al descargarse. Es opcional pero puede necesitarse en dos casos:
+<9> `destination`, nombre del fichero al descargarse. Es opcional pero puede necesitarse en dos casos:
 
 . Existen múltiples fuentes del mismo origen con el mismo nombre. Esto hace que sobreescriba una sobre otra y no se procese correctamente.
 . El sistema de descarga no es capaz de asignarle un nombre. Esto ocurre en algunos casos, y depende de la URI y la cabecera de respuesta del servidor. Para más información ver https://github.com/cavaliercoder/grab[la documentación del gestor de descargas].
 
-<5> `format` es el formato en el que se encuentra la fuente. Es necesario para poder procesar y convertir el fichero de salida al formato común. Actualmente hay dos formatos soportados:
-
-. _flat_: es cuando un fichero simplemente es un listado de elementos.
-. _hosts_: es un fichero en formato `/etc/hosts`. El conversor eliminará automáticamente todos los `localhost`, `127.0.0.1`, etc.
-
-<6> `resources` son los tipos de recursos que hay que extraer. Esto es importante, ya que el fichero puede contener diferentes tipos, pero mediante este parámetro de tipo array, se indicará de manera explícita qué tipos de recursos se han de extraer.
-<7> `update` determina la frecuencia de actualización. _xlget_ sólo descargará cuando haya pasado el tiempo indicado en este campo desde la última descarga.
-<8> `disabled` indica si se encuentra deshabilitada la entrada. Si es `true`, entonces _xlget_ la ignorará.
+<10> `transforms` indicará un array asociativo de transformaciones a realizar en los datos. En el ejemplo se aplica la transformación `tldplusone`, que convertirá en tipo subdominio todos aquellos dominios "base mas uno" si se encuentran en la lista, como por ejemplo: google.com.
+<11> `update` determina la frecuencia de actualización. _xlget_ sólo descargará cuando haya pasado el tiempo indicado en este campo desde la última descarga.
 
 Cuando se ejecute _xlget_, creará un fichero de salida con el nombre de la lista y la extensión _.xlist_ en el directorio que se haya indicado en la opción `outputdir` y reemplazará el existente si el hash md5 no coincide o no existe hash (de esta forma hace innecesaria la recarga del fichero por parte de un componente _file_ del demonio _xlist_).
 
+Si se especificó el parámetro `statusdir`, se almacenará un fichero en el que obtendremos información acerca del estado de las sincronizaciones.
 
 ifdef::env-site,env-github[]
 A continuación: xref:next-steps.adoc[Siguientes pasos]

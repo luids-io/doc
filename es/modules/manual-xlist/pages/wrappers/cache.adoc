@@ -12,7 +12,7 @@ El envoltorio *cache* crea una caché en memoria con las respuestas del componen
 === Configuración
 
 * El valor de `class` debe de ser `cache`.
-* Admite campos opcionales en `opts`. Si no se especifican por defecto se asigna un `ttl` de `300`.
+* Admite campos opcionales en `opts`. Si no se especifican por defecto se almacena en caché con el `ttl` que vienen en las respuestas del componente.
 
 [[cache-table-opts]]
 [cols="1,1,2"]
@@ -28,6 +28,14 @@ El envoltorio *cache* crea una caché en memoria con las respuestas del componen
 | _int_
 | tiempo en caché en caso negativo
 
+| `minttl`
+| _int_
+| tiempo mínimo en caché
+
+| `maxttl`
+| _int_
+| tiempo máximo en caché
+
 |===
 
 == Ejemplos de uso
@@ -42,8 +50,6 @@ include::{examplesdir}/wrappers/cache/example1.json[]
 ----
 
 Puede observarse en las consultas al servidor con la configuración de <<example1>> el efecto de la caché.
-
-[source,console]
 ----
 $ xlistc 127.0.0.2
 ip4,127.0.0.2: true,"Client host blocked using Barracuda Reputation, see http://www.barracudanetworks.com/reputation/?r=1&ip=127.0.0.2",300 (294.487878ms)

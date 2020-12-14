@@ -52,8 +52,6 @@ include::{examplesdir}/wrappers/logger/example1.json[]
 ----
 
 Ahora veremos en el log del demonio _xlistd_ las consultas realizadas que retornan un resultado positivo.
-
-[source,console]
 ----
 $ xlistd --xlist.dbfiles example1.json --xlist.rootid="logger1"
 INFO[0000] starting xlistd (version: v0.0.1-alpha3 build: 2019-07-10T18:03:04+0200)

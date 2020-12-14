@@ -61,8 +61,6 @@ include::{examplesdir}/components/geoip2/example2.json[]
 ----
 
 En este caso hemos configurado una lista `geoip2_2` que devuelve cierto en el caso de que la ip consultada no sea de España. Para ello hemos definido mediante la opción `countries` un array de códigos de países en el que hemos incluido solo el código de España. Esto hace que la lista de positivo si la dirección pertenece a este país. Sin embargo, queremos que haga exactamente lo contrario, para lo cual modificamos el comportamiento mediante la opción `reverse`.
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"found country code 'AU'",0 (647.286µs)

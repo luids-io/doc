@@ -46,8 +46,6 @@ include::{examplesdir}/wrappers/policy/example1.json[]
 ----
 
 El ejemplo responderá de la siguiente forma:
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"[policy]event=info,dns=nxdomain[/policy]policy1 response",0 (784.927µs)
@@ -63,8 +61,6 @@ include::{examplesdir}/wrappers/policy/example2.json[]
 ----
 
 En el ejemplo se retornará con la siguiente razón:
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"[policy]event=info,dns=nxdomain[/policy]blacklist1 response",0 (780.056µs)
@@ -81,7 +77,6 @@ ip4,3.3.3.3: true,"[policy]dns=nxdomain,event=warn[/policy]blacklist2 response",
 include::{examplesdir}/wrappers/policy/example3.json[]
 ----
 
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"[policy]dns=nxdomain,event=warn[/policy][score]20[/score]blacklist1 response;blacklist2 response",0 (773.569µs)

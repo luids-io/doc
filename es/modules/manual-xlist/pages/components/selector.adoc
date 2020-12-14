@@ -49,8 +49,6 @@ include::{examplesdir}/components/selector/example1.json[]
 En la configuración del ejemplo `selector1` se define una lista compuesta que soporta los tipos de recurso `ip4` y `domain` y contiene dos listas: la primera es la lista identificada por `mock1` y soporta el tipo de recurso `ip4`, y la segunda es la lista identificada por `mock2` y que soporta el tipo de recurso `domain`. Nótese que el orden asignado a las listas hijas coincide con el de los recursos soportados.
 
 La salida que obtendríamos al chequear la lista sería la siguiente:
-
-[source,console]
 ----
 $ xlistc
 [ip4 domain] (462.851µs)
@@ -73,8 +71,6 @@ include::{examplesdir}/components/selector/example2.json[]
 ----
 
 La salida de <<selector-example2>> sería la siguiente:
-
-[source,console]
 ----
 $ xlistc
 [ip4 ip6 domain] (470.15µs)

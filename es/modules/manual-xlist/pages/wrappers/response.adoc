@@ -38,7 +38,11 @@ El envoltorio *response* realiza cambios en las respuestas retornadas por el com
 
 | `ttl`
 | _int_
-| sobreescribe el ttl de la respuesta
+| sobreescribe el ttl en caso de respuesta afirmativa
+
+| `negativettl`
+| _int_
+| sobreescribe el ttl en caso de respuesta negativa
 
 | `reason`
 | _string_
@@ -66,8 +70,6 @@ include::{examplesdir}/wrappers/response/example1.json[]
 ----
 
 El resultado de <<response-example1>> será:
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"response1 response",30 (828.807µs)
@@ -81,8 +83,6 @@ include::{examplesdir}/wrappers/response/example2.json[]
 ----
 
 El resultado de <<response-example2>> será:
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"response1 response",0 (880.92µs)
@@ -98,8 +98,6 @@ include::{examplesdir}/wrappers/response/example3.json[]
 ----
 
 El resultado de <<response-example3>> será:
-
-[source,console]
 ----
 $ xlistc 127.0.0.2
 ip4,127.0.0.2: true,"response3: Client host blocked using Barracuda Reputation, see http://www.barracudanetworks.com/reputation/?r=1&ip=127.0.0.2",299 (375.87615ms)
@@ -115,8 +113,6 @@ include::{examplesdir}/wrappers/response/example4.json[]
 ----
 
 El resultado de <<response-example4>> será:
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"[score]20[/score]blacklist1 response;blacklist2 response",0 (780.512µs)

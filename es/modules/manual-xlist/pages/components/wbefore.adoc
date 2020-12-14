@@ -47,8 +47,6 @@ include::{examplesdir}/components/wbefore/example1.json[]
 ----
 
 La salida del <<wbefore-example1>> es la siguiente:
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: false,"",0 (726.381µs)

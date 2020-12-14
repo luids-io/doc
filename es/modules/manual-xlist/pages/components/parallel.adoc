@@ -54,8 +54,6 @@ include::{examplesdir}/components/parallel/example1.json[]
 En la configuración del ejemplo `parallel1` se define una lista compuesta que soporta el tipo de recurso `ip4` y contiene dos listas: la primera es la lista identificada por `mock1` y soporta los tipos de recursos `ip4` e `ip6`, y la segunda es la lista identificada por `mock2` y que soporta el tipo de recurso `ip4`. Nótese que ambas listas hijas soportan el tipo de recurso ofrecido por la lista padre.
 
 Para realizar el chequeo, la lista realizará en paralelo la ambas listas.  En este ejemplo, siempre retornará la concatenación de las respuestas afirmativas (que podrá variar el orden):
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"mock3 response;mock2 response",0 (657.282µs)
@@ -77,8 +75,6 @@ include::{examplesdir}/components/parallel/example2.json[]
 ----
 
 Con esta lista, devolverá el primer resultado afirmativo, que podrá ser diferente en cada ocasión.
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"mock3 response",0 (596.715µs)
@@ -102,8 +98,6 @@ include::{examplesdir}/components/parallel/example3.json[]
 NOTE: La opción `skiperrors` únicamente "enmascarará" los errores de chequeos, de esta forma la lista seguirá funcionando a pesar de posibles errores en alguna de sus listas hijas. Los _pings_ tendrán el mismo comportamiento, es decir, que si existe un error en alguna de las listas hijas, el _ping_ dará error. De este modo, se podrán detectar los errores y conocer del estado degradado del sistema.
 
 La salida del <<parallel-example3>> será la siguiente:
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"sequence3 response",0 (655.384µs)

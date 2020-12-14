@@ -11,4 +11,7 @@
 | `outputdir` | _string_ | No |
 |  Especifica el directorio de salida de las listas descargadas.
 
+| `statusdir` | _string_ | No |
+|  Especifica el directorio de los ficheros de información de estado.
+
 |===

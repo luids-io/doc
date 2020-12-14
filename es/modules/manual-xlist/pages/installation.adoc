@@ -5,17 +5,17 @@ include::{partialsdir}/attributes-es.adoc[]
 El paquete de software *xlist* se encuentra precompilado para los siguientes sistemas operativos y arquitecturas:
 
 |===
-| *OS*    | `amd64` | `arm` | `arm64`
+| *OS*    | `amd64` | `arm` | `arm64` | `ppc64le` | `s390x` | `mips` | `mips64le`
 
-| Linux   | X       | X     | X
+| Linux   | X       | X     | X       | X         | X       | X      | X
 
-| Windows | X       |       |
+| Windows | X       |       |         |           |         |        |
 
-| MacOS   | X       |       |
+| MacOS   | X       |       |         |           |         |        |
 
-| FreeBSD | X       |       |
+| FreeBSD | X       |       |         |           |         |        |
 
-| OpenBSD | X       |       |
+| OpenBSD | X       |       |         |           |         |        |
 
 |===
 
@@ -31,9 +31,9 @@ Actualmente sólo hay instalador disponible para _GNU/Linux_. Para instalar, sim
 [source,bash]
 .Instalación de xlist mediante instalador
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
 wget $DOWNLOAD_URI  -O installer_xlist.sh
 chmod 755 installer_xlist.sh
 sudo ./installer_xlist.sh
@@ -54,23 +54,21 @@ TIP: En las distribuciones basadas en Debian, es posible conocer la arquitectura
 Al ejecutar el instalador se indican los pasos que realizará. Para que el proceso de instalación continúe simplemente deberá responder con un `y`.
 
 .Ejemplo de ejecución del instalador
-[source,console]
 ----
-$ sudo ./installer.sh
-
 ======================
 - luIDS installer:
-   xlist v0.0.1
+   xlist a2f3575
 ======================
 
 Warning! This script will commit the following changes to your system:
-. Download and install binaries in '/usr/local/bin'
+. Download and install amd64 binaries in '/usr/local/bin'
 . Create system group 'luids'
 . Create system user 'luxlist'
 . Create data dirs in '/var/lib/luids'
 . Create cache dirs in '/var/cache/luids'
 . Create config dirs in '/etc/luids'
 . Copy systemd configurations to '/etc/systemd/system'
+. Install helper scripts in '/usr/local/bin'
 
 Are you sure? (y/n) y
 
@@ -84,15 +82,15 @@ Are you sure? (y/n) y
 * Installing systemd services... OK
 * Installing helper scripts... OK
 
-Installation success!. You can see /tmp/ins-JNhlDd/installer.log for details.
+Installation success!. You can see /tmp/ins-TqueE7/installer.log for details.
 ----
 
 El instalador no habilita el servicio en systemd, podrá iniciarlo con:
 
-[source, bash]
+[source,bash]
 ----
-systemctl start luids-xlget
-systemctl start luids-xlistd
+sudo systemctl start luids-xlget
+sudo systemctl start luids-xlistd
 ----
 
 NOTE: En caso de que su sistema no disponga de systemd, el instalador simplemente no instalará los servicios.
@@ -102,7 +100,7 @@ TIP: Es posible ejecutar múltiples instancias de _xlistd_ con diferentes config
 [[docker]]
 == Docker
 
-[source,console]
+[source,bash]
 ----
 docker pull luids/xlistd
 docker pull luids/xlget
@@ -120,11 +118,11 @@ O bien simplemente copie y pegue lo siguiente en una shell, sustituyendo el sist
 
 [source,bash]
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 OS="linux"
 ARCH="amd64"
 DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/xlist_${RELEASE}_${OS}_${ARCH}.tgz"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/xlist_${RELEASE}_${OS}_${ARCH}.tgz"
 wget $DOWNLOAD_URI -O xlist_binaries.tgz
 tar zxvf xlist_binaries.tgz
 ----

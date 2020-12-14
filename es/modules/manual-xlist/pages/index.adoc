@@ -1,9 +1,11 @@
-= ^lu^IDS - xlist
+= Manual - xlist
 
-* xref:introduction.adoc[Introducción]
-* xref:getting-started.adoc[Empezando]
-* xref:installation.adoc[Instalación]
-* xref:configuration.adoc[Configuración]
-* xref:service-definition.adoc[Definición del servicio]
-* xref:manage-sources.adoc[Gestión de fuentes]
-* xref:next-steps.adoc[Siguientes pasos]
+El paquete de software *xlist* contiene todo lo necesario para integrar *servicios de listas negras* en nuestro sistema de detección de intrusos _^lu^IDS_.
+
+. xref:introduction.adoc[Introducción]
+. xref:getting-started.adoc[Empezando]
+. xref:installation.adoc[Instalación]
+. xref:configuration.adoc[Configuración]
+. xref:service-definition.adoc[Definición del servicio]
+. xref:manage-sources.adoc[Gestión de fuentes]
+. xref:next-steps.adoc[Siguientes pasos]

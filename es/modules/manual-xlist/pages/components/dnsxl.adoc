@@ -80,8 +80,6 @@ include::{examplesdir}/components/dnsxl/example1.json[]
 En la configuración del ejemplo, la lista del ejemplo responderá a todas las solicitudes de tipo `ip4` chequeando para ello en la lista asociada a la zona DNS `b.barracudacentral.org`.
 
 La salida de <<dnsxl-example1>> sería la siguiente.
-
-[source,console]
 ----
 $ xlistc 127.0.0.2
 ip4,127.0.0.2: true,"",42 (126.727066ms)
@@ -100,8 +98,6 @@ include::{examplesdir}/components/dnsxl/example2.json[]
 ----
 
 La salida de <<dnsxl-example2>> sería la siguiente:
-
-[source,console]
 ----
 $ xlistc 127.0.0.2
 ip4,127.0.0.2: true,"Client host blocked using Barracuda Reputation, see http://www.barracudanetworks.com/reputation/?r=1&ip=127.0.0.2",185 (314.529874ms)
@@ -117,8 +113,6 @@ include::{examplesdir}/components/dnsxl/example3.json[]
 ----
 
 La salida de <<dnsxl-example3>> sería la siguiente:
-
-[source,console]
 ----
 $ xlistc 127.0.0.2
 ip4,127.0.0.2: true,"blacklist;whilelist;yellowlist;brownlist;NOBL",2099 (243.360464ms)

@@ -54,8 +54,6 @@ include::{examplesdir}/components/sequence/example1.json[]
 En la configuración del <<sequence-example1>> `sequence1` se define una lista compuesta que soporta el tipo de recurso `ip4` y contiene dos listas: la primera es la lista identificada por `mock1` y soporta los tipos de recursos `ip4` e `ip6`, y la segunda es la lista identificada por `mock2` y que soporta el tipo de recurso `ip4`. Nótese que ambas listas hijas soportan el tipo de recurso ofrecido por la lista padre.
 
 Para realizar el chequeo, la lista chequeará en cada una de las listas hijas, primero chequeará en `mock1`, luego `mock2` y finalmente `mock3`.  En este ejemplo, siempre retornará la concatenación de las respuestas afirmativas:
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"mock2 response;mock3 response",0 (562.333µs)
@@ -77,8 +75,6 @@ include::{examplesdir}/components/sequence/example2.json[]
 ----
 
 Con esta lista obtendríamos el siguiente resultado. Obsérvese que cuando la lista `mock2` retorna positivo, deja de chequear.
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"mock2 response",0 (982.994µs)
@@ -98,8 +94,6 @@ include::{examplesdir}/components/sequence/example3.json[]
 NOTE: La opción `skiperrors` únicamente "enmascarará" los errores de chequeos, de esta forma la lista seguirá funcionando a pesar de posibles errores en alguna de sus listas hijas. Los _pings_ tendrán el mismo comportamiento, es decir, que si existe un error en alguna de las listas hijas, el _ping_ dará error.  De este modo, se podrán detectar los errores y conocer del estado degradado del sistema.
 
 La salida del <<sequence-example3>> será la siguiente:
-
-[source,console]
 ----
 $ xlistc 1.1.1.1
 ip4,1.1.1.1: true,"sequence3 response",0 (836.807µs)
