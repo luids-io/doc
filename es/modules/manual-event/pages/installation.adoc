@@ -5,17 +5,17 @@ ifdef::env-site,env-github[:toc:]
 El paquete de software *event* se encuentra precompilado para los siguientes sistemas operativos y arquitecturas:
 
 |===
-| *OS*    | `amd64` | `arm` | `arm64`
+| *OS*    | `amd64` | `arm` | `arm64` | `ppc64le` | `s390x` | `mips` | `mips64le`
 
-| Linux   | X       | X     | X
+| Linux   | X       | X     | X       | X         | X       | X      | X
 
-| Windows | X       |       |
+| Windows | X       |       |         |           |         |        |
 
-| MacOS   | X       |       |
+| MacOS   | X       |       |         |           |         |        |
 
-| FreeBSD | X       |       |
+| FreeBSD | X       |       |         |           |         |        |
 
-| OpenBSD | X       |       |
+| OpenBSD | X       |       |         |           |         |        |
 
 |===
 
@@ -31,9 +31,9 @@ Actualmente sólo hay instalador disponible para _GNU/Linux_. Para instalar, sim
 [source,bash]
 .Instalación mediante instalador
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 DOWNLOAD_BASE="https://github.com/luids-io/event/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
 wget $DOWNLOAD_URI  -O installer_event.sh
 chmod 755 installer_event.sh
 sudo ./installer_event.sh
@@ -54,7 +54,6 @@ TIP: En las distribuciones basadas en Debian, es posible conocer la arquitectura
 Al ejecutar el instalador se indican los pasos que realizará. Para que el proceso de instalación continúe simplemente deberá responder con un `y`.
 
 .Ejemplo de ejecución del instalador
-[source,console]
 ----
 $ sudo ./installer.sh
 
@@ -90,7 +89,7 @@ El instalador no habilita el servicio en systemd, podrá iniciarlo con:
 
 [source, bash]
 ----
-systemctl start luids-eventproc
+sudo systemctl start luids-eventproc
 ----
 
 NOTE: En caso de que su sistema no disponga de systemd, el instalador simplemente no instalará los servicios.
@@ -100,7 +99,7 @@ TIP: Es posible ejecutar múltiples instancias de _eventproc_ con diferentes con
 [[docker]]
 == Docker
 
-[source,console]
+[source,bash]
 ----
 docker pull luids/eventproc
 ----
@@ -117,11 +116,11 @@ O bien simplemente copie y pegue lo siguiente en una shell, sustituyendo el sist
 
 [source,bash]
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 OS="linux"
 ARCH="amd64"
 DOWNLOAD_BASE="https://github.com/luids-io/event/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/event_${RELEASE}_${OS}_${ARCH}.tgz"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/event_${RELEASE}_${OS}_${ARCH}.tgz"
 wget $DOWNLOAD_URI -O event_binaries.tgz
 tar zxvf event_binaries.tgz
 ----

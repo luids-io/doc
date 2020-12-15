@@ -1,8 +1,11 @@
-= ^lu^IDS - event
+= Manual - event
 
-* xref:introduction.adoc[Introducción]
-* xref:getting-started.adoc[Empezando]
-* xref:installation.adoc[Instalación]
-* xref:configuration.adoc[Configuración]
-* xref:service-definition.adoc[Definición del servicio]
-* xref:next-steps.adoc[Siguientes pasos]
+El paquete de software *event* contiene todo lo necesario para desplegar un
+*servicio de gestión de eventos* integrado con nuestro sistema _luIDS_.
+
+. xref:introduction.adoc[Introducción]
+. xref:getting-started.adoc[Empezando]
+. xref:installation.adoc[Instalación]
+. xref:configuration.adoc[Configuración]
+. xref:service-definition.adoc[Definición del servicio]
+. xref:next-steps.adoc[Siguientes pasos]

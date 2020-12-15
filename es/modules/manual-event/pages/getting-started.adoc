@@ -9,9 +9,9 @@ Usaremos el instalador del paquete, para ello simplemente copiaremos y pegaremos
 
 [source,bash]
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 DOWNLOAD_BASE="https://github.com/luids-io/event/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
 wget $DOWNLOAD_URI -O installer_event.sh
 chmod 755 installer_event.sh
 sudo ./installer_event.sh -u
@@ -21,14 +21,12 @@ El instalador instala unos scripts `systemd` para la inicialización de los serv
 
 [source,bash]
 ----
-systemctl start luids-eventproc
+sudo systemctl start luids-eventproc
 ----
 
 == Probando un evento
 
 Podemos probar a lanzar un evento con `eventnotify` de la siguiente forma.
-
-[source,console]
 ----
 $ echo '[ { "code": 10000, "data": { "test": "test message" } } ]' | eventnotify --stdin
 e059aace-9d93-45e0-a541-7f107911182e
@@ -39,9 +37,6 @@ $ sudo cat /var/lib/luids/event/security-events.json
 == Siguientes pasos
 
 En este tutorial hemos visto la construcción de un sencillo sistema de procesamiento de eventos, pero no hemos entrado a entender el detalle de su configuración. Tampoco hemos visto muchas de las funcionalidades que el software *event* nos ofrece. Todo eso se verá en los siguientes capítulos.
-
-TIP: La potencia real de los servicios *event* radican de su combinación con otros servicios como servicio DNS, analizadores de tráfico, etc. Puede ver algunas de las posibles configuraciones se encuentran en el apartado de guías de despliegue.
-
 
 ifdef::env-site,env-github[]
 A continuación: xref:installation.adoc[Instalación]

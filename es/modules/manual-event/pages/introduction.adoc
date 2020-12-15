@@ -17,7 +17,7 @@ image::introduction-event.svg[introduction-event,width=100%,pdfwidth=80%]
 
 Todo el software está escrito en _Go_, es software libre y está disponible en https://github.com/luids-io/event.
 
-Aunque el usuario puede crear sus propios eventos, existe una base de datos con los eventos predefinidos del sistema _luIDS_ https://github.com/luids-io/event-database
+Aunque el usuario puede crear sus propios eventos, existe una base de datos con los eventos predefinidos del sistema _luIDS_ https://luids-io.github.io/event-database/README.html
 
 
 ifdef::env-site,env-github[]
