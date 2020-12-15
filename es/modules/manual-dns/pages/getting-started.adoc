@@ -9,9 +9,9 @@ Usaremos el instalador del paquete, para ello simplemente copiaremos y pegaremos
 
 [source,bash]
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 DOWNLOAD_BASE="https://github.com/luids-io/dns/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
 wget $DOWNLOAD_URI -O installer_dns.sh
 chmod 755 installer_dns.sh
 sudo ./installer_dns.sh -u
@@ -21,12 +21,10 @@ El instalador instala unos scripts `systemd` para la inicialización de los serv
 
 [source,bash]
 ----
-systemctl start luids-ludns
+sudo systemctl start luids-ludns
 ----
 
 Para no interferir con el sistema, por defecto, escucha en el puerto `1053`.  Esto obviamente debería cambiarse si fuésemos a utilizarlo de forma real. Sin embargo, para nuestra guía no será necesario ya que usaremos la herramienta `dig`. Con dicha herramienta podremos ver que está funcionando.
-
-[source,console]
 ----
 $ dig +short @localhost -p 1053 www.google.com
 216.58.201.132
@@ -41,9 +39,9 @@ Debido a que vamos a construir un sumidero, necesitamos un servidor `xlistd` que
 
 [source,bash]
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
 wget $DOWNLOAD_URI -O installer_xlist.sh
 chmod 755 installer_xlist.sh
 sudo ./installer_xlist.sh -u
@@ -51,39 +49,23 @@ sudo ./installer_xlist.sh -u
 
 == Nuestra primera lista negra
 
-En una instalación estándar, la configuración del servicio `xlistd` se realiza en el fichero `/etc/luids/xlist/xlistd.toml`. Dentro de dicho fichero se hace referencia a la definición del servicio que, en la instalación estándar, se encuentra en el fichero `/etc/luids/xlist/services.json`. Lo configuraremos para que utilice una lista negra que dejaremos en `/var/lib/luids/xlist/my-blacklist.xlist`.
+En una instalación estándar, la configuración del servicio `xlistd` tiene configurado un servicio de listas que hace uso de los fichero alojados en `/var/lib/luids/xlist/local`. Modificaremos el fichero `blacklist.xlist` de dicho directorio para agregar a nuestra lista
 
-.Contenido de `/etc/luids/xlist/services.json`
-[source,json]
-----
-[
-  {
-    "id": "root",
-    "class": "file",
-    "resources": [ "domain" ],
-    "source": "my-blacklist.xlist",
-    "opts": { "reason": "found in 'my-blacklist'" }
-  }
-]
-----
-
-.Contenido de `/var/lib/luids/xlist/my-blacklist.xlist`
+.Contenido de `/var/lib/luids/xlist/local/blacklist.xlist`
 [source]
 ----
 domain,plain,www.badsite.com
 domain,sub,malware.com
 ----
 
-Reiniciaremos el servicio...
+Iniciaremos el servicio.
 
 [source,bash]
 ----
-systemctl restart luids-xlistd
+sudo systemctl start luids-xlistd
 ----
 
-Probaremos nuestro sistema de listas negras recién configurado...
-
-[source,console]
+Probaremos nuestro sistema de listas negras recién configurado.
 ----
 $ xlistc
 [domain] (3.434562ms)
@@ -123,8 +105,6 @@ Editaremos nuestro fichero `/etc/luids/dns/Coredns` y descomentaremos los plugin
 ----
 
 Reiniciaremos el servicio con `systemctl restart luids-ludns` y probaremos el funcionamiento de nuestro sistema.
-
-[source,console]
 ----
 $ dig +short @localhost -p 1053 www.google.com
 216.58.209.68
@@ -132,8 +112,6 @@ $ dig +short @localhost -p 1053 www.badsite.com
 ----
 
 Vemos que ya no resuelve `www.badsite.com`. Podemos ver el log cómo nos indica que ha encontrado un elemento en la lista negra.
-
-[source,console]
 ----
 # grep ludns /var/log/syslog
 .....
@@ -144,9 +122,6 @@ Sep  1 07:13:22 luids-router ludns[2660]: [INFO] plugin/xlisthole: [::1]:48514 c
 == Siguientes pasos
 
 En este tutorial hemos visto la construcción de un sencillo sumidero DNS, pero no hemos entrado a entender el detalle de su configuración. Tampoco hemos visto muchas de las funcionalidades que el software *dns* nos ofrece como el archivado, caché de resoluciones, zona rbl... Todo eso se verá en los siguientes capítulos.
-
-TIP: La potencia real de los servicios *dns* radican de su combinación con otros servicios como los analizadores de tráfico. Puede ver algunas de las posibles configuraciones se encuentran en el apartado de guías de despliegue.
-
 
 ifdef::env-site,env-github[]
 A continuación: xref:installation.adoc[Instalación]

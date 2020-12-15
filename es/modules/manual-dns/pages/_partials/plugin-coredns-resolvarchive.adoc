@@ -5,6 +5,8 @@
 ----
 resolvarchive {
   service SERVICENAME
+  exclude NETWORK ...
+  ignore-rc CODE ...
   server-ip IP
 }
 ----
@@ -15,6 +17,12 @@ resolvarchive {
 
 | `service` | _string_ | No |
 |  Especifica el identificador del servicio de archivado DNS.
+
+| `exclude` | _string[]_ | No |
+|  Especifica las redes y hosts que no se archivarán.
+
+| `ignore-rc` | _int[]_ | No |
+|  Listado de códigos de retorno DNS que no se archivarán.
 
 | `server-ip` | _string_ | No |
 | IP para definir como servidor.

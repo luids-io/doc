@@ -5,8 +5,12 @@
 ----
 xlisthole {
   service SERVICENAME
+  service-view SERVICENAME NETWORK ...
+  exclude NETWORK ...
   listed-domain [merge] POLICY
   unlisted-domain POLICY
+  listed-cname [merge] POLICY
+  unlisted-cname POLICY
   listed-ip [merge] POLICY
   unlisted-ip POLICY
   on-error (return|nxdomain|refused|ip:x.x.x.x)
@@ -20,11 +24,23 @@ xlisthole {
 | `service` | _string_ | No |
 |  Especifica el identificador del servicio xlist para sumidero.
 
+| `service-view` | _string_ | No |
+|  Especifica el identificador del servicio xlist que se aplicará al listado de redes y hosts enumerado.
+
+| `exclude` | _string[]_ | No |
+|  Especifica las redes y hosts que no pasarán por el sumidero.
+
 | `listed-domain` | _string_ | No | `dns=nxdomain,log=true`
 | Acciones a tomar si dominio listado
 
 | `unlisted-domain` | _string_ | No | `dns=return`
 | Acciones a tomar si dominio no listado
+
+| `listed-cname` | _string_ | No | `dns=nxdomain,log=true`
+| Acciones a tomar si alguno de los CNAMEs retornados es listado
+
+| `unlisted-cname` | _string_ | No | `dns=return`
+| Acciones a tomar si ninguno de las CNAMEs retornados está listada
 
 | `listed-ip` | _string_ | No | `dns=nxdomain,log=true`
 | Acciones a tomar si alguna de las IPs es listada
