@@ -19,7 +19,7 @@
           {
             "id": "remote-blacklists",
             "wrappers": [
-              { "class": "cache", "opts": { "ttl": 150 } }
+              { "class": "cache", "opts": { "ttl": 300, "negativettl": 60 } }
             ]
           }
         ]
