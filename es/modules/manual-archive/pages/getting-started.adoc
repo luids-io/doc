@@ -16,9 +16,9 @@ Para instalar el software, usaremos el instalador del paquete, para ello simplem
 
 [source,bash]
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 DOWNLOAD_BASE="https://github.com/luids-io/archive/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
 wget $DOWNLOAD_URI -O installer_archive.sh
 chmod 755 installer_archive.sh
 sudo ./installer_archive.sh -u
@@ -102,9 +102,9 @@ Nuestro servicio de archivado necesita de algún sistema que lo "alimente", por 
 
 [source,bash]
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 DOWNLOAD_BASE="https://github.com/luids-io/dns/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
 wget $DOWNLOAD_URI -O installer_dns.sh
 chmod 755 installer_dns.sh
 sudo ./installer_dns.sh -u
@@ -132,8 +132,6 @@ sudo systemctl start luids-ludns
 == Probando el sistema
 
 Probaremos la resolución de nombres y que se ha realizado la inserción en la base de datos _MongoDB_.
-
-[source,console]
 ----
 $ dig +short @localhost -p 1053 www.google.com
 172.217.168.164
@@ -149,8 +147,6 @@ switched to db luidsdb
 == Siguientes pasos
 
 En este tutorial hemos visto la construcción de un sencillo archivador de resoluciones DNS, pero no hemos entrado a entender el detalle de su configuración. Tampoco hemos visto muchas de las funcionalidades que el software *archive* nos ofrece. Todo eso se verá en los siguientes capítulos.
-
-TIP: La potencia real de los servicios *archive* radican de su combinación con otros servicios como servidores dns y analizadores de tráfico. Puede ver algunas de las posibles configuraciones se encuentran en el apartado de guías de despliegue.
 
 ifdef::env-site,env-github[]
 A continuación: xref:installation.adoc[Instalación]

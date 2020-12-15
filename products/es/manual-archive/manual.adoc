@@ -2,6 +2,9 @@
 Luis Guillén Civera <luisguillenc@gmail.com>
 :doctype: book
 :icons: font
+:source-highlighter: rouge
+:rouge-style: monokai
+:chapter-label:
 include::{moduledir}/_attributes.adoc[]
 :toc:
 

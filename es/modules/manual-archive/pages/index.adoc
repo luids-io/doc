@@ -1,8 +1,10 @@
-= ^lu^IDS - archive
+= Manual - archive
 
-* xref:introduction.adoc[Introducción]
-* xref:getting-started.adoc[Empezando]
-* xref:installation.adoc[Instalación]
-* xref:configuration.adoc[Configuración]
-* xref:service-definition.adoc[Definición del servicio]
-* xref:next-steps.adoc[Siguientes pasos]
+El paquete de software *archive* contiene todo lo necesario para integrar *servicios de archivado* en nuestro sistema de detección de intrusos _^lu^IDS_.
+
+. xref:introduction.adoc[Introducción]
+. xref:getting-started.adoc[Empezando]
+. xref:installation.adoc[Instalación]
+. xref:configuration.adoc[Configuración]
+. xref:service-definition.adoc[Definición del servicio]
+. xref:next-steps.adoc[Siguientes pasos]
