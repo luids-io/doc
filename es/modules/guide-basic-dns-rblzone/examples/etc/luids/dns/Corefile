@@ -3,5 +3,6 @@ dnsbl.my-domain.lan {
 }
 
 . {
+    cache
     forward . 8.8.8.8 8.8.4.4
 }

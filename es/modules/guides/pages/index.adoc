@@ -12,7 +12,7 @@ include::{partialsdir}/attributes-es.adoc[]
 | Guía rápida de configuración de un sencillo sumidero con el que bloquear publicidad, phising y malware.
 
 | xref:guide-basic-dns-rblzone:index.adoc[Zona DNS RBL básica]
-| Configuración de una sencilla zona DNS RBL para su uso como sistema antispam.
+| Guía rápida de onfiguración de una sencilla zona DNS RBL para su uso como sistema antispam.
 
 | xref:guide-basic-nfqueue-xlist:index.adoc[Cortafuegos con listas negras]
 | Configuración de un firewall iptables para bloquear Botnets.

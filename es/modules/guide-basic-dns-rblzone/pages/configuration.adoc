@@ -2,7 +2,11 @@
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-dns-sinkhole
 
-include::{partialsdir}/download-xlist-database.adoc[leveloffset=1]
+TIP: Tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+
+== Descarga de la base de datos xlist
+
+include::{partialsdir}/download-xlist-database.adoc[]
 
 == Configuración de xlistd
 
@@ -11,41 +15,38 @@ La configuración de `xlistd` se divide en dos partes:
 * Definición del servicio.
 * Parámetros de configuración del servidor.
 
-La definición del servicio la realizaremos utilizando múltiples ficheros para que se entienda mejor. Deberemos crear los siguientes ficheros con su correspondiente contenido.
+La definición del servicio la realizaremos utilizando múltiples ficheros para que se entienda mejor. Pero antes, deberemos "importar" los servicios remotos que vamos a utilizar usando para ello enlaces simbólicos. Para hacerlo, bastará ejecutar como administrador los siguientes comandos.
 
 [source,bash]
 ----
-cd /usr/local/share/xlist-database/database
-sudo mkdir -p /etc/luids/xlist/services.d/remote
-sudo cp dnsxl/barracudacentral-org.json /etc/luids/xlist/services.d/remote
-sudo cp dnsxl/gbudb-net.json /etc/luids/xlist/services.d/remote
-sudo cp dnsxl/junkemailfilter-com.json /etc/luids/xlist/services.d/remote
-sudo cp dnsxl/mailspike-net.json /etc/luids/xlist/services.d/remote
-sudo cp dnsxl/mcafee-com.json /etc/luids/xlist/services.d/remote
-sudo cp dnsxl/sorbs-net.json /etc/luids/xlist/services.d/remote
-sudo cp dnsxl/spamcop-net.json /etc/luids/xlist/services.d/remote
-sudo cp dnsxl/spamhaus-org.json /etc/luids/xlist/services.d/remote
-sudo cp dnsxl/psbl-surriel-com.json /etc/luids/xlist/services.d/remote
-
 mkdir -p /etc/luids/xlist/services.d/dnsxl
 cd /etc/luids/xlist/services.d/dnsxl
 DBDIR=/usr/local/share/xlist-database
 ln -s $DBDIR/services/dnsxl/barracudacentral-org.json .
 ln -s $DBDIR/services/dnsxl/gbudb-net.json .
+ln -s $DBDIR/services/dnsxl/junkemailfilter-com-black.json .
+ln -s $DBDIR/services/dnsxl/mailspike-net-bl.json .
+ln -s $DBDIR/services/dnsxl/mcafee-com.json .
+ln -s $DBDIR/services/dnsxl/sorbs-net-dul.json .
+ln -s $DBDIR/services/dnsxl/sorbs-net-recent.json .
+ln -s $DBDIR/services/dnsxl/sorbs-net-new.json .
+ln -s $DBDIR/services/dnsxl/spamcop-net.json .
+ln -s $DBDIR/services/dnsxl/spamhaus-org-zen.json .
+ln -s $DBDIR/services/dnsxl/surriel-com-psbl.json .
 ----
 
 Crearemos los siguientes archivos.
 
-.Contenido de `/etc/luids/xlist/service.d/remote.json`
+.Contenido de `/etc/luids/xlist/services.d/remote.json`
 [source,json]
 ----
-include::{examplesdir}/etc/luids/xlist/service.d/remote.json[]
+include::{examplesdir}/etc/luids/xlist/services.d/remote.json[]
 ----
 
-.Contenido de `/etc/luids/xlist/service.d/custom-local.json`
+.Contenido de `/etc/luids/xlist/services.d/custom-local.json`
 [source,json]
 ----
-include::{examplesdir}/etc/luids/xlist/service.d/custom-local.json[]
+include::{examplesdir}/etc/luids/xlist/services.d/custom-local.json[]
 ----
 
 .Contenido de `/etc/luids/xlist/service.json`
@@ -63,8 +64,6 @@ include::{examplesdir}/etc/luids/xlist/xlistd.toml[]
 ----
 
 Comprobaremos que la configuración es correcta, como se muestra a continuación.
-
-[source,console]
 ----
 # xlistd --config /etc/luids/xlist/xlistd.toml --dry-run
 INFO[0000] xlistd (version: 341fe0e build: 2020-08-17T07:25:30+0200)
@@ -88,13 +87,23 @@ $ xlistc 8.8.8.8
 ip4,8.8.8.8: false,"",0 (1.429557ms)
 ----
 
+== Registro del servicio xlist
+
+Para que el resto de componentes del ecosistema _^lu^IDS_ puedan utilizar nuestro servicio de listas, debemos "publicarlo" en el _registro de servicios de la API_. Esto lo haremos editando el fichero `/etc/luids/apiservices.json`
+
+.Contenido de `/etc/luids/apiservices.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/apiservices.json[]
+----
+
 == Configuración de ludns
 
 La configuración del servidor _DNS_ la realizaremos en dos fases. En la primera fase lo pondremos a escuchar en el puerto no estándar `1053` para hacer pruebas y comprobar que funciona correctamente. En la segunda fase, que se verá en el apartado siguiente, haremos los pasos necesarios para ponerlo a escuchar en el puerto estándar.
 
 La configuración es muy sencilla, basta crear el siguiente fichero:
 
-.Contenido temporal `/etc/ludns/Corefile`
+.Contenido temporal `/etc/luids/dns/Corefile`
 [source]
 ----
 dnsbl.my-domain.lan:1053 {
@@ -103,6 +112,7 @@ dnsbl.my-domain.lan:1053 {
 }
 
 .:1053 {
+  cache
   forward . 8.8.8.8 8.8.4.4
 }
 ----
@@ -111,17 +121,15 @@ Una vez creado, hay que iniciar el servidor.
 
 [source,bash]
 ----
-## inicializo ludns
-systemctl start ludns
+sudo systemctl start luids-dns
 ----
 
 Ahora vamos a llevar a cabo las pruebas del servicio utilizando para ello el comando `dig`.
-
 ----
-# dig @localhost +short -p 1053 2.0.0.127.dnsbl.my-domain.lan //<1>
+$ dig @localhost +short -p 1053 2.0.0.127.dnsbl.my-domain.lan //<1>
 127.0.0.69
-# dig @localhost +short -p 1053 1.0.0.127.dnsbl.my-domain.lan
-# dig @localhost +short -p 1053 www.google.com //<2>
+$ dig @localhost +short -p 1053 1.0.0.127.dnsbl.my-domain.lan
+$ dig @localhost +short -p 1053 www.google.com //<2>
 216.58.211.36
 ----
 <1> interrogamos a la lista usando una dirección que debería encontrar
@@ -131,29 +139,11 @@ Ahora vamos a llevar a cabo las pruebas del servicio utilizando para ello el com
 
 Ya tenemos un servidor _DNS_ funcionando pero en un puerto no estándar, así que debemos cambiarlo al puerto que le corresponde. Sin embargo, aquí puede surgir un pequeño problema: puede existir un servidor DNS ya corriendo en dicho puerto.
 
-Esto se debe a que muchas distribuciones optan por poner un pequeño servidor DNS funcionando por defecto para resolver las peticiones locales. Los más habituales son `systemd-resolved` y `dnsmasqd`.
+include::{partialsdir}/disable-local-resolver.adoc[]
 
-Esta guía está realizada sobre un _Ubuntu 20.04_, por lo que desactivaremos `systemd-resolved` con los siguientes comandos.
+Modificaremos la configuración de nuestro servidor DNS con la configuración definitiva.
 
-[source,bash]
-----
-## deshabilito systemd-resolved
-systemctl disable systemd-resolved.service
-systemctl stop systemd-resolved.service
-
-## borro symlink
-rm -f /etc/resolv.conf
-
-## creo nuevo resolv.conf que use el servidor dns local
-cat >/etc/resolv.conf <<EOF
-nameserver 127.0.0.1
-options edns0
-EOF
-----
-
-Ahora modificaremos la configuración de nuestro servidor DNS con la configuración definitiva.
-
-.Contenido de `/etc/ludns/Corefile`
+.Contenido de `/etc/luids/dns/Corefile`
 [source]
 ----
 dnsbl.my-domain.lan {
@@ -162,17 +152,18 @@ dnsbl.my-domain.lan {
 }
 
 . {
+  cache
   forward . 8.8.8.8 8.8.4.4
 }
 ----
 
-IMPORTANT: Si sólo queremos que responda a la zona y no como resolvedor, deberemos eliminar las tres últimas líneas del fichero `Corefile` del ejemplo.
+IMPORTANT: Si sólo queremos que responda a la zona y no como resolvedor, deberemos eliminar las tres últimas líneas del fichero `Corefile` del ejemplo y modificar el resolvedor en `/etc/resolv.conf`.
 
 Inicializaremos y habilitaremos el servicio.
 
 [source,bash]
 ----
-sudo systemctl start luids-ludns.service
+sudo systemctl restart luids-ludns.service
 sudo systemctl enable luids-ludns.service
 ----
 

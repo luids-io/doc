@@ -5,7 +5,7 @@ include::{partialsdir}/attributes-es.adoc[]
 [[design-sources]]
 == Selección de los orígenes
 
-En primer lugar vamos a seleccionar los orígenes que vamos a utilizar. Un buen sitio por donde empezar es https://github.com/luids-io/xlist-database[la base de datos XList].
+En primer lugar vamos a seleccionar los orígenes que vamos a utilizar. Un buen sitio por donde empezar es https://luids-io.github.io/xlist-database/README.html[la base de datos xlist].
 
 Para esta configuración me baso en esta configuración recomendada para un sistema Antispam:
 http://know.mailsbestfriend.com/papers/SmarterMail-Antispam-Settings.shtml
@@ -31,15 +31,17 @@ SURRIEL – weight of 10
 
 Las listas que usaremos serán:
 
-* `barracudacentra.org`
+* `barracudacentral.org`
 * `gbudb.net`
-* `junkemailfilter.com`
-* `mailspike.net`
+* `junkemailfilter.com-black`
+* `mailspike.net-bl`
 * `mcafee.com`
-* `sorbs.net`
+* `sorbs.net-dul`
+* `sorbs.net-recent`
+* `sorbs.net-new`
 * `spamcop.net`
-* `spamhaus.org`
-* `surriel.com`
+* `spamhaus.org-zen`
+* `surriel.com-psbl`
 
 Además de estos orígenes externos, también daremos a nuestro sistema cierta flexibilidad, incorporando nuestras propias listas blancas y negras.
 
@@ -49,7 +51,7 @@ Además de estos orígenes externos, también daremos a nuestro sistema cierta f
 Nuestro servicio de listas utilizará en primer lugar una lista blanca y posteriormente buscará en las listas negras de la siguiente forma:
 
 .Funcionamiento básico de nuestro sistema
-[plantuml,{guidename}-flow-basic, png,pdfwidth=80%]
+[plantuml,{guidename}-flow-basic,png,pdfwidth=60%]
 ----
 start
 :read ip4/
@@ -72,7 +74,7 @@ stop
 En el caso de las listas remotas además de implementar un sistema de caché, utilizaremos un sistema de puntuación, que se comportará de la siguiente forma:
 
 .Chequeo en listas remotas
-[plantuml,{guidename}-flow-remote,png,pdfwidth=30%]
+[plantuml,{guidename}-flow-remote,png,pdfwidth=27%]
 ----
 start
 :read ip4/
@@ -104,7 +106,7 @@ image::{guidename}-design.svg[design,width=85%,pdfwidth=100%]
 Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
 
 .*Diagrama de despliegue*
-[plantuml,{guidename}-deployment,png,pdfwidth=70%]
+[plantuml,{guidename}-deployment,png,pdfwidth=50%]
 ----
 cloud "Blacklists" {
  [DNS server] -down- ExtDNS

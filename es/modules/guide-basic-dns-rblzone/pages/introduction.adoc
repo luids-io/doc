@@ -2,6 +2,10 @@
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-dns-rblzone
 
+== ¿Qué es una zona DNS RBL?
+
+Una zona _DNS RBL_ es una zona DNS que sigue la especificación *RFC5782*. Dicha especificación define cómo montar un sistema de listas negras/blancas sobre una infraestructura DNS.
+
 == ¿Por qué esta configuración?
 
 Una tarea común en los sistemas de correo es comprobar si el servidor que trata de entregar un email para uno de sus destinatarios se encuentra en una lista negra. Para ello, generalmente suelen configurarse los controles en dos fases: la primera fase la realiza el MTA, es decir, el propio software de servidor de correo (por ejemplo _Postfix_). Este chequeo incluye diversas comprobaciones genéricas: si IP tiene resolución inversa, si hay registro SPF, si se hace greylisting, etc.  Además se suelen poner varias zonas DNSxL con información de listas negras. Tras estas comprobaciones, el email pasará a la siguiente fase, en la que otra herramienta más especializada (como puede ser _SpamAssasin_) aplicará diversos filtros más intensivos en recursos (estadísticos, etc) así como cálculos de puntuaciones utilizando un número mayor de lista negras, etc.
