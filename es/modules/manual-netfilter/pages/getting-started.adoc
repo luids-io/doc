@@ -9,9 +9,9 @@ Usaremos el instalador del paquete, para ello simplemente copiaremos y pegaremos
 
 [source,bash]
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 DOWNLOAD_BASE="https://github.com/luids-io/netfilter/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
 wget $DOWNLOAD_URI -O installer_netfilter.sh
 chmod 755 installer_netfilter.sh
 sudo ./installer_netfilter.sh -u
@@ -35,23 +35,9 @@ sudo ./installer_xlist.sh -u
 
 == Nuestra primera lista negra
 
-En una instalación estándar, la configuración del servicio `xlistd` se realiza en el fichero `/etc/luids/xlist/xlistd.toml`. Dentro de dicho fichero se hace referencia a la definición del servicio que, en la instalación estándar, se encuentra en el fichero `/etc/luids/xlist/services.json`. Lo configuraremos para que utilice una lista negra que dejaremos en `/var/lib/luids/xlist/my-blacklist.xlist`.
+En una instalación estándar, la configuración del servicio `xlistd` tiene configurado un servicio de listas que hace uso de los fichero alojados en `/var/lib/luids/xlist/local`. Modificaremos el fichero `blacklist.xlist` de dicho directorio para agregar a nuestra lista
 
-.Contenido de `/etc/luids/xlist/services.json`
-[source,json]
-----
-[
-  {
-    "id": "root",
-    "class": "file",
-    "resources": [ "ip4", "ip6" ],
-    "source": "my-blacklist.xlist",
-    "opts": { "reason": "found in 'my-blacklist'" }
-  }
-]
-----
-
-.Contenido de `/var/lib/luids/xlist/my-blacklist.xlist`
+.Contenido de `/var/lib/luids/xlist/local/blacklist.xlist`
 [source]
 ----
 ip4,plain,1.2.3.4
@@ -67,8 +53,6 @@ sudo systemctl restart luids-xlistd
 ----
 
 Probaremos nuestro sistema de listas negras recién configurado...
-
-[source,console]
 ----
 $ xlistc
 [ip4 ip6] (1.317265ms)
@@ -136,8 +120,6 @@ sudo iptables -I OUTPUT -p icmp -j NFQUEUE
 ----
 
 Ya podemos probar el sistema...
-
-[source,console]
 ----
 $ ping -c 1 8.8.8.8
 PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
@@ -155,8 +137,6 @@ PING 8.8.4.4 (8.8.4.4) 56(84) bytes of data.
 ----
 
 Comprobaremos que ha sido nuestro sistema el que ha rechazado el paquete mirando el log del sistema.
-
-[source,console]
 ----
 # grep lunfqueue /var/log/syslog
 .....

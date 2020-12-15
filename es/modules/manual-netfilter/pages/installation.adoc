@@ -5,17 +5,17 @@ ifdef::env-site,env-github[:toc:]
 El paquete de software *netfilter* se encuentra precompilado para los siguientes sistemas operativos y arquitecturas:
 
 |===
-| *OS*    | `amd64` | `arm` | `arm64`
+| *OS*    | `amd64` | `arm` | `arm64` | `ppc64le` | `s390x` | `mips` | `mips64le`
 
-| Linux   | X       | X     | X
+| Linux   | X       | X     | X       | X         | X       | X      | X
 
-| Windows |         |       |
+| Windows |         |       |         |           |         |        |
 
-| MacOS   |         |       |
+| MacOS   |         |       |         |           |         |        |
 
-| FreeBSD |         |       |
+| FreeBSD |         |       |         |           |         |        |
 
-| OpenBSD |         |       |
+| OpenBSD |         |       |         |           |         |        |
 
 |===
 
@@ -31,9 +31,9 @@ Actualmente sólo hay instalador disponible para _GNU/Linux_. Para instalar, sim
 [source,bash]
 .Instalación mediante instalador
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 DOWNLOAD_BASE="https://github.com/luids-io/netfilter/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/installer.sh"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
 wget $DOWNLOAD_URI  -O installer_netfilter.sh
 chmod 755 installer_netfilter.sh
 sudo ./installer_netfilter.sh
@@ -54,9 +54,8 @@ TIP: En las distribuciones basadas en Debian, es posible conocer la arquitectura
 Al ejecutar el instalador se indican los pasos que realizará. Para que el proceso de instalación continúe simplemente deberá responder con un `y`.
 
 .Ejemplo de ejecución del instalador
-[source,console]
 ----
-$ sudo ./installer.sh 
+$ sudo ./installer.sh
 
 ======================
 - luIDS installer:
@@ -91,7 +90,7 @@ El instalador no habilita el servicio en systemd, podrá iniciarlo con:
 
 [source, bash]
 ----
-systemctl start luids-lunfqueue
+sudo systemctl start luids-lunfqueue
 ----
 
 NOTE: En caso de que su sistema no disponga de systemd, el instalador simplemente no instalará los servicios.
@@ -110,11 +109,11 @@ O bien simplemente copie y pegue lo siguiente en una shell, sustituyendo el sist
 
 [source,bash]
 ----
-RELEASE="v0.0.1"
+RELEASE="0.0.1"
 OS="linux"
 ARCH="amd64"
 DOWNLOAD_BASE="https://github.com/luids-io/netfilter/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/${RELEASE}/netfilter_${RELEASE}_${OS}_${ARCH}.tgz"
+DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/netfilter_${RELEASE}_${OS}_${ARCH}.tgz"
 wget $DOWNLOAD_URI -O netfilter_binaries.tgz
 tar zxvf netfilter_binaries.tgz
 ----

@@ -1,9 +1,11 @@
-= ^lu^IDS - netfilter
+= Manual - netfilter
 
-* xref:introduction.adoc[Introducción]
-* xref:getting-started.adoc[Empezando]
-* xref:installation.adoc[Instalación]
-* xref:configuration.adoc[Configuración]
-* xref:service-definition.adoc[Definición del servicio]
-* xref:netfilter-integration.adoc[Integración netfilter]
-* xref:next-steps.adoc[Siguientes pasos]
+El paquete de software *netfilter* contiene las utilidades necesarias para integrar un sistema cortafuegos _Netfilter_ con nuestro sistema _^lu^IDS_.
+
+. xref:introduction.adoc[Introducción]
+. xref:getting-started.adoc[Empezando]
+. xref:installation.adoc[Instalación]
+. xref:configuration.adoc[Configuración]
+. xref:service-definition.adoc[Definición del servicio]
+. xref:netfilter-integration.adoc[Integración netfilter]
+. xref:next-steps.adoc[Siguientes pasos]
