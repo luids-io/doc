@@ -17,7 +17,13 @@ idsevent {
 | `service` | _string_ | No | `idsevent`
 |  Especifica el identificador del servicio API notificador de eventos.
 
-| `buffer` | int | No | 100
+| `instance` | _string_ | No |
+|  Identificador de instancia origen de eventos.
+
+| `waitdups` | int | No | 0
+|  Tiempo de espera en el buffer para la recepción de duplicados.
+
+| `buffer` | int | No | 1024
 |  Tamaño del buffer interno de eventos.
 
 |===
