@@ -1,7 +1,7 @@
 [
-    {
-        "id": "mongo1",
-        "class": "mongodb",
-        "url": "localhost:27017"
-    }
+  {
+    "id": "mongo1",
+    "class": "mongodb",
+    "url": "mongodb://luarchive:pass2@localhost:27017/admin"
+  }
 ]

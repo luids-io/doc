@@ -2,102 +2,166 @@
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: advanced-dns-sinkhole
 
+[[design-sequence]]
+== Secuencias de respuesta
+
+Nuestro sistema responderá a las consultas DNS como se muestra en los siguientes diagramas de secuencia.
+
+[[diagram-sinkhole-sequence1]]
+.Secuencia de consula de nuestro sumidero DNS
+[plantuml,{guidename}-sequence1,png]
+----
+actor dnsclient
+participant "DNS Server\n(ludns)" as dnsserver
+participant "XList Server\n(xlistd)" as xlist
+participant "Archive Server\n(luarchive)" as luarchive
+participant "External\nDNS Server" as dnsext #99FF99
+
+dnsclient -> dnsserver: query www.dominio.com
+dnsserver -> xlist: check(wwww.dominio.com, domain)
+xlist --> dnsserver: {result: false}
+dnsserver -> dnsext: query www.dominio.com
+dnsext --> dnsserver: cdn.otrodominio.com, 1.2.3.4, 9.8.7.6
+dnsserver -> xlist: check(cdn.otrodominio.com, domain)
+dnsserver -> xlist: check(1.2.3.4, ip4)
+dnsserver -> xlist: check(9.8.7.6, ip4)
+xlist --> dnsserver: {result: false}
+xlist --> dnsserver: {result: false}
+xlist --> dnsserver: {result: false}
+dnsserver -> luarchive: save_resolv(info)
+luarchive --> dnsserver: ok
+dnsserver --> dnsclient: cdn.otrodominio.com, 1.2.3.4, 9.8.7.6
+----
+
+[[diagram-sinkhole-sequence2]]
+.Secuencia de detección de un sumidero DNS
+[plantuml,{guidename}-sequence2,png]
+----
+actor dnsclient
+participant "DNS Server\n(ludns)" as dnsserver
+participant "XList Server\n(xlistd)" as xlist
+participant "Event Server\n(eventproc)" as eventproc
+participant "Archive Server\n(luarchive)" as luarchive
+
+dnsclient -> dnsserver: query www.infected.com
+dnsserver -> xlist: check(wwww.infected.com, domain)
+xlist --> dnsserver:  {result: true, reason: "[policy]event=medium[/policy] malware"}
+dnsserver -> eventproc: notify(eventinfo)
+eventproc --> dnsserver: ok, eventid: xxx
+eventproc -> luarchive: save_event(info)
+luarchive --> eventproc: ok
+dnsserver -> luarchive: save_resolv(info)
+luarchive --> dnsserver: ok
+dnsserver --> dnsclient: nxdomain
+----
+
 [[design-sources]]
 == Selección de los orígenes
 
-En primer lugar vamos a seleccionar los orígenes que vamos a utilizar. Un buen sitio por donde empezar es https://github.com/luids-io/xlist-database[la base de datos XList].
-
-Al tratarse de un sumidero DNS, vamos a querer una baja latencia en las consultas a las listas. Aquí tenemos dos opciones:
+Una vez definido el comportamiento de nuestro sistema, pasaremos a seleccionar los orígenes que vamos a utilizar. Un buen sitio por donde empezar es https://luids-io.github.io/xlist-database/README.html[la base de datos xlist]. Al tratarse de un sumidero DNS, vamos a querer una baja latencia en las consultas a las listas. Aquí tenemos dos opciones:
 
 . Utilizar fuentes online de pago que nos garanticen calidad de servicio.
 . Utilizar fuentes que puedan descargarse para su uso "offline".
 
-Dado que el objetivo de esta guía es obtener un sumidero DNS de forma gratuita, optaremos por la segunda opción. Además, debido a que queremos un sumidero que chequee las IPs retornadas, utilizaremos listas para los recursos `domain` e `ip4`.
+Dado que el objetivo de esta guía es obtener un sumidero DNS de forma gratuita, optaremos por la segunda opción y además haremos uso también de la _API Google Safebrowsing_, que es gratuita e implementa un sistema de chequeo "mixto" offline/online. Además, debido a que queremos un sumidero que chequee los CNAMEs y direcciones IPs retornadas, utilizaremos listas para los recursos `domain`, `ip4` e `ip6`.
 
-Haremos la siguiente categorización de listas en función del tipo de información que almacenan.
+En primer lugar vamos a definir una clasificación para nuestro sumidero:
+
+* *malware*: recursos conocidos como malware, ransomware, c&c, etc. La reacción de nuestro sumidero será responder con un `nxdomain` y un evento de prioridad media.
+* *phishing*: recursos conocidos como phishing. La reacción de nuestro sumidero será responder con un `nxdomain` y un evento de prioridad media.
+* *reputation*: recursos de baja reputación: posibles estafas, abusos, etc. La reacción de nuestro sumidero será responder con un `nxdomain` y un evento de prioridad baja.
+* *crypto*: recursos relacionados con el criptominado y que pueden "parasitar" la CPU de nuestro computador. La reacción de nuestro sumidero será responder con un `nxdomain` y un evento informativo.
+* *tracking*: recursos relacionados con el tracking de usuarios. La reacción de nuestro sumidero será responder con un `nxdomain`.
+* *ads*: recursos relacionados con los banners publicitarios. La reacción de nuestro sumidero será responder con un `nxdomain`.
+* *redirection*: recursos utilizados para realizar redirecciones. La reacción de nuestro sumidero será responder con la redirección, pero generará un evento informativo. Esto se debe a que a menudo los sistios de redirección se emplean a menudo para engañar a los usuarios y el registro de su evento puede ser interesante para la correlación de incidentes.
+
+Una vez realizada la clasificación, haremos una selección de las listas que emplearemos, para ello combinaremos listas locales, listas de la API Safebrowsing y listas "offline" que descargaremos y mantendremos actualizadas.
 
 .Tabla con listas incluídas
-[cols="1,3"]
+[cols="2,4,1,1,1"]
 |===
-| Tipo | Listas
+| Categoría | Lista | ip4 | ip6 | domain
 
-| Dominios malware
-| `blocklist.site-malware` `blocklist.site-ransomware` `abuse.ch-urlhaus`
+.8+| Malware
+| `local-malware` | X | X | X
+| `safebrowsing-malware` | | | X
+| `blocklist.site-malware` | X | | X
+| `blocklist.site-ransomware` | | | X
+| `abuse.ch-urlhaus` | | | X
+| `abuse.ch-ssl` | X | |
+| `emergingthreats.net` | X | |
+| `interserver.net` | X | |
 
-| Dominios phising
-| `blocklist.site-phishing` `phising.army`
+.4+| Phishing
+| `local-phishing` | X | X | X
+| `safebrowsing-phishing` | | | X
+| `blocklist.site-phishing` | | | X
+| `phishing.army` | | | X
 
-| Dominios crypto
-| `blocklist.site-crypto` `zerodot1-coinblockerlists`
+.3+| Crypto
+| `local-crypto` | X | X | X
+| `blocklist.site-crypto` | | | X
+| `zerodot1-coinblockerlists` | | | X
 
-| Dominios baja reputación
-| `blocklist.site-fraud` `blocklist.site-scam` `blocklist.site-abuse`
+.6+| Baja reputación
+| `local-reputation` | X | X | X
+| `blocklist.site-scam` | | | X
+| `blocklist.site-abuse` | X | | X
+| `alienvault.com` | X | |
+| `myip.ms` | X | X |
+| `spamhaus.org-drop` | X | X |
 
-| Dominios tracking
-| `blocklist.site-tracking`
+.2+| Tracking
+| `local-tracking` | X | X | X
+| `blocklist.site-tracking` | | | X
 
-| Dominios ads
-| `blocklist.site-ads`
+.2+| ADS
+| `local-ads` | X | X | X
+| `blocklist.site-ads` | | | X
 
-| Dominios redirección
-| `blocklist.site-redirect`
-
-| IP malware
-| `blocklist.site-malware` `abuse.ch-ssl` `dshield.org` `emergingthreats.net` `interserver.net`
-
-| IP baja reputación
-| `alienvault.com` `myip.ms-full` `spamhaus.org-drop`
+.2+| Redirección
+| `local-redirect` | X | X | X
+| `blocklist.site-redirect` | | | X
 
 |===
-
-Para eliminar el número de falsos positivos con los dominios, incluiremos una lista blanca con los primeros 1000 dominios de la base de datos _Majestic_ que viene identificada por `majestic-1000` y una lista blanca que rellenaremos manual mente para dominios y direcciones ip a la que llamaremos `my-whitelist`.
-
-Además incluiremos las siguientes listas negras propias a las que podremos agregar elementos (tanto dominios como ips): `my-blacklist-malware`, `my-blacklist-phising`, `my-blacklist-reputation` y `my-blacklist-ads`.
 
 [[design-service]]
 == Diseño del servicio de listas
 
-Nuestro servicio de listas, comprobará en primer lugar en las listas blancas que hemos definido y después en listas negras. Posteriormente, las políticas que se aplicarán para cada tipo de lista serán las siguientes.
+Nuestro servicio de listas, comprobará en primer lugar en una lista blanca local que definiremos y después en listas negras. Posteriormente, las políticas que se aplicarán para cada tipo de lista serán las siguientes.
 
 .Tabla con listas incluidas por categoría y política utilizada
 [cols="1,3"]
 |===
-| Tipo | Política
+| Categoría | Política
 
-| Dominios malware
-| `dns=nxdomain,event=medium`
+| Malware
+| `dns=nxdomain,event=medium,log=true`
 
-| Dominios phising
-| `dns=nxdomain,event=low`
+| Phishing
+| `dns=nxdomain,event=medium,log=true`
 
-| Dominios crypto
-| `dns=nxdomain,event=info`
+| Crypto
+| `dns=nxdomain,event=info,log=true`
 
-| Dominios baja reputación
-| `dns=nxdomain,event=info`
+| Baja reputación
+| `dns=nxdomain,event=low,log=true`
 
 | Dominios tracking
-| `dns=nxdomain,event=none`
+| `dns=nxdomain,event=none,log=true`
 
 | Dominios ads
-| `dns=nxdomain,event=none`
+| `dns=nxdomain,event=none,log=true`
 
 | Dominios redirección
-| `dns=checkip,event=info`
-
-| IP malware
-| `dns=nxdomain,event=medium`
-
-| IP phising
-| `dns=nxdomain,event=low`
-
-| IP baja reputación
-| `dns=nxdomain,event=low`
-
-| IP ads
-| `dns=nxdomain,event=none`
+| `dns=check,event=info,log=true`
 
 |===
+
+El diseño del servicio de listas será el que se muestra en la siguiente figura. Nótese que, por brevedad, se omiten las referencias a las listas fuente que hemos enumerado anteriormente y que serían apuntados por las diferentes secuencias de chequeo. Si observa, hemos llevado la clasificación de la tabla anterior a un diagrama de servicio (se entenderá mejor cuando se vea el código fuente).
+
+.Diseño del servicio de listas
+image::{guidename}-design.svg[{guidename}-design,width=85%,pdfwidth=80%]
 
 [[design-components]]
 == Despliegue de los componentes
@@ -105,52 +169,51 @@ Nuestro servicio de listas, comprobará en primer lugar en las listas blancas qu
 Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
 
 .*Diagrama de despliegue*
-[plantuml,{guidename}-deployment,png,pdfwidth=70%]
+[plantuml,{guidename}-deployment,png,pdfwidth=90%]
 ----
 cloud "External Resolver" {
- [DNS Server] -right- ExtDNS
+ [DNS Server] -left- ExtDNS
 }
 
 cloud "Blacklists" {
- [Web server] -down- HTTP
+ [Web server] -left- HTTP
 }
 
-node "XList server" {
+node "DNS Sinkhole" {
   database "xlistdb"
   [xlget] --> xlistdb
   [xlget] --> HTTP
   [xlistd] --> xlistdb
-  [xlistd] - GRPC_X
-}
+  [xlistd] -up- GRPC_X
 
-node "DNS server" {
   [ludns] --> GRPC_X
   [ludns] --> ExtDNS
   [ludns] -up- DNS
-}
+  [apache2] -up- HTTPS
 
-node "Event server" {
   [eventproc] -up- GRPC_E
-}
+  [ludns] --> GRPC_E
 
-[ludns] --> GRPC_E
-
-node "Archiver" {
   database "MongoDB"
   [luarchive] --> MongoDB
   [luarchive] - GRPC_A
-}
 
-[ludns] --> GRPC_A
-[eventproc] --> GRPC_A
+  [archiveui] --> MongoDB
+  [apache2] --> [archiveui]
+
+  [ludns] --> GRPC_A
+  [eventproc] --> GRPC_A
+}
 
 node "Client" {
   [DNS Resolver] --> DNS
 }
+
+node "Admin" {
+  [Web Browser] --> HTTPS
+}
 ----
 
-NOTE: En esta guía desplegaremos los componentes `xlistd`, `xlget`, `ludns`, `luarchive`, `eventproc` vistos en el diagrama.
-
 ifdef::env-site,env-github[]
-A continuación: xref:installation.adoc[Instalación]
+A continuación: xref:archive-config.adoc[Configuración del archivado]
 endif::env-site,env-github[]

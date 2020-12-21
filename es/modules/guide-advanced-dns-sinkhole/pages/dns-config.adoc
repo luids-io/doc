@@ -1,0 +1,117 @@
+= Configuración del servicio dns
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: advanced-dns-sinkhole
+
+En esta sección realizaremos el despliegue del componente que se encarga del servicio _DNS_ y realizaremos la integración con el resto de componentes del sistema. Para ello configuraremos los siguientes plugins:
+
+* `idsapi`: se encargará del acceso al registro de servicios de la _API ^lu^IDS_.
+* `idsevent`: se encargará de la integración con el sistema de eventos.
+* `resolvarchive`: se encargará de almacenar en el archivo las peticiones de resolución.
+* `xlisthole`: se encargará de la integración con el sistema de listas _xlist_ y de la lógica de nuestro sumidero DNS.
+
+ifdef::env-site,env-github[]
+TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+endif::env-site,env-github[]
+
+== Instalación del paquete dns
+
+include::{partialsdir}/install-dns.adoc[]
+
+== Configuración de ludns
+
+La configuración del servidor DNS la realizaremos en dos fases. En la primera fase lo pondremos a escuchar en el puerto no estándar `1053` para hacer pruebas y comprobar que funciona correctamente. En la segunda fase, que se verá en el apartado siguiente, haremos los pasos necesarios para ponerlo a escuchar en el puerto estándar.
+
+Una vez hecho esto, la configuración del servicio `ludns` es muy sencilla, basta editar el fichero `/etc/luids/dns/Corefile`.
+
+.Contenido temporal `/etc/luids/dns/Corefile`
+[source]
+----
+.:1053 {
+  idsapi
+  idsevent {
+    service event-notify
+    waitdups 200
+  }
+  resolvarchive {
+    service dnsutil-archive
+    server-ip 192.168.0.254
+  }
+  xlisthole {
+    service xlist-check
+    listed-domain merge log=true,dns=nxdomain
+    unlisted-domain log=false,dns=check
+    listed-cname merge log=true,dns=nxdomain
+    listed-ip merge log=true,dns=nxdomain
+    #on-error log=true,dns=return
+  }
+  cache
+  forward . 8.8.8.8 8.8.4.4
+}
+----
+
+Hay que iniciar el servidor.
+
+[source,bash]
+----
+systemctl start luids-ludns
+----
+
+Ahora vamos a llevar a cabo las pruebas del servicio utilizando para ello el comando `dig`.
+----
+# dig @localhost +short -p 1053 www.google.com //<1>
+216.58.215.132
+# head -1 /var/lib/luids/xlist/blocklist.site-malware.xlist //<2>
+domain,100.1qingdao.com
+# dig @8.8.4.4 +short 100.1qingdao.com //<3>
+116.255.236.109
+# dig @localhost +short -p 1053 100.1qingdao.com //<4>
+----
+<1> interrogamos al servidor local en puerto `1053` por el dominio
+`www.google.com` y obtenemos respuesta.
+<2> obtenemos el primer dominio listado en la lista de malware
+<3> consultamos a un servidor DNS de google por la existencia del dominio y nos resonde
+<4> consultamos a nuestro servidor local por el mismo dominio y no obtenemos
+respuesta
+
+Comprobamos en el log del servicio que se ha generado un nuevo evento de chequeo de lista y que lo ha encontrado en una de las listas, como se muestra a continuación.
+----
+# journalctl -u luids-ludns
+...
+dic 21 07:42:15 luids-router ludns[14335]: linux/amd64, go1.14.3,
+dic 21 07:43:54 luids-router ludns[14335]: [INFO] plugin/xlisthole: [::1]:50797 check '100.1qingdao.com' response: true
+'domain-malware: found in 'blocklist.site-malware''
+----
+
+También podemos comprobar en nuestra interfaz de archivado el nuevo evento producido junto con las resoluciones realizadas.
+
+.Listado de eventos en `archiveui`
+image::archiveui-events.png[archiveui-events,width=85%,pdfwidth=80%]
+
+== Consolidación servicio DNS
+
+Ya tenemos un servidor DNS funcionando pero en un puerto no estándar, así que debemos cambiarlo al puerto que le corresponde. Sin embargo, aquí puede surgir un pequeño problema: puede existir un servidor DNS ya corriendo en dicho puerto.
+
+include::{partialsdir}/disable-local-resolver.adoc[]
+
+Ya tenemos un servidor DNS funcionando pero en un puerto no estándar, así que debemos cambiarlo al puerto que le corresponde. Sin embargo, aquí puede surgir un pequeño problema: puede existir un servidor DNS ya corriendo en dicho puerto.
+
+Modificaremos la configuración  del servidor DNS con la configuración definitiva, eliminando la escucha en el puerto `1053` para pasar a escuchar en el puerto por defecto.
+
+[source,bash]
+----
+sed -i 's/:1053//g' /etc/luids/dns/Corefile
+----
+
+Reiniciaremos y habilitaremos el servicio al inicio.
+
+[source,bash]
+----
+systemctl restart luids-ludns
+systemctl enable luids-ludns
+----
+
+¡Ya tenemos configurado nuestro sumidero DNS!.
+
+ifdef::env-site,env-github[]
+A continuación: xref:client-config.adoc[Configuración de los clientes]
+endif::env-site,env-github[]

@@ -1,0 +1,4 @@
+
+^lu^IDS es conjunto de herramientas de código abierto cuya finalidad es  controlar las conexiones cifradas que entran y salen de una red, advirtiendo de posibles conexiones de malware, fraudes y filtraciones de datos.
+
+Para realizar esta labor, el sistema incorpora herramientas para el análisis del tráfico de red, centrándose específicamente en los protocolos DNS y TLS, servidores DNS, sistemas de listas negras, machine learning, integración con cortafuegos, sistemas de notaría, archivado del tráfico, procesamiento de eventos, etc.

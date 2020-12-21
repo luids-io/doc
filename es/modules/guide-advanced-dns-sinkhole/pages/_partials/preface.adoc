@@ -1,14 +1,8 @@
 
-En la siguiente guía vamos a ver cómo configurar un *sumidero DNS*, también conocido como _DNS Sinkhole_ o _DNS Blackhole_, en nuestra red para bloquear _banners_, intentos de _phising_ y conexiones a sitios relacionados con _malware_. Como no es lo mismo un sitio de publicidad que uno de _phising_, el sistema los tratará de forma diferente y generará (o no) eventos de diferente nivel para cada caso.
-
-Las funcionalidades de nuestro sumidero serán:
-
-* chequeará los nombres de dominio a resolver en diferentes listas negras y, dependiendo del caso, chequeará además las IP devueltas.
-* responderá en función de las políticas aplicadas a cada tipo de lista negra, pudiendo devolver desde un "dominio no existente" a una determinada IP,
-* dichas políticas determinarán también el nivel de evento que se generará,
-* archivaremos las resoluciones DNS en una base de datos MongoDB,
-* archivaremos los eventos que se generen en una base de datos MongoDB
+En la siguiente guía vamos a ver cómo configurar un *sumidero DNS*, también conocido como _DNS Sinkhole_ o _DNS Blackhole_, en nuestra red para bloquear _banners_, intentos de _phishing_ y conexiones a sitios relacionados con _malware_. Para poder realizar esta función, nuestro sistema utilizará como fuentes de información a la _API de Google Safebrosing_ junto a varias listas gratuitas disponibles en Internet, chequeando tanto los nombres de dominio consultados como los alias y direcciones IP retornados en las consultas. Por si esto fuera poco, el sistema guardará un histórico con las consultas realizadas y los eventos que se hayan generado, pudiendo el administrador del sistema acceder a dicho histórico mediante una interfaz web.
 
 WARNING: Este proceso está probado únicamente en un sistema _Ubuntu 20.04LTS_ server. Los binarios están compilados estáticamente y las rutas empleadas son las de una distribución estándar, por lo que el instalador debería funcionar en cualquier distribución.
 
-TIP: Tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/{guidename}/examples/.
+TIP: Tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+
+TIP: Dispone de una versión automatizada de la configuración de esta guía mediante `docker-compose` en https://github.com/luids-io/deploy/blob/master/docker/{guidename}/.

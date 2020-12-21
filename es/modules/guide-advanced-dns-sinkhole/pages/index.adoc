@@ -1,10 +1,14 @@
-= Guia rápida - Sumidero DNS Avanzado
+= Guia rápida - Sumidero DNS avanzado para bloquear publicidad, phishing y malware
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: advanced-dns-sinkhole
 
 include::{partialsdir}/preface.adoc[]
 
-* xref:introduction.adoc[Introducción]
-* xref:design.adoc[Diseño del sistema]
-* xref:installation.adoc[Instalación]
-* xref:configuration.adoc[Configuración]
+. xref:introduction.adoc[Introducción]
+. xref:design.adoc[Diseño del sistema]
+. xref:archive-config.adoc[Configuración del archivado]
+. xref:event-config.adoc[Configuración del procesador de eventos]
+. xref:xlist-config.adoc[Configuración del sistema de listas]
+. xref:dns-config.adoc[Configuración del servicio dns]
+. xref:client-config.adoc[Configuración de los clientes]
+. xref:next-steps.adoc[Siguientes pasos]

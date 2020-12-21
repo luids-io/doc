@@ -21,5 +21,6 @@ asciidoctor-pdf -o output.pdf -v --trace -r asciidoctor-diagram \
 ## remove temporal files generated
 imagesdir=$MODULE_DIR/assets/images
 rm ${imagesdir}/${guidename}-deployment.png
-rm ${imagesdir}/${guidename}-sequence.png
+rm ${imagesdir}/${guidename}-sequence1.png
+rm ${imagesdir}/${guidename}-sequence2.png
 rm -rf .asciidoctor

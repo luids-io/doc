@@ -1,0 +1,13 @@
+[
+  {
+    "id": "local-whitelist",
+    "class": "file",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "source": "local/whitelist.xlist",
+    "opts": {
+      "autoreload": true,
+      "reloadseconds": 5,
+      "reason": "found in 'local-whitelist'"
+    }
+  }
+]

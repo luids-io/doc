@@ -1,0 +1,143 @@
+= Configuración del archivado
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: advanced-dns-sinkhole
+
+En esta sección se procederá a configurar el archivado de nuestro sistema. Para ello, en primer lugar instalaremos el gestor de bases de datos _MongoDB_ y configuraremos varios usuarios con distintos roles de acceso. A continuación, instalaremos y configuraremos los componentes del sistema _^lu^IDS_ que se encargan del archivado: `archive` que ofrece la interfaz común de archivado al resto del sistema y `archiveui` que ofrece una interfaz gráfica de usuario para visualizar la información.
+
+ifdef::env-site,env-github[]
+TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+endif::env-site,env-github[]
+
+== Instalación de mongodb
+
+[source,bash]
+----
+apt install mongodb-server
+----
+
+== Configuración de la base de datos mongodb
+
+En primer lugar, crearemos usuarios con diferentes roles de acceso a nuestro sistema de bases de datos.
+
+[source,bash]
+----
+## crea usuario administración
+mongo admin --eval 'db.createUser({ user: "mongoadm", pwd: "pass1", roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]  })'
+## crea usuario archivador
+mongo admin --eval 'db.createUser({ user: "luarchive", pwd: "pass2", roles: [ { role: "readWrite", db: "luidsdb"} ] })'
+## crea usuario visor
+mongo admin --eval 'db.createUser({ user: "archiveui", pwd: "pass3", roles: [ { role: "read", db: "luidsdb"} ] })'
+----
+
+Habilitaremos el uso de autenticación y reiniciaremos el servicio.
+
+[source,bash]
+----
+sed -i 's/#auth = true/auth = true/' /etc/mongodb.conf
+systemctl restart mongodb
+systemctl enable mongodb
+----
+
+== Instalación del paquete archive
+
+include::{partialsdir}/install-archive.adoc[]
+
+== Configuración de luarchive
+
+Definiremos los backends de archivado sustituyendo la password por la que hayamos definido.
+
+.Contenido de `/etc/luids/archive/backends.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/archive/backends.json[]
+----
+
+Definiremos los servicios a publicar por `luarchive`.
+
+.Contenido de `/etc/luids/archive/services.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/archive/services.json[]
+----
+
+Configuraremos los parámetros del servidor.
+
+.Contenido de `/etc/luids/archive/luarchive.toml`
+[source,toml]
+----
+include::{examplesdir}/etc/luids/archive/luarchive.toml[]
+----
+
+Probaremos la correcta sintaxis de la configuración.
+----
+# luarchive --config /etc/luids/archive/luarchive.toml --dry-run
+INFO[0000] luarchive (version: 30bff3e build: 2020-12-11T08:48:01+0100)
+configuration seems ok
+----
+
+Iniciaremos y habilitaremos el servicio.
+
+[source,bash]
+----
+systemctl start luids-luarchive
+systemctl enable luids-luarchive
+----
+
+NOTE: Es conveniente que hagamos un `systemctl status luids-luarchive` para comprobar que la conexión con la base de datos está funcionando correctamente.
+
+== Publicación de los servicios de archivo
+
+Con el servidor ya configurado, publicaremos los servicios en `apiservices.json` para que el resto de servicios los puedan utilizar.
+
+.Contenido temporal de `/etc/luids/apiservices.json`
+[source,json]
+----
+[
+  {
+    "id": "dnsutil-archive",
+    "api": "luids.dnsutil.v1.Archive",
+    "endpoint": "tcp://127.0.0.1:5821"
+  },
+  {
+    "id": "event-archive",
+    "api": "luids.event.v1.Archive",
+    "endpoint": "tcp://127.0.0.1:5821"
+  }
+]
+----
+
+== Instalación del paquete archiveui
+
+include::{partialsdir}/install-archiveui.adoc[]
+
+== Configuración de la interfaz web de archivado
+
+El instalador ya realizó la mayor parte de la configuración, sólo falta configurar el acceso al archivo.
+
+[source,bash]
+----
+sed -i 's/ARCHIVE_USERNAME=/ARCHIVE_USERNAME=archiveui/' /var/www/archiveui/.env
+sed -i 's/ARCHIVE_PASSWORD=/ARCHIVE_PASSWORD=pass3/' /var/www/archiveui/.env
+----
+
+Aprovecharemos también para habilitar una configuración por defecto del protocolo https en apache2.
+
+[source,bash]
+----
+a2enmod ssl
+a2ensite default-ssl
+systemctl restart apache2
+----
+
+WARNING: Recuerde que estamos usando los certificados autofirmados, por lo que el navegador le advertirá cuando trate de acceder al servidor.
+
+Podemos acceder a la interfaz de archivo mediante un navegador al recurso `/archiveui` con usuario `admin` y password `admin`
+
+.Login archiveui
+image::archiveui-login.png[archiveui-login,width=85%,pdfwidth=80%]
+
+Es recomendable que cambiemos la contraseña inmediatamente.
+
+ifdef::env-site,env-github[]
+A continuación: xref:event-config.adoc[Configuración del procesador de eventos]
+endif::env-site,env-github[]

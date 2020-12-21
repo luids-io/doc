@@ -1,22 +1,22 @@
 [
-    {
-        "id": "xlist-sinkhole",
-        "api": "luids.xlist.v1.Check",
-        "endpoint": "tcp://127.0.0.1:5801"
-    },
-    {
-        "id": "idsevent",
-        "api": "luids.event.v1.Notify",
-        "endpoint": "tcp://127.0.0.1:5851"
-    },
-    {
-        "id": "dnsutil-archive",
-        "api": "luids.dnsutil.v1.Archive",
-        "endpoint": "tcp://127.0.0.1:5821"
-    },
-    {
-        "id": "event-archive",
-        "api": "luids.event.v1.Archive",
-        "endpoint": "tcp://127.0.0.1:5821"
-    }
+  {
+    "id": "dnsutil-archive",
+    "api": "luids.dnsutil.v1.Archive",
+    "endpoint": "tcp://127.0.0.1:5821"
+  },
+  {
+    "id": "event-archive",
+    "api": "luids.event.v1.Archive",
+    "endpoint": "tcp://127.0.0.1:5821"
+  },
+  {
+    "id": "event-notify",
+    "api": "luids.event.v1.Notify",
+    "endpoint": "tcp://127.0.0.1:5851"
+  },
+  {
+    "id": "xlist-check",
+    "api": "luids.xlist.v1.Check",
+    "endpoint": "tcp://127.0.0.1:5801"
+  }
 ]

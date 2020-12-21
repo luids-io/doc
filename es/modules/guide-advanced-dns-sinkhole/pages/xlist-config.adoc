@@ -1,0 +1,243 @@
+= Configuración del sistema de listas
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: advanced-dns-sinkhole
+
+En esta sección realizaremos el despliegue de nuestro sistema de listas. Para ello instalaremos el software necesario, configuraremos los orígenes de forma que se actualicen automáticamente y definiremos la relación entre dichos orígenes junto a la lógica a nuestro servicio.
+
+ifdef::env-site,env-github[]
+TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+endif::env-site,env-github[]
+
+== Instalación del paquete xlist
+
+include::{partialsdir}/install-xlist.adoc[]
+
+== Descarga de la base de datos xlist
+
+include::{partialsdir}/download-xlist-database.adoc[]
+
+== Configuración de xlget
+
+Tras descargar la base de datos, es necesario en primer lugar configurar los orígenes de las listas que vamos a utilizar. para ello lo mejor es realizar enlaces simbólicos en `/etc/luids/xlist/sources.d`. De este modo, si un origen cambiase de url, formato, etc, nuestro sistema estará actualizado gracias a tener sincronizada la _base de datos xlist_.
+
+Como administradores, ejecutaremos la siguiente secuencia de comandos.
+
+[source,bash]
+----
+mkdir -p /etc/luids/xlist/sources.d
+cd /etc/luids/xlist/sources.d
+DBDIR=/usr/local/share/xlist-database
+ln -s $DBDIR/sources/abuse-ch-urlhaus.json .
+ln -s $DBDIR/sources/abuse-ch-ssl.json .
+ln -s $DBDIR/sources/alienvault-com.json .
+ln -s $DBDIR/sources/blocklist-site-abuse.json .
+ln -s $DBDIR/sources/blocklist-site-ads.json .
+ln -s $DBDIR/sources/blocklist-site-crypto.json .
+ln -s $DBDIR/sources/blocklist-site-malware.json .
+ln -s $DBDIR/sources/blocklist-site-phishing.json .
+ln -s $DBDIR/sources/blocklist-site-ransomware.json .
+ln -s $DBDIR/sources/blocklist-site-redirect.json .
+ln -s $DBDIR/sources/blocklist-site-scam.json .
+ln -s $DBDIR/sources/blocklist-site-tracking.json .
+ln -s $DBDIR/sources/emergingthreats-net.json .
+ln -s $DBDIR/sources/interserver-net.json .
+ln -s $DBDIR/sources/myip-ms.json .
+ln -s $DBDIR/sources/phishing-army.json .
+ln -s $DBDIR/sources/spamhaus-org-drop.json .
+ln -s $DBDIR/sources/zerodot1-coinblockerlists.json .
+----
+
+Editaremos el fichero de configuración de `xlget` para incluir el directorio como fuentes.
+
+.Contenido de `/etc/luids/xlist/xlget.toml`
+[source,toml]
+----
+include::{examplesdir}/etc/luids/xlist/xlget.toml[]
+----
+
+Una vez creados dichos ficheros podemos chequear su correcta sintaxis mediante el comando `xlget_check`.
+----
+# xlget_check
+INFO[0000] xlget (version: c76a683 build: 2020-12-17T06:39:34+0100)
+configuration ok
+needs update: 'abuse.ch-ssl' 'abuse.ch-urlhaus' 'alienvault.com' 'blocklist.site-abuse' 'blocklist.site-ads' 'blocklist.site-crypto' 'blocklist.site-malware' 'blocklist.site-phishing' 'blocklist.site-ransomware' 'blocklist.site-redirect' 'blocklist.site-scam' 'blocklist.site-tracking' 'emergingthreats.net' 'interserver.net' 'myip.ms' 'phishing.army' 'spamhaus.org-drop' 'zerodot1-coinblockerlists'
+----
+
+Tras la validación, vamos a realizar la descarga de las listas. Para ello utilizaremos el comando `xlget_update`.
+----
+# xlget_update
+INFO[0000] xlget (version: c76a683 build: 2020-12-17T06:39:34+0100)
+INFO[0000] getting 'abuse.ch-ssl'
+INFO[0000] summary 'abuse.ch-ssl': updated=true ip4=83 ip6=0 domain=0 md5=98 sha1=3650 sha256=0
+INFO[0000] getting 'abuse.ch-urlhaus'
+INFO[0000] summary 'abuse.ch-urlhaus': updated=true ip4=0 ip6=0 domain=861 md5=0 sha1=0 sha256=0
+INFO[0000] getting 'alienvault.com'
+INFO[0000] summary 'alienvault.com': updated=true ip4=707 ip6=0 domain=0 md5=0 sha1=0 sha256=0
+INFO[0000] getting 'blocklist.site-abuse'
+...
+INFO[0034] summary 'zerodot1-coinblockerlists': updated=true ip4=0 ip6=0 domain=93947 md5=0 sha1=0 sha256=0
+INFO[0034] xlget finished
+----
+
+NOTE: En la salida pueden mostrarse algunos _warnings_ que podremos ignorar si son de formato.
+
+Tras finalizar el proceso, podemos ver que las listas se han descargado correctamente en el directorio `/var/lib/luids/xlist` también podemos ver en el directorio `/var/lib/luids/xlist/status` información adicional sobre el estado de actualización del contenido de las listas.
+
+Para despreocuparnos completamente de la actualización del contenido de las listas, inicializaremos el servicio `xlget` para que chequee automáticamente y actualice las listas si es necesario. Además lo habilitaremos para que se inicie con el sistema.
+
+[source,bash]
+----
+systemctl start luids-xlget
+systemctl enable luids-xlget
+----
+
+Podremos verificar que se inicia correctamente con el correspondiente `systemctl status luids-xlget`.
+
+== Obtención de la API KEY para Google Safebrosing
+
+Para poder incluir la api de _Google Safe Brosing_ *es necesario que previamente tengamos un token de acceso*. La obtención de dicho token se encuentra fuera del alcance de este documento, ya que existen numerosas guías sobre cómo obtenerlo.
+
+== Configuración de xlistd
+
+La configuración de `xlistd` se divide en dos partes:
+
+* Definición del servicio.
+* Parámetros de configuración del servidor.
+
+La definición del servicio la realizaremos utilizando múltiples ficheros para que se entienda mejor. Empezaremos por realizar enlaces simbólicos a las listas que vamos a utilizar, para lo que ejecutaremos como administrador la siguiente secuencia de comandos.
+
+[source,bash]
+----
+mkdir -p /etc/luids/xlist/services.d/file
+cd /etc/luids/xlist/services.d/file
+DBDIR=/usr/local/share/xlist-database
+ln -s $DBDIR/services/file/abuse-ch-urlhaus.json .
+ln -s $DBDIR/services/file/abuse-ch-ssl.json .
+ln -s $DBDIR/services/file/alienvault-com.json .
+ln -s $DBDIR/services/file/blocklist-site-abuse.json .
+ln -s $DBDIR/services/file/blocklist-site-ads.json .
+ln -s $DBDIR/services/file/blocklist-site-crypto.json .
+ln -s $DBDIR/services/file/blocklist-site-malware.json .
+ln -s $DBDIR/services/file/blocklist-site-phishing.json .
+ln -s $DBDIR/services/file/blocklist-site-ransomware.json .
+ln -s $DBDIR/services/file/blocklist-site-redirect.json .
+ln -s $DBDIR/services/file/blocklist-site-scam.json .
+ln -s $DBDIR/services/file/blocklist-site-tracking.json .
+ln -s $DBDIR/services/file/emergingthreats-net.json .
+ln -s $DBDIR/services/file/interserver-net.json .
+ln -s $DBDIR/services/file/myip-ms.json .
+ln -s $DBDIR/services/file/phishing-army.json .
+ln -s $DBDIR/services/file/spamhaus-org-drop.json .
+ln -s $DBDIR/services/file/zerodot1-coinblockerlists.json .
+----
+
+Para incorporar las listas de la _API Safebrosing_ ejecutaremos la siguiente secuencia.
+
+[source,bash]
+----
+mkdir -p /etc/luids/xlist/services.d/sblookup
+cd /etc/luids/xlist/services.d/sblookup
+DBDIR=/usr/local/share/xlist-database
+ln -s $DBDIR/services/sblookup/safebrowsing-malware.json .
+ln -s $DBDIR/services/sblookup/safebrowsing-phishing.json .
+----
+
+Crearemos un directorio `/etc/xlist/services.d/local` y dentro de dicho directorio, los siguientes ficheros que contendrán la definición de nuestras listas locales.
+
+.Contenido de `/etc/luids/xlist/services.d/local/whitelist.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/services.d/local/whitelist.json[]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/local/blacklist.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/services.d/local/blacklist.json[]
+----
+
+Y crearemos los ficheros referenciados con nuestras listas locales.
+
+[source,bash]
+----
+touch /var/lib/luids/xlist/local/whitelist.xlist
+touch /var/lib/luids/xlist/local/blacklist-malware.xlist
+touch /var/lib/luids/xlist/local/blacklist-phishing.xlist
+touch /var/lib/luids/xlist/local/blacklist-crypto.xlist
+touch /var/lib/luids/xlist/local/blacklist-reputation.xlist
+touch /var/lib/luids/xlist/local/blacklist-tracking.xlist
+touch /var/lib/luids/xlist/local/blacklist-ads.xlist
+touch /var/lib/luids/xlist/local/blacklist-redirect.xlist
+----
+
+Finalmente daremos forma a nuestro servicio de agregación creando los siguientes ficheros.
+
+.Contenido de `/etc/luids/xlist/service.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/service.json[]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/domain.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/services.d/domain.json[]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/ip4.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/services.d/ip4.json[]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/ip6.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/services.d/ip6.json[]
+----
+
+Editaremos el fichero de configuración del servidor `xlistd` para que utilice nuestra nueva definición de servicio.
+
+.Contenido de `/etc/luids/xlist/xlistd.toml`
+[source,toml]
+----
+include::{examplesdir}/etc/luids/xlist/xlistd.toml[]
+----
+
+Comprobaremos que la configuración es correcta, como se muestra a continuación.
+----
+# su luxlist -m -c 'xlistd --config /etc/luids/xlist/xlistd.toml --dry-run'
+INFO[0000] xlistd (version: c76a683 build: 2020-12-17T06:39:21+0100)
+INFO[0000] registrando builder con config: { tokenname  false  []}
+configuration seems ok
+----
+
+Inicializaremos y habilitaremos el servicio `xlistd`.
+
+[source,bash]
+----
+systemctl start luids-xlistd
+systemctl enable luids-xlistd
+----
+
+Podremos probar el correcto funcionamiento del servidor utilizando el comando `xlistc` para hacerle consultas.
+----
+$ xlistc
+[ip4 ip6 domain] (1.19093ms)
+$ xlistc www.google.com
+domain,www.google.com: false,"",0 (351.626µs)
+----
+
+== Publicación del servicio de listas
+
+Con el servidor ya configurado, publicaremos el servicio en `apiservices.json` para que el resto de servicios lo puedan utilizar.
+
+.Contenido final de `/etc/luids/apiservices.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/apiservices.json[]
+----
+
+ifdef::env-site,env-github[]
+A continuación: xref:dns-config.adoc[Configuración del servicio dns]
+endif::env-site,env-github[]

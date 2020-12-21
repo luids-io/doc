@@ -1,0 +1,115 @@
+[
+  {
+    "id": "ip4-malware",
+    "class": "sequence",
+    "resources": [ "ip4" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=medium" } }
+    ],
+    "contains": [
+      { "id": "local-malware"          },
+      { "id": "blocklist.site-malware" },
+      { "id": "abuse.ch-ssl"           },
+      { "id": "emergingthreats.net"    },
+      { "id": "interserver.net"        }
+    ]
+  },
+  {
+    "id": "ip4-phishing",
+    "class": "sequence",
+    "resources": [ "ip4" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=medium" } }
+    ],
+    "contains": [
+      { "id": "local-phishing" }
+    ]
+  },
+  {
+    "id": "ip4-crypto",
+    "class": "sequence",
+    "resources": [ "ip4" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=info" } }
+    ],
+    "contains": [
+      { "id": "local-crypto" }
+    ]
+  },
+  {
+    "id": "ip4-reputation",
+    "class": "sequence",
+    "resources": [ "ip4" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=info" } }
+    ],
+    "contains": [
+      { "id": "local-reputation"  },
+      { "id": "alienvault.com"    },
+      { "id": "myip.ms"          },
+      { "id": "spamhaus.org-drop" }
+    ]
+  },
+  {
+    "id": "ip4-tracking",
+    "class": "sequence",
+    "resources": [ "ip4" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=none" } }
+    ],
+    "contains": [
+      { "id": "local-tracking" }
+    ]
+  },
+  {
+    "id": "ip4-ads",
+    "class": "sequence",
+    "resources": [ "ip4" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=none" } }
+    ],
+    "contains": [
+      { "id": "local-ads" }
+    ]
+  },
+  {
+    "id": "ip4-redirect",
+    "class": "sequence",
+    "resources": [ "ip4" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=return,event=info" } }
+    ],
+    "contains": [
+      { "id": "local-redirect" }
+    ]
+  },
+  {
+    "id": "service-ip4",
+    "class": "sequence",
+    "resources": [ "ip4" ],
+    "opts": { "first": true },
+    "contains": [
+      { "id": "ip4-malware"    },
+      { "id": "ip4-phishing"    },
+      { "id": "ip4-crypto"     },
+      { "id": "ip4-reputation" },
+      { "id": "ip4-tracking"   },
+      { "id": "ip4-ads"        },
+      { "id": "ip4-redirect"   }
+    ]
+  }
+]

@@ -1,0 +1,113 @@
+= Configuración del procesador de eventos
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: advanced-dns-sinkhole
+
+En esta sección instalaremos el componente que realiza el procesamiento de eventos de nuestro sistema. En este caso únicamente procesaremos los eventos relacionados con el sistema _DNS_ y enviaremos al archivo dichos eventos.
+
+ifdef::env-site,env-github[]
+TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+endif::env-site,env-github[]
+
+== Instalación del paquete event
+
+include::{partialsdir}/install-event.adoc[]
+
+== Descarga de base de datos de eventos
+
+Con el comando `event_database` actualizaremos la base de datos de eventos en el directorio `/usr/local/share/event-database`.
+
+== Configuración de eventproc
+
+En primer lugar copiaremos la definición de los tipos de eventos que vamos a procesar.
+
+[source,bash]
+----
+cp /usr/local/share/event-database/events/02-dns.json /etc/luids/event/events.d
+----
+
+Definiremos la configuración de las stack de procesado.
+
+.Contenido de `/etc/luids/event/stacks.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/event/stacks.json[]
+----
+
+Configuraremos los parámetros del servidor.
+
+.Contenido de `/etc/luids/event/eventproc.toml`
+[source,toml]
+----
+include::{examplesdir}/etc/luids/event/eventproc.toml[]
+----
+
+Probaremos la configuración.
+----
+# eventproc --config /etc/luids/event/eventproc.toml --dry-run
+INFO[0000] eventproc (version: b22d18f build: 2020-12-11T08:42:15+0100)
+INFO[0000] starting event processor (4 workers)
+configuration seems ok
+----
+
+Iniciaremos y habilitaremos el servicio.
+
+[source,bash]
+----
+systemctl start luids-eventproc
+systemctl enable luids-eventproc
+----
+
+Lanzaremos un evento de prueba con el siguiente comando.
+
+[source,bash]
+----
+echo '[ { "code": 10000, "data": { "test": "test message" } } ]' | eventnotify --stdin
+----
+
+Comprobaremos que se ha insertado el evento en la base de datos mediante la página de administración o directamente con la consola mongo.
+
+----
+$ echo '[ { "code": 10000, "data": { "test": "test message" } } ]' | eventnotify --stdin
+c94d1123-85dd-403f-9674-3a02260165ac
+$ mongo -u archiveui --authenticationDatabase admin -p pass3
+MongoDB shell version v3.6.8
+connecting to: mongodb://127.0.0.1:27017
+Implicit session: session { "id" : UUID("498cff14-e0ef-4516-ac46-a7a1ed98ec42") }
+MongoDB server version: 3.6.8
+Welcome to the MongoDB shell.
+> use luidsdb
+switched to db luidsdb
+> db.getCollection("events").find()
+{ "_id" : "c94d1123-85dd-403f-9674-3a02260165ac", "code" : 10000, "level" : 0, "created" : ISODate("2020-12-21T06:09:01.403Z"), "source" : { "hostname" : "luids-router", "program" : "eventnotify", "instance" : "", "pid" : 13286 }, "duplicates" : 0, "data" : { "test" : "test message" }, "type" : 1, "received" : ISODate("2020-12-21T06:09:01.404Z"), "codename" : "test.security", "description" : "Test event with data: test message", "processors" : [ { "received" : ISODate("2020-12-21T06:09:01.404Z"), "processor" : { "hostname" : "luids-router", "program" : "eventproc", "instance" : "", "pid" : 13171 } } ], "tags" : [ "test" ] }
+> quit()
+----
+
+== Publicación del servicio de notificación de eventos
+
+Con el servidor ya configurado y probado, publicaremos el servicio en `apiservices.json` para que el resto de servicios lo puedan utilizar.
+
+.Contenido de `/etc/luids/apiservices.json`
+[source,json]
+----
+[
+  {
+    "id": "dnsutil-archive",
+    "api": "luids.dnsutil.v1.Archive",
+    "endpoint": "tcp://127.0.0.1:5821"
+  },
+  {
+    "id": "event-archive",
+    "api": "luids.event.v1.Archive",
+    "endpoint": "tcp://127.0.0.1:5821"
+  },
+  {
+    "id": "event-notify",
+    "api": "luids.event.v1.Notify",
+    "endpoint": "tcp://127.0.0.1:5851"
+  }
+]
+----
+
+ifdef::env-site,env-github[]
+A continuación: xref:xlist-config.adoc[Configuración del sistema de listas]
+endif::env-site,env-github[]

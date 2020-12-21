@@ -1,17 +1,21 @@
 . {
-   idsapi
-   idsevent
-   resolvarchive {
-      service dnsutil-archive
-      server-ip 192.168.1.1
-   }
-   xlisthole {
-      service xlist-sinkhole
-      listed-domain merge log=true,dns=nxdomain
-      unlisted-domain log=false,dns=checkip
-      listed-ip merge log=true,dns=nxdomain,event=info
-      #unlisted-ip log=false
-      #on-error log=true,dns=return 
-   }	
-   forward . 8.8.8.8 8.8.4.4
+  idsapi
+  idsevent {
+    service event-notify
+    waitdups 200
+  }
+  resolvarchive {
+    service dnsutil-archive
+    server-ip 192.168.250.254
+  }
+  xlisthole {
+    service xlist-check
+    listed-domain merge log=true,dns=nxdomain
+    unlisted-domain log=false,dns=check
+    listed-cname merge log=true,dns=nxdomain
+    listed-ip merge log=true,dns=nxdomain
+    #on-error log=true,dns=return
+  }
+  cache
+  forward . 8.8.8.8 8.8.4.4
 }

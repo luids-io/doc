@@ -1,0 +1,128 @@
+[
+  {
+    "id": "domain-malware",
+    "class": "sequence",
+    "resources": [ "domain" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=medium" } }
+    ],
+    "contains": [
+      { "id": "local-malware"             },
+      {
+        "id": "safebrowsing-malware",
+        "wrappers": [ { "class": "cache", "opts": { "ttl": 60 } } ] 
+      },
+      { "id": "blocklist.site-malware"    },
+      { "id": "blocklist.site-ransomware" },
+      { "id": "abuse.ch-urlhaus"          }
+    ]
+  },
+  {
+    "id": "domain-phishing",
+    "class": "sequence",
+    "resources": [ "domain" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=medium" } }
+    ],
+    "contains": [
+      { "id": "local-phishing"          },
+      {
+        "id": "safebrowsing-phishing",
+        "wrappers": [ { "class": "cache", "opts": { "ttl": 60 } } ] 
+      },
+      { "id": "blocklist.site-phishing" },
+      { "id": "phishing.army"           }
+    ]
+  },
+  {
+    "id": "domain-crypto",
+    "class": "sequence",
+    "resources": [ "domain" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=info" } }
+    ],
+    "contains": [
+      { "id": "local-crypto"              },
+      { "id": "blocklist.site-crypto"     },
+      { "id": "zerodot1-coinblockerlists" }
+    ]
+  },
+  {
+    "id": "domain-reputation",
+    "class": "sequence",
+    "resources": [ "domain" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=info" } }
+    ],
+    "contains": [
+      { "id": "local-reputation"      },
+      { "id": "blocklist.site-scam"   },
+      { "id": "blocklist.site-abuse"  }
+    ]
+  },
+  {
+    "id": "domain-tracking",
+    "class": "sequence",
+    "resources": [ "domain" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=none" } }
+    ],
+    "contains": [
+      { "id": "local-tracking"          },
+      { "id": "blocklist.site-tracking" }
+    ]
+  },
+  {
+    "id": "domain-ads",
+    "class": "sequence",
+    "resources": [ "domain" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=nxdomain,event=none" } }
+    ],
+    "contains": [
+      { "id": "local-ads"          },
+      { "id": "blocklist.site-ads" }
+    ]
+  },
+  {
+    "id": "domain-redirect",
+    "class": "sequence",
+    "resources": [ "domain" ],
+    "opts": { "first": true },
+    "wrappers": [
+      { "class": "response", "opts": { "preffixid": true } },
+      { "class": "policy", "opts": { "value": "dns=check,event=info" } }
+    ],
+    "contains": [
+      { "id": "local-redirect"          },
+      { "id": "blocklist.site-redirect" }
+    ]
+  },
+  {
+    "id": "service-domain",
+    "class": "sequence",
+    "resources": [ "domain" ],
+    "opts": { "first": true },
+    "contains": [
+      { "id": "domain-malware"    },
+      { "id": "domain-phishing"    },
+      { "id": "domain-crypto"     },
+      { "id": "domain-reputation" },
+      { "id": "domain-tracking"   },
+      { "id": "domain-ads"        },
+      { "id": "domain-redirect"   }
+    ]
+  }
+]

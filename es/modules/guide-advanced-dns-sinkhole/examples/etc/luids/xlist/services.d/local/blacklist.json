@@ -1,0 +1,79 @@
+[
+  {
+    "id": "local-malware",
+    "class": "file",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "source": "local/blacklist-malware.xlist",
+    "opts": {
+      "autoreload": true,
+      "reloadseconds": 5,
+      "reason": "found in 'local-malware'"
+    }
+  },
+  {
+    "id": "local-phishing",
+    "class": "file",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "source": "local/blacklist-phishing.xlist",
+    "opts": {
+      "autoreload": true,
+      "reloadseconds": 5,
+      "reason": "found in 'local-phishing'"
+    }
+  },
+  {
+    "id": "local-crypto",
+    "class": "file",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "source": "local/blacklist-crypto.xlist",
+    "opts": {
+      "autoreload": true,
+      "reloadseconds": 5,
+      "reason": "found in 'local-crypto'"
+    }
+  },
+  {
+    "id": "local-reputation",
+    "class": "file",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "source": "local/blacklist-reputation.xlist",
+    "opts": {
+      "autoreload": true,
+      "reloadseconds": 5,
+      "reason": "found in 'local-reputation'"
+    }
+  },
+  {
+    "id": "local-tracking",
+    "class": "file",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "source": "local/blacklist-tracking.xlist",
+    "opts": {
+      "autoreload": true,
+      "reloadseconds": 5,
+      "reason": "found in 'local-tracking'"
+    }
+  },
+  {
+    "id": "local-ads",
+    "class": "file",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "source": "local/blacklist-ads.xlist",
+    "opts": {
+      "autoreload": true,
+      "reloadseconds": 5,
+      "reason": "found in 'local-ads'"
+    }
+  },
+  {
+    "id": "local-redirect",
+    "class": "file",
+    "resources": [ "ip4", "ip6", "domain" ],
+    "source": "local/blacklist-redirect.xlist",
+    "opts": {
+      "autoreload": true,
+      "reloadseconds": 5,
+      "reason": "found in 'local-redirection'"
+    }
+  }
+]

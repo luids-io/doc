@@ -1,6 +1,14 @@
-[xlist]
-datadir = "/var/lib/luids/xlist"
+[xlistd]
+certsdir   = "/etc/luids/ssl"
+datadir    = "/var/lib/luids/xlist"
 
-[xlist.service]
-files      = [ "/etc/luids/xlist/service.json" ]
-dirs       = [ "/etc/luids/xlist/services.d"   ]
+[xlistd.service]
+dirs  = [ "/etc/luids/xlist/services.d/local",
+          "/etc/luids/xlist/services.d/file",
+          "/etc/luids/xlist/services.d/sblookup",
+          "/etc/luids/xlist/services.d" ]
+
+files = [ "/etc/luids/xlist/service.json" ]
+
+[xlistd.plugin.sblookup]
+apikey  = "PON_AQUI_TU_API_KEY"
