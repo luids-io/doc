@@ -2,6 +2,34 @@
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-dns-sinkhole
 
+[[design-sequence]]
+== Secuencias de respuesta
+
+Nuestro sistema responderá a las consultas DNS como se muestra en el siguiente diagrama de secuencia.
+
+.Diagrama de secuencia de nuestro sumidero DNS
+[plantuml,{guidename}-sequence,png,pdfwidth=70%]
+----
+actor dnsclient
+participant "DNS Server\n(ludns)" as dnsserver
+participant "XList Server\n(xlistd)" as xlist
+participant "External\nDNS Server" as dnsext #99FF99
+
+dnsclient -> dnsserver: query www.google.com
+dnsserver -> xlist: check(wwww.google.com,domain)
+xlist --> dnsserver: {result: false}
+dnsserver -> dnsext: query www.google.com
+dnsext --> dnsserver: 1.2.3.4
+dnsserver --> dnsclient: 1.2.3.4
+
+dnsclient -> dnsserver: query www.infected.com
+dnsserver -> xlist: check(wwww.infected.com,domain)
+xlist --> dnsserver:  {result: true, reason: "is malware"}
+dnsserver --> dnsclient: nxdomain
+----
+
+NOTE: Como puede observar, nuestro sumidero no chequeará ni los CNAMEs ni las IPs resueltas en las consultas DNS. Aunque no se vea en esta guía, esta funcionalidad también está disponible. Consulte otras guías más avanzadas si desea chequear también estos elementos.
+
 [[design-sources]]
 == Selección de los orígenes
 
@@ -88,8 +116,6 @@ node "Client" {
 }
 ----
 
-En esta guía únicamente desplegaremos los componentes `xlistd`, `xlget` y `ludns` vistos en el diagrama.
-
 ifdef::env-site,env-github[]
-A continuación: xref:installation.adoc[Instalación]
+A continuación: xref:xlist-config.adoc[Configuración del sistema de listas]
 endif::env-site,env-github[]

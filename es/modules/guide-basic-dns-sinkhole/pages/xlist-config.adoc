@@ -1,8 +1,18 @@
-= Configuración
+= Configuración del sistema de listas
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-dns-sinkhole
 
-TIP: Tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+En esta sección realizaremos el despliegue de nuestro sistema de listas. Para ello instalaremos el software necesario, configuraremos los orígenes de forma que se actualicen automáticamente y definiremos la relación entre dichos orígenes junto a la lógica a nuestro servicio.
+
+ifdef::env-site,env-github[]
+TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+endif::env-site,env-github[]
+
+== Instalación del paquete xlist
+
+include::{partialsdir}/install-xlist.adoc[]
+
+TIP: Si está instalando en una Raspberry debe definir la arquitectura al lanzar el instalador con `sudo ARCH=arm64 ./installer.sh`. Si desea instalar el software en alguna otra arquitectura, las arquitecturas disponibles son: `amd64`, `arm`, `arm64`, `mips`, `mips64`, `mips64le`, `ppc64` y `s390x`.
 
 == Descarga de la base de datos xlist
 
@@ -136,7 +146,7 @@ $ xlistc www.google.com
 domain,www.google.com: false,"",0 (603.587µs)
 ----
 
-== Registro del servicio xlist
+== Publicación del servicio de listas
 
 Para que el resto de componentes del ecosistema _^lu^IDS_ puedan utilizar nuestro servicio de listas, debemos "publicarlo" en el _registro de servicios de la API_. Esto lo haremos editando el fichero `/etc/luids/apiservices.json`
 
@@ -146,108 +156,6 @@ Para que el resto de componentes del ecosistema _^lu^IDS_ puedan utilizar nuestr
 include::{examplesdir}/etc/luids/apiservices.json[]
 ----
 
-== Configuración de ludns
-
-La configuración del servidor DNS la realizaremos en dos fases. En la primera fase lo pondremos a escuchar en el puerto no estándar `1053` para hacer pruebas y comprobar que funciona correctamente. En la segunda fase, que se verá en el apartado siguiente, haremos los pasos necesarios para ponerlo a escuchar en el puerto estándar y agregar una caché para mejorar el rendimiento del servicio.
-
-Una vez que el servicio `xlisthole` se encuentra disponible, la configuración del servicio `ludns` es muy sencilla, basta editar el fichero `/etc/luids/dns/Corefile`.
-
-.Contenido temporal `/etc/luids/dns/Corefile`
-[source]
-----
-.:1053 {
-	idsapi
-	xlisthole
-	forward . 8.8.8.8 8.8.4.4
-}
-----
-
-Iniciaremos el servidor con la nueva configuración.
-
-[source,bash]
-----
-systemctl start luids-ludns
-----
-
-Y puede comprobar que se ha iniciado correctamente como se ve en el ejemplo siguiente.
-----
-# systemctl status luids-ludns
-● luids-ludns.service - ludns luIDS service
-     Loaded: loaded (/etc/systemd/system/luids-ludns.service; disabled; vendor preset: enabled)
-     Active: active (running) since Mon 2020-08-17 08:21:57 CEST; 32s ago
-   Main PID: 1888 (ludns)
-      Tasks: 6 (limit: 1074)
-     Memory: 1.9M
-     CGroup: /system.slice/luids-ludns.service
-             └─1888 /usr/local/bin/ludns -conf /etc/luids/dns/Corefile
-
-ago 17 08:21:57 luids-test systemd[1]: Started ludns luIDS service.
-ago 17 08:21:57 luids-test ludns[1888]: .:1053
-ago 17 08:21:57 luids-test ludns[1888]: CoreDNS-1.6.9
-ago 17 08:21:57 luids-test ludns[1888]: linux/amd64, go1.14.3,
-----
-
-Ahora llevaremos a cabo las pruebas del servicio utilizando para ello el comando `dig`.
-----
-$ dig @localhost +short -p 1053 www.google.com //<1>
-216.58.211.36
-$ head -1 /var/lib/luids/xlist/blocklist.site-malware.xlist //<2>
-domain,100.1qingdao.com
-$ dig @8.8.4.4 +short 100.1qingdao.com //<3>
-116.255.236.109
-$ dig @localhost +short -p 1053 100.1qingdao.com //<4>
-----
-<1> interrogamos al servidor local en puerto `1053` por el dominio `www.google.com` y obtenemos respuesta.
-<2> obtenemos el primer dominio listado en la lista de malware
-<3> consultamos a un servidor DNS de google por la existencia del dominio y nos responde
-<4> consultamos a nuestro servidor local por el mismo dominio y no obtenemos respuesta
-
-Comprobamos en el log del servicio que se ha generado un nuevo evento de chequeo de lista y que lo ha encontrado en una de las listas, como se muestra a continuación.
-
-----
-# journalctl -u luids-ludns
-....
-ago 17 08:21:57 luids-test ludns[1888]: linux/amd64, go1.14.3,
-ago 17 08:24:02 luids-test ludns[1888]: [INFO] plugin/xlisthole: [::1]:36056 check '100.1qingdao.com' response: true 'found in 'blocklist.site-malware''
-----
-
-== Consolidación servicio DNS
-
-Ya tenemos un servidor DNS funcionando pero en un puerto no estándar, así que debemos cambiarlo al puerto que le corresponde. Sin embargo, aquí puede surgir un pequeño problema: puede existir un servidor DNS ya corriendo en dicho puerto.
-
-include::{partialsdir}/disable-local-resolver.adoc[]
-
-Modificaremos la configuración de nuestro servidor DNS con la configuración definitiva.
-
-.Contenido de `/etc/luids/dns/Corefile`
-[source]
-----
-. {
-	idsapi
-	xlisthole
-	cache
-	forward . 8.8.8.8 8.8.4.4
-}
-----
-
-Reiniciaremos y habilitaremos el servicio al inicio.
-
-[source,bash]
-----
-sudo systemctl restart luids-ludns
-sudo systemctl enable luids-ludns
-----
-
-== Configuración de los clientes
-
-Ahora únicamente falta configurar los dispositivos de nuestra red para que usen como servidor DNS la dirección IP de nuestro servidor. Para ello algunos consejos:
-
-* Deberemos configurar nuestro servidor como *único servidor DNS*, de lo contrario algunas preguntas podrán ser contestadas por otro servidor DNS que no haga el filtrado.
-* Es recomendable hacer uso del protocolo DHCP para asignar la configuración DNS a los clientes.
-* Es recomendable permitir únicamente la salida de tráfico DNS de nuestra red a nuestro sumidero DNS. Esto no sólo evitará que algunos usuarios puedan cambiarse la dirección del servidor DNS de forma manual para evadir a nuestro sumidero, sino que también hará que posible malware use servicios DNS públicos para evitar ser detectados.
-
-NOTE: ¡Enhorabuena! Ya puede presumir ante sus amigos y amigas de que ha configurado un sumidero DNS. Ahora sólo le queda (si no lo ha hecho ya) tener un hijo, escribir un libro y plantar un árbol ;).
-
 ifdef::env-site,env-github[]
-A continuación: xref:next-steps.adoc[Siguientes pasos]
+A continuación: xref:dns-config.adoc[Configuración del servicio dns]
 endif::env-site,env-github[]

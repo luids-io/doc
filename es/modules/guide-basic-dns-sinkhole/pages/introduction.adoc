@@ -2,6 +2,10 @@
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-dns-sinkhole
 
+== Qué es ^lu^IDS
+
+include::{partialsdir}/what-luids.adoc[]
+
 == Qué es un sumidero DNS o DNS Sinkhole
 
 include::{partialsdir}/what-dns-sinkhole.adoc[]
@@ -10,29 +14,7 @@ include::{partialsdir}/what-dns-sinkhole.adoc[]
 
 Como probablemente conozca el lector, ya existe diverso software capaz de realizar esta labor, sin embargo la mayoría no es libre y el que es libre (como el popular _BIND_ o el nuevo _PiHole_), usa un planteamiento distinto y, a nuestro juicio, menos versátil.
 
-[[diagram-sinkhole-sequence]]
-.Ejemplo de secuencia de nuestro sumidero DNS
-[plantuml,{guidename}-sequence,png,pdfwidth=70%]
-----
-actor dnsclient
-participant "DNS Server\n(ludns)" as dnsserver
-participant "XList Server\n(xlistd)" as xlist
-participant "External\nDNS Server" as dnsext #99FF99
-
-dnsclient -> dnsserver: query www.google.com
-dnsserver -> xlist: check(wwww.google.com,domain)
-xlist --> dnsserver: {result: false}
-dnsserver -> dnsext: query www.google.com
-dnsext --> dnsserver: 1.2.3.4
-dnsserver --> dnsclient: 1.2.3.4
-
-dnsclient -> dnsserver: query www.infected.com
-dnsserver -> xlist: check(wwww.infected.com,domain)
-xlist --> dnsserver:  {result: true, reason: "is malware"}
-dnsserver --> dnsclient: nxdomain
-----
-
-La particularidad de nuestro sumidero es que, como se ve en la figura <<diagram-sinkhole-sequence>>, involucra diferentes componentes: por un lado tenemos un servidor _DNS_ (basado en el popular _CoreDNS_) que realiza las tareas típicas de resolución y, por otro lado, tenemos un servidor _xlist_ que se encarga de la tarea de comprobar la existencia en las listas. Esta separación de responsabilidades nos permitirá, además de una alta especialización de cada software en su correspondiente rol, implementar sistemas más robustos y escalables.
+La particularidad de nuestro sumidero es que, como se verá en el diagrama de secuencia de la siguiente sección, involucra diferentes componentes: por un lado tenemos un servidor _DNS_ (basado en el popular _CoreDNS_) que realiza las tareas típicas de resolución y, por otro lado, tenemos un servidor _xlist_ que se encarga de la tarea de comprobar la existencia en las listas. Esta separación de responsabilidades nos permitirá, además de una alta especialización de cada software en su correspondiente rol, implementar sistemas más robustos y escalables.
 
 NOTE: Esta guía se trata de una configuración muy básica así que en ella no se mostrará la mayor parte de las funcionalidades que ofrece nuestro sumidero.
 
