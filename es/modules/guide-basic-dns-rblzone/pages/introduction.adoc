@@ -2,9 +2,15 @@
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-dns-rblzone
 
+== Qué es ^lu^IDS
+
+include::{partialsdir}/what-luids.adoc[]
+
 == ¿Qué es una zona DNS RBL?
 
 Una zona _DNS RBL_ es una zona DNS que sigue la especificación *RFC5782*. Dicha especificación define cómo montar un sistema de listas negras/blancas sobre una infraestructura DNS.
+
+Al tratarse de un estándar, muchos productos de ciberseguridad incluyen la funcionalidad de integrarse con zonas DNS RBL. Entre estos productos tenemos sistemas cortafuegos, servidores proxy, pasarelas de correo, etc.
 
 == ¿Por qué esta configuración?
 
@@ -14,41 +20,11 @@ En general, suele ser recomendable el uso de listas negras en la primera fase pa
 
 == ¿Qué tiene de especial nuestro sistema?
 
-A pesar de las opciones que pueda ofrecernos un sistema como _Postfix_, nunca va a proveer las funcionalidades que puede proporcionar en este aspecto un _servidor XList_: puntuaciones, chequeos en listas locales y sincronización para consulta "offline", geolocalización, tasas de consulta, gestión de fallos, métricas por lista, estadísticas, etc.
+A pesar de las opciones que pueda ofrecernos un sistema como _Postfix_, nunca va a proveer las funcionalidades que puede proporcionar en este aspecto un _servidor xlist_: puntuaciones, chequeos en listas locales y sincronización para consulta "offline", geolocalización, tasas de consulta, gestión de fallos, métricas por lista, estadísticas, etc.
 
 Por todo ello, esta es la propuesta para la presente guía: configurar un servidor _xlistd_ con las listas que utilice nuestro sistema antispam y proporcionarlas mediante un servidor _ludns_ con el plugin _xlistrbl_ que sirva una zona para las consultas del servidor de correo. De esta forma únicamente habrá que configurar una zona en el MTA y el sistema _xlistd_ se encargará del resto. Nótese lo oportuno de esta configuración si tenemos una granja de servidores MTA.
 
 image::why-antispam.svg[why-antispam,width=80%,pdfwidth=80%]
-
-Una posible secuencia de chequeo del sistema sería:
-
-.*Secuencia de chequeo positivo*
-[plantuml,{guidename}-sequence, png,pdfwidth=100%]
-----
-actor "MAIL Server\n(postfix)" as postfix
-participant "DNS Server\n(ludns)" as ludns
-participant "XList Server\n(xlistd)" as xlistd
-participant "External 1\nDNS Server" as extdns1 #99FF99
-participant "External 2\nDNS Server" as extdns2 #99FF99
-participant "External N\nDNS Server" as extdnsN #99FF99
-
-postfix -> ludns: query 44.33.22.11.rbl.mizone.net
-ludns -> xlistd: Check(11.22.33.44)
-
-xlistd -> extdns1: query 44.33.22.11.rbl.extdns1.net
-xlistd -> extdns2: query 44.33.22.11.rbl.extdns2.net
-xlistd -> extdnsN: query 44.33.22.11.rbl.extdnsN.net
-extdns1 --> xlistd: nxdomain
-extdns2 --> xlistd: 127.0.0.10
-extdnsN --> xlistd: 127.0.0.2
-
-xlistd -> ludns: {result: true, reason: "spam"}
-ludns -> postfix: 127.0.0.69
-
-postfix -> ludns: TXT 44.33.22.11.rbl.mizone.net
-ludns -> ludns: CACHED
-ludns -> postfix: "spam"
-----
 
 Esta guía se trata de una configuración básica así que no se verán todas las funcionalidades que ofrece nuestro sistema. Sin embargo, conviene que el usuario las conozca por si se anima a continuar explorando más allá de esta guía. Algunas de las funcionalidades adicionales son:
 
@@ -60,8 +36,6 @@ Esta guía se trata de una configuración básica así que no se verán todas la
 * disponible en _Docker_ y con algunas características que lo hace ideal para su despliegue en entornos Cloud con herramientas como _Kubernetes_.
 
 Así que una vez visto qué es y qué ventajas aporta nuestro software sobre otros, pongámonos manos a la obra.
-
-NOTE: Esta guía se trata de una configuración muy básica así que en ella no se mostrará la mayor parte de las funcionalidades que ofrece nuestro sumidero.
 
 ifdef::env-site,env-github[]
 A continuación: xref:design.adoc[Diseño del sistema]

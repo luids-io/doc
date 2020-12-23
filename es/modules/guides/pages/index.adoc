@@ -14,8 +14,8 @@ include::{partialsdir}/attributes-es.adoc[]
 | xref:guide-advanced-dns-sinkhole:index.adoc[Sumidero DNS avanzado]
 | Guía rápida de configuración de un sumidero con el que bloquear publicidad, phising y malware. Este sumidero además utiliza la API Google Safebrowsing, archiva las peticiones DNS realizadas, genera eventos y dispone de una interfaz web de visualización del archivo.
 
-| xref:guide-basic-dns-rblzone:index.adoc[Zona DNS RBL básica]
-| Guía rápida de configuración de una sencilla zona DNS RBL para su uso como sistema antispam.
+| xref:guide-basic-dns-rblzone:index.adoc[Zona DNS RBL compuesta]
+| Guía rápida de configuración de una sencilla zona DNS RBL compuesta para su uso como sistema antispam.
 
 | xref:guide-basic-nfqueue-xlist:index.adoc[Cortafuegos con listas negras]
 | Configuración de un firewall iptables para bloquear Botnets.

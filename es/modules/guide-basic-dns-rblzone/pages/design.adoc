@@ -2,6 +2,39 @@
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-dns-rblzone
 
+[[design-sequence]]
+== Secuencias de respuesta
+
+Nuestro sistema responderá a las consultas DNS como se muestra en el siguiente diagramas de secuencia.
+
+.*Secuencia de chequeo positivo*
+[plantuml,{guidename}-sequence, png,pdfwidth=100%]
+----
+actor "MAIL Server\n(postfix)" as postfix
+participant "DNS Server\n(ludns)" as ludns
+participant "XList Server\n(xlistd)" as xlistd
+participant "External 1\nDNS Server" as extdns1 #99FF99
+participant "External 2\nDNS Server" as extdns2 #99FF99
+participant "External N\nDNS Server" as extdnsN #99FF99
+
+postfix -> ludns: query 44.33.22.11.rbl.mizone.net
+ludns -> xlistd: Check(11.22.33.44)
+
+xlistd -> extdns1: query 44.33.22.11.rbl.extdns1.net
+xlistd -> extdns2: query 44.33.22.11.rbl.extdns2.net
+xlistd -> extdnsN: query 44.33.22.11.rbl.extdnsN.net
+extdns1 --> xlistd: nxdomain
+extdns2 --> xlistd: 127.0.0.10
+extdnsN --> xlistd: 127.0.0.2
+
+xlistd -> ludns: {result: true, reason: "spam"}
+ludns -> postfix: 127.0.0.69
+
+postfix -> ludns: TXT 44.33.22.11.rbl.mizone.net
+ludns -> ludns: CACHED
+ludns -> postfix: "spam"
+----
+
 [[design-sources]]
 == Selección de los orígenes
 
@@ -128,5 +161,5 @@ node "Mail Server" {
 NOTE: En esta guía únicamente desplegaremos los componentes `xlistd` y `ludns` vistos en el diagrama.
 
 ifdef::env-site,env-github[]
-A continuación: xref:installation.adoc[Instalación]
+A continuación: xref:xlist-config.adoc[Configuración del sistema de listas]
 endif::env-site,env-github[]

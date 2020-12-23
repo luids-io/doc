@@ -1,4 +1,4 @@
-= Guia rápida - Servidor DNS con zona RBL
+= Guia rápida - Servidor DNS con zona RBL compuesta
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-dns-rblzone
 
@@ -6,5 +6,7 @@ include::{partialsdir}/preface.adoc[]
 
 . xref:introduction.adoc[Introducción]
 . xref:design.adoc[Diseño del sistema]
-. xref:installation.adoc[Instalación]
-. xref:configuration.adoc[Configuración]
+. xref:xlist-config.adoc[Configuración del sistema de listas]
+. xref:dns-config.adoc[Configuración del servicio dns]
+. xref:client-config.adoc[Configuración de los clientes]
+. xref:next-steps.adoc[Siguientes pasos]

@@ -1,17 +1,18 @@
-= Guía rápida: Servidor DNS con zona RBL para servicio Antispam
+= Zona DNS RBL compuesta : Guía rápida ^lu^IDS
 Luis Guillén Civera <luisguillenc@gmail.com>
-//:doctype: book
+:doctype: book
 :icons: font
 :source-highlighter: rouge
 :rouge-style: monokai
 :chapter-label:
 include::{moduledir}/_attributes.adoc[]
-//:toc:
+:toc:
 
 include::{partialsdir}/preface.adoc[leveloffset=1]
 include::{pagesdir}/introduction.adoc[leveloffset=1]
 include::{pagesdir}/design.adoc[leveloffset=1]
-include::{pagesdir}/installation.adoc[leveloffset=1]
-include::{pagesdir}/configuration.adoc[leveloffset=1]
+include::{pagesdir}/xlist-config.adoc[leveloffset=1]
+include::{pagesdir}/dns-config.adoc[leveloffset=1]
+include::{pagesdir}/client-config.adoc[leveloffset=1]
 include::{pagesdir}/next-steps.adoc[leveloffset=1]
 

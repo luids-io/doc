@@ -1,0 +1,28 @@
+= Configuración de los clientes
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-rblzone
+
+== Configuración del servidor de correo
+
+En primer lugar, el servidor de correo debería ser capaz de resolver la zona creada. Para ello habría dos opciones:
+
+. Usar como resolvedor al servidor DNS recién configurado.
+. Configurar la zona padre `my-domain.lan` y delegar la subzona `dnsbl.my-domain.lan` al servidor DNS recién configurado.
+
+IMPORTANT: Conviene proteger con un cortafuegos al servidor DNS para evitar su uso por parte de terceros.
+
+Una vez que el cliente DNS de nuestro servidor de correo está configurado y es capaz de resolver la zona, tan sólo hay que usarla de acuerdo a la configuración.
+En el caso de _Postfix_ podría contener algo parecido a esto:
+
+.Posible parte de la configuración de `/etc/postfix/master.cf`
+[source]
+----
+smtpd_recipient_restrictions =
+    ....
+        reject_rbl_client dnsbl.my-domain.lan,
+    ....
+----
+
+ifdef::env-site,env-github[]
+A continuación: xref:next-steps.adoc[Siguientes pasos]
+endif::env-site,env-github[]

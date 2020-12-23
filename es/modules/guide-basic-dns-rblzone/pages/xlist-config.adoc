@@ -1,0 +1,112 @@
+= Configuración del sistema de listas
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-rblzone
+
+En esta sección realizaremos el despliegue de nuestro sistema de listas. Para ello instalaremos el software necesario, configuraremos los orígenes de forma que se actualicen automáticamente y definiremos la relación entre dichos orígenes junto a la lógica a nuestro servicio.
+
+ifdef::env-site,env-github[]
+TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+endif::env-site,env-github[]
+
+== Instalación del paquete xlist
+
+include::{partialsdir}/install-xlist.adoc[]
+
+TIP: Si está instalando en una Raspberry debe definir la arquitectura al lanzar el instalador con `sudo ARCH=arm64 ./installer.sh`. Si desea instalar el software en alguna otra arquitectura, las arquitecturas disponibles son: `amd64`, `arm`, `arm64`, `mips`, `mips64`, `mips64le`, `ppc64` y `s390x`.
+
+== Descarga de la base de datos xlist
+
+include::{partialsdir}/download-xlist-database.adoc[]
+
+== Configuración de xlistd
+
+La configuración de `xlistd` se divide en dos partes:
+
+* Definición del servicio.
+* Parámetros de configuración del servidor.
+
+La definición del servicio la realizaremos utilizando múltiples ficheros para que se entienda mejor. Pero antes, deberemos "importar" los servicios remotos que vamos a utilizar usando para ello enlaces simbólicos. Para hacerlo, bastará ejecutar como administrador los siguientes comandos.
+
+[source,bash]
+----
+mkdir -p /etc/luids/xlist/services.d/dnsxl
+cd /etc/luids/xlist/services.d/dnsxl
+DBDIR=/usr/local/share/xlist-database
+ln -s $DBDIR/services/dnsxl/barracudacentral-org.json .
+ln -s $DBDIR/services/dnsxl/gbudb-net.json .
+ln -s $DBDIR/services/dnsxl/junkemailfilter-com-black.json .
+ln -s $DBDIR/services/dnsxl/mailspike-net-bl.json .
+ln -s $DBDIR/services/dnsxl/mcafee-com.json .
+ln -s $DBDIR/services/dnsxl/sorbs-net-dul.json .
+ln -s $DBDIR/services/dnsxl/sorbs-net-recent.json .
+ln -s $DBDIR/services/dnsxl/sorbs-net-new.json .
+ln -s $DBDIR/services/dnsxl/spamcop-net.json .
+ln -s $DBDIR/services/dnsxl/spamhaus-org-zen.json .
+ln -s $DBDIR/services/dnsxl/surriel-com-psbl.json .
+----
+
+Crearemos los siguientes archivos.
+
+.Contenido de `/etc/luids/xlist/services.d/remote.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/services.d/remote.json[]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/custom-local.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/services.d/custom-local.json[]
+----
+
+.Contenido de `/etc/luids/xlist/service.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/service.json[]
+----
+
+Ahora creamos el fichero de configuración del servidor.
+
+.Contenido de `/etc/luids/xlist/xlistd.toml`
+[source,toml]
+----
+include::{examplesdir}/etc/luids/xlist/xlistd.toml[]
+----
+
+Comprobaremos que la configuración es correcta, como se muestra a continuación.
+----
+# xlistd --config /etc/luids/xlist/xlistd.toml --dry-run
+INFO[0000] xlistd (version: 341fe0e build: 2020-08-17T07:25:30+0200)
+configuration seems ok
+----
+
+Inicializaremos y habilitaremos el servicio `xlistd`.
+
+.Inicializa servicio `xlistd` y habilita al inicio
+[source,bash]
+----
+sudo systemctl start luids-xlistd
+sudo systemctl enable luids-xlistd
+----
+
+Podremos probar el correcto funcionamiento del servidor utilizando el comando `xlistc` para hacerle consultas.
+----
+$ xlistc
+[ip4] (609.687µs)
+$ xlistc 8.8.8.8
+ip4,8.8.8.8: false,"",0 (1.429557ms)
+----
+
+== Publicación del servicio de listas
+
+Para que el resto de componentes del ecosistema _^lu^IDS_ puedan utilizar nuestro servicio de listas, debemos "publicarlo" en el _registro de servicios de la API_. Esto lo haremos editando el fichero `/etc/luids/apiservices.json`
+
+.Contenido de `/etc/luids/apiservices.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/apiservices.json[]
+----
+
+ifdef::env-site,env-github[]
+A continuación: xref:dns-config.adoc[Configuración del servicio dns]
+endif::env-site,env-github[]

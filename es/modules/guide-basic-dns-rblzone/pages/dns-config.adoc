@@ -1,0 +1,92 @@
+= Configuración del servicio dns
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-rblzone
+
+En esta sección realizaremos el despliegue del componente que se encarga del servicio _DNS_ y realizaremos la integración con el resto de componentes del sistema. Para ello configuraremos los siguientes plugins:
+
+* `idsapi`: se encargará del acceso al registro de servicios de la _API ^lu^IDS_.
+* `xlistrbl`: se encargará de la integración con el sistema de listas _xlist_ y de la lógica de nuestra zona DNS.
+
+ifdef::env-site,env-github[]
+TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+endif::env-site,env-github[]
+
+== Instalación del paquete dns
+
+include::{partialsdir}/install-dns.adoc[]
+
+== Configuración de ludns
+
+La configuración del servidor _DNS_ la realizaremos en dos fases. En la primera fase lo pondremos a escuchar en el puerto no estándar `1053` para hacer pruebas y comprobar que funciona correctamente. En la segunda fase, que se verá en el apartado siguiente, haremos los pasos necesarios para ponerlo a escuchar en el puerto estándar.
+
+La configuración es muy sencilla, basta crear el siguiente fichero:
+
+.Contenido temporal `/etc/luids/dns/Corefile`
+[source]
+----
+dnsbl.my-domain.lan:1053 {
+  idsapi
+  xlistrbl
+}
+
+.:1053 {
+  cache
+  forward . 8.8.8.8 8.8.4.4
+}
+----
+
+Una vez creado, hay que iniciar el servidor.
+
+[source,bash]
+----
+sudo systemctl start luids-dns
+----
+
+Ahora vamos a llevar a cabo las pruebas del servicio utilizando para ello el comando `dig`.
+----
+$ dig @localhost +short -p 1053 2.0.0.127.dnsbl.my-domain.lan //<1>
+127.0.0.69
+$ dig @localhost +short -p 1053 1.0.0.127.dnsbl.my-domain.lan
+$ dig @localhost +short -p 1053 www.google.com //<2>
+216.58.211.36
+----
+<1> interrogamos a la lista usando una dirección que debería encontrar
+<2> interrogamos al servidor local en puerto `1053` por el dominio `www.google.com` y obtenemos respuesta, lo que indica que el servidor asume el rol de resolvedor.
+
+== Consolidación servicio DNS
+
+Ya tenemos un servidor _DNS_ funcionando pero en un puerto no estándar, así que debemos cambiarlo al puerto que le corresponde. Sin embargo, aquí puede surgir un pequeño problema: puede existir un servidor DNS ya corriendo en dicho puerto.
+
+include::{partialsdir}/disable-local-resolver.adoc[]
+
+Modificaremos la configuración de nuestro servidor DNS con la configuración definitiva.
+
+.Contenido de `/etc/luids/dns/Corefile`
+[source]
+----
+dnsbl.my-domain.lan {
+  idsapi
+  xlistrbl
+}
+
+. {
+  cache
+  forward . 8.8.8.8 8.8.4.4
+}
+----
+
+IMPORTANT: Si sólo queremos que responda a la zona y no como resolvedor, deberemos eliminar las tres últimas líneas del fichero `Corefile` del ejemplo y modificar el resolvedor en `/etc/resolv.conf`.
+
+Inicializaremos y habilitaremos el servicio.
+
+[source,bash]
+----
+sudo systemctl restart luids-ludns.service
+sudo systemctl enable luids-ludns.service
+----
+
+¡Ya tenemos configurado nuestro servidor DNS con la zona antispam!.
+
+ifdef::env-site,env-github[]
+A continuación: xref:client-config.adoc[Configuración de los clientes]
+endif::env-site,env-github[]

@@ -3,4 +3,6 @@ En la siguiente guía vamos a ver cómo configurar *un servidor DNS con una zona
 
 WARNING: Este proceso está probado únicamente en un sistema _Ubuntu 20.04LTS_ server. Los binarios están compilados estáticamente y las rutas empleadas son las de una distribución estándar, por lo que el instalador debería funcionar en cualquier distribución.
 
-TIP: No solamente los servicios de correo pueden hacer uso de una zona RBL, también otros sistemas como algunos cortafuegos pueden hacer uso de esta configuración.
+TIP: Tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+
+TIP: Dispone de una versión automatizada de la configuración de esta guía mediante `docker-compose` en https://github.com/luids-io/deploy/blob/master/docker/{guidename}/.
