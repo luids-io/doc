@@ -5,9 +5,6 @@ include::{partialsdir}/attributes-es.adoc[]
 |===
 | Guía | Descripción
 
-| xref:guide-full-dns-sinkhole:index.adoc[Sumidero DNS paso a paso]
-| Guía completa de configuración de un sumidero DNS paso a paso.
-
 | xref:guide-basic-dns-sinkhole:index.adoc[Sumidero DNS básico]
 | Guía rápida de configuración de un sencillo sumidero con el que bloquear publicidad, phising y malware.
 
