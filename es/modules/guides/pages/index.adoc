@@ -23,10 +23,4 @@ include::{partialsdir}/attributes-es.adoc[]
 | xref:guide-basic-nfqueue-xlist:index.adoc[Cortafuegos con listas negras]
 | Guía rápida de configuración de un firewall iptables para bloquear Botnets.
 
-| xref:guide-basic-nfqueue-resolv:index.adoc[Cortafuegos integrado con DNS]
-| Configuración de un firewall iptables integrado con una caché de resoluciones DNS para bloquear aquellas conexiones que no hayan pasado por el proceso de resolución de nombres.
-
-| xref:guide-basic-nfqueue-whitehole:index.adoc[Cortafuegos integrado con sumidero DNS]
-| Configuración de un firewall iptables junto a un sumidero DNS de lista blanca para que bloquee todas aquellas conexiones provenientes de equipos de nuestra red dirigidas a dispositivos que no hayan sido resueltos previamente por nuestro servidor DNS.
-
 |===

@@ -1,5 +1,0 @@
-= Siguientes pasos
-include::{partialsdir}/attributes-es.adoc[]
-//ifdef::env-site,env-github[:toc:]
-
-TODO

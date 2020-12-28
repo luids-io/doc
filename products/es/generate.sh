@@ -11,7 +11,7 @@ export PRODUCT_BUILD=$(date +%F)
 MANUALS="manual-xlist manual-dns manual-archive manual-event manual-netfilter"
 GUIDES="guide-basic-dns-sinkhole guide-advanced-dns-sinkhole"
 GUIDES="$GUIDES guide-basic-dns-rblzone guide-basic-nfqueue-xlist"
-GUIDES="$GUIDES guide-basic-nfqueue-resolv"
+GUIDES="$GUIDES guide-basic-dns-whitehole-nfqueue"
 
 PRODUCTS="$MANUALS $GUIDES"
 
