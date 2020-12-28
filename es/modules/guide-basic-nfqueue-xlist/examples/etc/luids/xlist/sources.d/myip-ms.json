@@ -1,6 +1,8 @@
 [
     {
-        "disabled": true,
+        "disabled": false,
+        "deprecated": false,
+        "removed": false,
         "id": "myip.ms",
         "sources": [
             {
@@ -10,22 +12,6 @@
                     "ip6"
                 ],
                 "uri": "https://myip.ms/files/blacklist/general/latest_blacklist.txt"
-            }
-        ],
-        "update": "24h"
-    },
-    {
-        "disabled": false,
-        "id": "myip.ms-full",
-        "sources": [
-            {
-                "format": "flat",
-                "compression": "zip",
-                "resources": [
-                    "ip4",
-                    "ip6"
-                ],
-                "uri": "https://myip.ms/files/blacklist/general/full_blacklist_database.zip"
             }
         ],
         "update": "24h"

@@ -1,4 +1,3 @@
-= Instalación de netfilter (paquete de _^lu^IDS_)
 
 Instalar *netfilter* (paquete de _^lu^IDS_) es muy sencillo, basta descargar el instalador ya existente y ejecutarlo. Para ello puede dirigirse a https://github.com/luids-io/netfilter/releases y descargar la última versión del instalador (fichero `installer_linux.sh`). También puede simplemente copiar y pegar lo siguiente en una consola de comandos.
 

@@ -3,16 +3,16 @@
         "disabled": false,
         "deprecated": false,
         "removed": false,
-        "id": "alienvault.com",
+        "id": "abuse.ch-feodo",
         "sources": [
             {
                 "format": "flat",
                 "resources": [
                     "ip4"
                 ],
-                "uri": "https://reputation.alienvault.com/reputation.generic"
+                "uri": "https://feodotracker.abuse.ch/downloads/ipblocklist.txt"
             }
         ],
-        "update": "8h"
+        "update": "12h"
     }
 ]

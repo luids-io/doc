@@ -1,10 +1,11 @@
-= Guia rápida - Firewall iptables básico para bloquear botnets
+= Guia rápida - Cortafuegos con listas negras
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-nfqueue-xlist
 
 include::{partialsdir}/preface.adoc[]
 
-* xref:introduction.adoc[Introducción]
-* xref:design.adoc[Diseño del sistema]
-* xref:installation.adoc[Instalación]
-* xref:configuration.adoc[Configuración]
+. xref:introduction.adoc[Introducción]
+. xref:design.adoc[Diseño del sistema]
+. xref:xlist-config.adoc[Configuración del sistema de listas]
+. xref:netfilter-config.adoc[Configuración del sistema cortafuegos]
+. xref:next-steps.adoc[Siguientes pasos]

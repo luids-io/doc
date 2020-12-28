@@ -1,15 +1,15 @@
 [
-    {
-        "id": "high-confidence",
-        "class": "sequence",
-        "resources": [ "ip4" ],
-        "opts": { "first": true },
-        "contains": [
-            { "id": "alienvault.com"        },
-            { "id": "cymru.com-fullbogons4" },
-            { "id": "interserver.net"       },
-            { "id": "spamhaus.org-drop"     },
-            { "id": "talosintelligence.com" }
-        ]
-    }
+  {
+    "id": "high-confidence",
+    "class": "sequence",
+    "resources": [ "ip4" ],
+    "opts": { "first": true },
+    "contains": [
+      { "id": "alienvault.com"        },
+      { "id": "cymru.com-fullbogons4" },
+      { "id": "interserver.net"       },
+      { "id": "spamhaus.org-drop"     },
+      { "id": "talosintelligence.com" }
+    ]
+  }
 ]

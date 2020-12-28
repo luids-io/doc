@@ -2,6 +2,39 @@
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-nfqueue-xlist
 
+[[design-sequence]]
+== Secuencias de respuesta
+
+La velocidad de respuesta de nuestro sistema es crítica ya que deberá evaluar todos los paquetes que entren a la cola. La primera optimización es lógica: reducir el número de paquetes que entren a la cola, ¿cómo lo haremos?, dado que _netfilter_ es un cortafuegos capaz de controlar el estado de las conexiones, configuraremos las reglas `iptables` para que sólo evalúe los paquetes que creen una nueva conexión.
+
+La segunda optimización pasará por incluir una caché en el cliente de _xlist_ que incluye `lunfqueue`. Con esta caché mejoraremos el rendimiento de nuestro sistema, ahorrando consultas al sistema _xlist_.
+
+.Secuencia de nuestro sumidero con caché de cliente
+[plantuml,{guidename}-sequence2,png,pdfwidth=60%]
+----
+actor "Netfilter Queue\n(iptables)" as nfqueue
+participant lunfqueue
+participant xlistd
+
+nfqueue -> lunfqueue: packet{11.22.33.44->192.168.1.1}
+lunfqueue -> lunfqueue: CACHE MISS
+lunfqueue -> xlistd: check(11.22.33.44,ip4)
+xlistd -> lunfqueue: {result: false, ttl: 10}
+lunfqueue -> nfqueue: verdict{accept}
+
+nfqueue -> lunfqueue: packet{11.22.33.44->192.168.1.1}
+lunfqueue -> lunfqueue: CACHE OK, {result: false}
+lunfqueue -> nfqueue: verdict{accept}
+
+nfqueue -> lunfqueue: packet{66.66.66.66->192.168.1.1}
+lunfqueue -> lunfqueue: CACHE MISS
+lunfqueue -> xlistd: check(66.66.66.66,ip4)
+xlistd -> lunfqueue: {result: true, reason: "evil"}
+lunfqueue -> nfqueue: verdict{drop}
+----
+
+La tercera optimización, pero que no veremos en esta guía por simplicidad, consiste en crear varias colas _nfqueue_, configurar mediante `iptables` que balancee sobre dichas colas y poner a `lunfqueue` escuchar en todas las colas, realizando de esta forma un análisis en paralelo.
+
 [[design-sources]]
 == Selección de los orígenes
 
@@ -44,7 +77,7 @@ Para la realización de esta guía utilizaremos las siguiente fuentes, que divid
 
 Junto a la información de las listas enumeradas, utilizaremos geolocalización para minimizar posibles falsos positivos de las listas de _baja confianza_.
 
-Para mantener todas las listas que hemos seleccionado sincronizadas, lo que haremos será recurrir a la utilidad _xlget_. Para ello utilizaremos los https://github.com/luids-io/xlist-database/tree/master/database/feeds[feeds de la base de datos] correspondientes.
+Para mantener todas las listas que hemos seleccionado sincronizadas, lo que haremos será recurrir a la utilidad _xlget_. Para ello utilizaremos los https://luids-io.github.io/xlist-database/README.html#xlget-sources[feeds de la base de datos] correspondientes.
 
 Además de estos orígenes externos, también daremos a nuestro sistema cierta flexibilidad, incorporando nuestras propias listas blancas y negras junto a información de geolocalización.
 
@@ -138,5 +171,5 @@ node "Firewall" {
 NOTE: En esta guía únicamente desplegaremos los componentes `xlistd`, `xlget` y `lunfqueue` vistos en el diagrama.
 
 ifdef::env-site,env-github[]
-A continuación: xref:installation.adoc[Instalación]
+A continuación: xref:xlist-config.adoc[Configuración del sistema de listas]
 endif::env-site,env-github[]

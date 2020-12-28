@@ -1,21 +1,24 @@
 [
-    {
-        "id": "root",
-        "class": "wbefore",
+  {
+    "id": "root",
+    "class": "wbefore",
+    "resources": [ "ip4" ],
+    "contains": [
+      { "id": "my-whitelist" },
+      {
+        "id": "blacklist",
+        "class": "sequence",
         "resources": [ "ip4" ],
+        "opts": { "first": true },
         "contains": [
-            { "id": "my-whitelist" },
-            {
-                "id": "blacklist",
-                "class": "sequence",
-                "resources": [ "ip4" ],
-                "opts": { "first": true },
-                "contains": [
-                    { "id": "my-blacklist"    },
-                    { "id": "high-confidence" },
-                    { "id": "low-confidence"  }
-                ]
-            }
+          { "id": "my-blacklist"    },
+          { "id": "high-confidence" },
+          { "id": "low-confidence"  }
         ]
-    }
+      }
+    ],
+    "wrappers": [
+      { "class": "response", "opts": { "ttl": 60, "negativettl": 10 } }
+    ]
+  }
 ]

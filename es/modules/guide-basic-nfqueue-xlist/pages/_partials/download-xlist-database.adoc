@@ -1,4 +1,3 @@
-= Descarga de la base de datos xlist
 
 Para descargar la base de datos xlist, bastará ejecutar el comando `xlist_database` como administrador. El script descargará o actualizará dicha base de datos en el directorio `/usr/local/share/xlist-database`.
 

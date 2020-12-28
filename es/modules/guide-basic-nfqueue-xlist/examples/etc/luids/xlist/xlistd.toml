@@ -1,8 +1,11 @@
 [xlistd]
-datadir = "/var/lib/luids/xlist"
+certsdir   = "/etc/luids/ssl"
+datadir    = "/var/lib/luids/xlist"
 
 [xlistd.service]
-files   = [ "/etc/luids/xlist/service.json" ]
-dirs    = [ "/etc/luids/xlist/services.d/high",
-            "/etc/luids/xlist/services.d/low",
+dirs   = [ "/etc/luids/xlist/services.d/geoip2",
+            "/etc/luids/xlist/services.d/file",
+            "/etc/luids/xlist/services.d/local",
             "/etc/luids/xlist/services.d" ]
+files  = [ "/etc/luids/xlist/service.json" ]
+

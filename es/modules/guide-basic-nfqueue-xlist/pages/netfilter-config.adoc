@@ -1,0 +1,108 @@
+= Configuración del sistema cortafuegos
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-nfqueue-xlist
+
+En esta sección realizaremos el despliegue del sistema cortafuegos. Para ello instalaremos el software de integración de _netfilter_ del sistema ^lu^IDS, lo configuraremos para que use el sistema de listas que hemos creado en la sección anterior y finalmente configuraremos el cortafuegos mediante `iptables` para que delege las decisiones en nuestro sistema.
+
+ifdef::env-site,env-github[]
+TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+endif::env-site,env-github[]
+
+== Instalación del paquete netfilter de ^lu^IDS
+
+include::{partialsdir}/install-netfilter.adoc[leveloffset=2]
+
+== Configuración de lunfqueue
+
+La configuración nuevamente se divide en configuración del servidor y definición del servicio.
+
+.Contenido de `/etc/luids/netfilter/lunfqueue.toml`
+[source,toml]
+----
+include::{examplesdir}/etc/luids/netfilter/lunfqueue.toml[]
+----
+
+IMPORTANT: Deberás reemplazar la dirección de red `192.168.250.0/24` por la de tu red local.
+
+WARNING: En el caso de que estés utilizando una máquina virtual con un NAT, deberás agregar también el rango de direccionamiento privado asignado o meterlo en el fichero de `my-whitelist`. Esto se debe a que `cymru.com-fullbogons4` contiene todos los direccionamientos privados.
+
+El servicio se configurará mediante la definición de los plugins y acciones que se van a aplicar. Esto se realizará mediante el siguiente fichero de configuración.
+
+.Contenido de `/etc/luids/netfilter/plugins-nfqueue.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/netfilter/plugins-nfqueue.json[]
+----
+
+Comprobaremos que la configuración es correcta.
+----
+# lunfqueue --config /etc/luids/netfilter/lunfqueue.toml --dry-run
+INFO[0000] lunfqueue (version: 160c012 build: 2020-12-11T08:52:38+0100)
+configuration seems ok
+----
+
+Una vez probado, inicializaremos y habilitaremos el servicio
+
+[source,bash]
+----
+sudo systemctl start luids-lunfqueue
+sudo systemctl enable luids-lunfqueue
+----
+
+== Prueba de configuración de Netfilter
+
+Ya tenemos el componente _lunfqueue_ respondiendo a las peticiones de la cola netfilter con identificador `100`. Lo siguiente es establecer las reglas del cortafuegos en las cuales se realizará la comprobación. Sin embargo, antes de hacerlo puede ser conveniente probar que el sistema funciona correctamente. Para ello puede probar agregando la siguiente regla de prueba:
+
+[source,bash]
+----
+sudo iptables -I OUTPUT -p icmp -j NFQUEUE --queue-num 100
+----
+
+De esta forma, para cualquier ping que se lance se realizará la comprobación. Podemos ver que funciona correctamente procediendo de la forma que se muestra a continuación.
+----
+$ ping -c 3 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=63 time=14.7 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=63 time=15.9 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=63 time=15.7 ms
+
+--- 8.8.8.8 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2004ms
+rtt min/avg/max/mdev = 14.704/15.420/15.905/0.516 ms
+$ sudo head -1 /var/lib/luids/xlist/alienvault.com.xlist
+ip4,plain,46.4.123.15
+root@luids-router:~# ping -c 3 46.4.123.15
+PING 46.4.123.15 (46.4.123.15) 56(84) bytes of data.
+
+--- 46.4.123.15 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2029ms
+
+$ sudo tail -5 /var/log/syslog
+Dec 28 09:16:36 luids-router lunfqueue[2661]: time="2020-12-28T09:16:36+01:00" level=info msg="starting nfqueue #100"
+Dec 28 09:17:01 luids-router CRON[2682]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Dec 28 09:17:16 luids-router lunfqueue[2661]: time="2020-12-28T09:17:16+01:00" level=info msg="ip-processor.checkip: 10.0.2.15->46.4.123.15 46.4.123.15 {Result:true Reason:found in 'alienvault.com' TTL:60}"
+Dec 28 09:17:17 luids-router lunfqueue[2661]: time="2020-12-28T09:17:17+01:00" level=info msg="ip-processor.checkip: 10.0.2.15->46.4.123.15 46.4.123.15 {Result:true Reason:found in 'alienvault.com' TTL:59}"
+Dec 28 09:17:18 luids-router lunfqueue[2661]: time="2020-12-28T09:17:18+01:00" level=info msg="ip-processor.checkip: 10.0.2.15->46.4.123.15 46.4.123.15 {Result:true Reason:found in 'alienvault.com' TTL:58}"
+----
+
+Una vez testeado, eliminaremos la regla recién creada para las pruebas.
+
+[source,bash]
+----
+sudo iptables -D OUTPUT -p icmp -j NFQUEUE --queue-num 100
+----
+
+== Consolidación del firewall
+
+Ahora que hemos comprobado que el sistema funciona correctamente sólo falta agregar a nuestro cortafuegos las reglas que necesitamos. Una posible regla que chequease las nuevas conexiones a nuestro servidor web podrían ser las siguientes:
+
+[source,bash]
+----
+iptables -A INPUT -p tcp --match multiport --dport 80,443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp --match multiport --dport 80,443 -m conntrack --ctstate NEW -j NFQUEUE --queue-num 100
+iptables -A OUTPUT -p tcp --match multiport --sport 80,443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+----
+
+ifdef::env-site,env-github[]
+A continuación: xref:next-steps.adoc[Siguientes pasos]
+endif::env-site,env-github[]

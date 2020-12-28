@@ -1,0 +1,12 @@
+[
+  {
+    "id": "foreign-countries",
+    "class": "geoip2",
+    "resources": [ "ip4" ],
+    "source": "GeoLite2-Country.mmdb",
+    "opts": {
+      "countries": [ "es" ],
+      "reverse": true
+    }
+  }
+]

@@ -1,111 +1,76 @@
 [
-    {
-        "id": "low-confidence",
-        "class": "sequence",
-        "resources": [ "ip4" ],
-        "contains": [
-            {
-                "id": "abuse.ch-feodo",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "abuse.ch-ssl",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "badips.com",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "blocklist.de",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "blocklist.site-malware",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "cinsscore.com",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "cruzit.com",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "darklist.de",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "dataplane.org-sshpwauth",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "dshield.org",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "emergingthreats.net",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "greensnow.co",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "myip.ms-full",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "rutgers.edu",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "turris.cz",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            },
-            {
-                "id": "foreign-countries",
-                "wrappers": [
-                    { "class": "score", "opts": { "value": 10 } }
-                ]
-            }
-        ],
-        "wrappers": [
-            {
-                "class": "response",
-                "opts": { "clean": true, "threshold": 10 }
-            }
-        ]
-    }
+  {
+    "id": "low-confidence",
+    "class": "sequence",
+    "resources": [ "ip4" ],
+    "contains": [
+      {
+        "id": "abuse.ch-feodo",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "abuse.ch-ssl",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "badips.com",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "blocklist.de",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "blocklist.site-malware",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "cinsscore.com",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "cruzit.com",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "darklist.de",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "dataplane.org-sshpwauth",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "dshield.org",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "emergingthreats.net",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "greensnow.co",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "myip.ms",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "rutgers.edu",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "turris.cz",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      },
+      {
+        "id": "foreign-countries",
+        "wrappers": [ { "class": "score", "opts": { "value": 10 } } ]
+      }
+    ],
+    "wrappers": [
+      { "class": "response", "opts": { "clean": true, "threshold": 10 } }
+    ]
+  }
 ]

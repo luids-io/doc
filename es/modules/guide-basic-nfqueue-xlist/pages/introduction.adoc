@@ -2,6 +2,22 @@
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-nfqueue-xlist
 
+== Qué es ^lu^IDS
+
+include::{partialsdir}/what-luids.adoc[]
+
+== Qué es netfilter
+
+_Netfilter_ es el software que se encuentra en el kernel de _Linux_ y que se encarga del filtrado y procesamiento de paquetes de red, siendo su principal cometido la implementación de sistemas cortafuegos. Dicho software es completamente configurable mediante las herramientas `nftables` e `iptables` (y otras) y es modular, lo que le permite agregar fácilmente nuevas funcionalidades al sistema.
+
+Uno de los módulos que incorpora _netfilter_ es _nfqueue_. Dicho módulo permite que se tomen decisiones acerca de la acción a tomar sobre un determinado paquete en un proceso fuera del espacio de kernel, empleando para ello una interfaz de alta velocidad llamada _netlink_.
+
+== Integración de netfilter con ^lu^IDS
+
+Dentro del conjunto de herramientas de ^lu^IDS hay un paquete, al que hemos llamado también _netfilter_, que incluye programas con los que podremos integrar cortafuegos basados en _Netfilter_ con el ecosistema de ^lu^IDS.
+
+Uno de dichos programas es _lunfqueue_. Este programa está diseñado para escuchar en una o varias colas _nfqueue_ y nos permitirá tomar decisiones acerca de los paquetes de red que enviemos a las colas. Para tomar dichas decisiones, _lunfqueue_ implementa a su vez un sistema de módulos de procesamiento y acciones que podrán consumir la información de otros servicios ^lu^IDS como el sistema de listas, la caché de resoluciones, etc.
+
 == ¿Por qué esta configuración?
 
 Una tarea común en los cortafuegos es comprobar si alguno de los sistemas implicados en la comunicación está en una lista negra. Para llevar a cabo este proceso, en el caso de los cortafuegos basados en _Netfilter_, lo que generalmente se hace es cargar una lista enorme de direcciones baneadas mediante `ipset`.  Además, se suele utilizar algún software tipo `fail2ban` que directamente manipula una cadena _netfilter_ para agregar dichas direcciones.
@@ -13,7 +29,7 @@ Esto funciona pero tiene sus problemas:
 * Las utilidades que llevan a cabo el mantenimiento requieren privilegios especiales.
 * ¿Cómo realizamos la gestión cuando tenemos muchos sistemas cortafuegos?
 
-Aquí es donde entra en juego _lunfqueue_, que lleva al espacio de usuario esta tarea y utiliza un servidor _XList_ como origen de datos (con toda la potencia que esto supone) para la toma de decisión del cortafuegos.
+Aquí es donde entra en juego _lunfqueue_, que lleva al espacio de usuario esta tarea y utiliza un servidor _xlist_ como origen de datos (con toda la potencia que esto supone) para la toma de decisión del cortafuegos.
 
 Para entender mejor el funcionamiento, puede verse el siguiente diagrama de secuencia.
 
@@ -26,12 +42,12 @@ participant lunfqueue
 participant xlistd
 
 nfqueue -> lunfqueue: packet{11.22.33.44->192.168.1.1}
-lunfqueue -> xlistd: Check(11.22.33.44)
+lunfqueue -> xlistd: check(11.22.33.44,ip4)
 xlistd -> lunfqueue: {result: false}
 lunfqueue -> nfqueue: verdict{accept}
 
 nfqueue -> lunfqueue: packet{66.66.66.66->192.168.1.1}
-lunfqueue -> xlistd: Check(66.66.66.66)
+lunfqueue -> xlistd: check(66.66.66.66,ip4)
 xlistd -> lunfqueue: {result: true, reason: "evil"}
 lunfqueue -> nfqueue: verdict{drop}
 ----
@@ -40,7 +56,7 @@ lunfqueue -> nfqueue: verdict{drop}
 
 Como ya se ha comentado, el procedimiento más común es utilizar `ipset` o scripts que generen reglas de cortafuegos en función de un fichero que contenga la lista de IPs, lo que genera alguno de los problemas enumerados.
 
-Como se vio en la figura <<diagram-firewall-sequence>>, nuestro sistema involucra diferentes componentes: por un lado tenemos un componente _lunfqueue_ en "espacio de usuario" que sirve los "veredictos" al sistema _Netfilter_ (que forma parte del Kernel) y, por otro lado, tenemos un servidor _XList_ que se encarga de la tarea de comprobar la existencia de las IPs en las listas. Esta separación de responsabilidades nos permitirá, además de una alta especialización de cada software en su correspondiente rol, implementar sistemas más robustos y escalables.
+Como se vio en la figura <<diagram-firewall-sequence>>, nuestro sistema involucra diferentes componentes: por un lado tenemos un componente _lunfqueue_ en "espacio de usuario" que sirve los "veredictos" al sistema _netfilter_ (que forma parte del kernel) y, por otro lado, tenemos un servidor _xlist_ que se encarga de la tarea de comprobar la existencia de las IPs en las listas. Esta separación de responsabilidades nos permitirá, además de una alta especialización de cada software en su correspondiente rol, implementar sistemas más robustos y escalables.
 
 Esta guía se trata de una configuración básica así que no se verán todas las funcionalidades que ofrece nuestro sistema. Sin embargo, conviene que el usuario las conozca por si se anima a continuar explorando más allá de esta guía. Algunas de las funcionalidades adicionales son:
 

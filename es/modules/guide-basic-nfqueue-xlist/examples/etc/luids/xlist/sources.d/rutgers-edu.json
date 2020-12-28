@@ -1,6 +1,8 @@
 [
     {
         "disabled": false,
+        "deprecated": false,
+        "removed": false,
         "id": "rutgers.edu",
         "sources": [
             {
@@ -8,7 +10,7 @@
                 "resources": [
                     "ip4"
                 ],
-                "uri": "http://report.rutgers.edu/DROP/attackers"
+                "uri": "https://report.rutgers.edu/DROP/attackers"
             }
         ],
         "update": "8h"

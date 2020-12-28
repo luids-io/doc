@@ -18,7 +18,7 @@ include::{partialsdir}/attributes-es.adoc[]
 | Guía rápida de configuración de una sencilla zona DNS RBL compuesta para su uso como sistema antispam.
 
 | xref:guide-basic-nfqueue-xlist:index.adoc[Cortafuegos con listas negras]
-| Configuración de un firewall iptables para bloquear Botnets.
+| Guía rápida de configuración de un firewall iptables para bloquear Botnets.
 
 | xref:guide-basic-nfqueue-resolv:index.adoc[Cortafuegos integrado con DNS]
 | Configuración de un firewall iptables integrado con una caché de resoluciones DNS para bloquear aquellas conexiones que no hayan pasado por el proceso de resolución de nombres.
