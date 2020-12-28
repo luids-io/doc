@@ -1,0 +1,115 @@
+= Diseño del sistema
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-whitehole-nfqueue
+
+[[design-network]]
+== Red
+
+.Diagrama de red
+image::{guidename}-network.svg[network,width=85%,pdfwidth=70%]
+
+[[design-sequence]]
+== Secuencias de respuesta
+
+Nuestro sistema responderá a las consultas DNS y a las solicitudes de conexión de red como se muestra en los siguientes diagramas de secuencia.
+
+.Diagrama de secuencia de nuestro sumidero DNS de lista blanca
+[plantuml,{guidename}-sequence1,png,pdfwidth=70%]
+----
+actor dnsclient
+participant "DNS Server\n(ludns)" as dnsserver
+participant "XList Server\n(xlistd)" as xlist
+participant "Resolv Cache\n(resolvcache)" as resolvcache
+participant "External\nDNS Server" as dnsext #99FF99
+
+dnsclient -> dnsserver: query www.google.com
+dnsserver -> xlist: check(www.google.com)
+xlist --> dnsserver: {result: false }
+dnsserver --> dnsclient: nxdomain
+
+dnsclient -> dnsserver: query www.disney.com
+dnsserver -> xlist: check(wwww.disney.com,domain)
+xlist --> dnsserver: {result: true, reason: "children domain"}
+dnsserver -> dnsext: query www.disney.com
+dnsext --> dnsserver: 1.2.3.4
+dnsserver -> resolvcache: collect(192.168.250.10,www.disney.com,1.2.3.4)
+dnsserver --> dnsclient: 1.2.3.4
+----
+
+.Secuencia de comprobación de Netfilter en la cache DNS
+[plantuml,{guidename}-sequence2,png,pdfwidth=70%]
+----
+actor "Netfilter Queue\n(iptables)" as nfqueue
+participant "Queue Processor\n(lunfqueue)" as lunfqueue
+participant "Cache Server\n(resolvcache)" as resolvcache
+
+nfqueue -> lunfqueue: packet{192.168.250.10->1.2.3.4}
+lunfqueue -> resolvcache: check(192.168.250.10,1.2.3.4)
+resolvcache --> lunfqueue: {resolved: true, timestamp: xxxxx}
+lunfqueue --> nfqueue: verdict{accept}
+
+nfqueue -> lunfqueue: packet{192.168.1.1->66.66.66.66}
+lunfqueue -> resolvcache: check(192.168.1.1,66.66.66.66)
+resolvcache --> lunfqueue: {resolved: false, cachetime: xxxxx}
+lunfqueue --> nfqueue: verdict{drop}
+----
+
+[[design-sources]]
+== Selección de los orígenes
+
+En esta guía no vamos a seleccionar ningún origen de https://luids-io.github.io/xlist-database/README.html[la base de datos xlist]. En su lugar, vamos a mantener nuestras propias listas con los dominios a los que permitiremos acceso.
+
+NOTE: Si desea utilizar alguna lista externa, consulte alguna de las guías disponibles en las que se describe su uso. Por simplicidad y mantener el foco, en esta guía no hacemos uso de este tipo servicios.
+
+[[design-service]]
+== Diseño del servicio de listas
+
+Nuestro servicio de listas contendrá varias listas que estarán categorizadas de la siguiente forma.
+
+* `software-updates`: dominios necesarios para actualizar el software.
+* `iot-devices`: dominios requeridos por dispositivos IoT.
+* `children`: dominios permitidos a los niños.
+* `autoremove`: dominios que se eliminarán automáticamente transcurridos un cierto tiempo.
+
+Nuestro servicio de listas chequeará secuencialmente la existencia de los dominios resueltos en cada una de las listas.
+
+[[design-components]]
+== Despliegue de los componentes
+
+Como vamos a desplegar el software sobre un único sistema, el diagrama de despliegue quedará de la siguiente forma:
+
+.*Diagrama de despliegue*
+[plantuml,{guidename}-deployment,png,pdfwidth=70%]
+----
+cloud "External DNS" {
+  [DNS Server] -left- ExtDNS
+}
+
+node "Firewall" {
+  [netfilter] - Netlink
+  [iptables] --> Netlink
+
+  [resolvcache] - GRPC_R
+
+  database "whitelist"
+  [xlistd] -- GRPC_X
+  [xlistd] --> whitelist
+
+  [ludns] - DNS
+  [ludns] --> ExtDNS
+  [ludns] --> GRPC_R
+  [ludns] --> GRPC_X
+
+  [lunfqueue] --> GRPC_R
+  [lunfqueue] --> Netlink
+}
+
+node "Client" {
+  [DNS Client] --> DNS
+}
+----
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:xlist-config.adoc[Configuración del sistema de listas]
+endif::env-site,env-github[]

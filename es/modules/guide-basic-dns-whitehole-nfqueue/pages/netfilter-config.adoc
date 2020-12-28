@@ -1,0 +1,138 @@
+= Configuración del sistema cortafuegos
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-whitehole-nfqueue
+
+En esta sección realizaremos el despliegue del sistema cortafuegos. Para ello instalaremos el software de integración de _netfilter_ del sistema ^lu^IDS, lo configuraremos para que use el sistema de listas que hemos creado en la sección anterior y finalmente configuraremos el cortafuegos mediante `iptables` para que delegue las decisiones en nuestro sistema.
+
+ifdef::env-site,env-github[]
+TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+endif::env-site,env-github[]
+
+== Instalación de iptables
+
+Además en esta guía utilizaremos `iptables-persistent` para establecer las reglas del cortafuegos. Lo instalaremos vía `apt`.
+
+[source,bash]
+----
+apt install iptables-persistent
+----
+
+== Instalación del paquete netfilter de ^lu^IDS
+
+include::{partialsdir}/install-netfilter.adoc[]
+
+== Configuración de lunfqueue
+
+La configuración nuevamente se divide en configuración del servidor y definición del servicio.
+
+.Contenido de `/etc/luids/netfilter/lunfqueue.toml`
+[source,toml]
+----
+include::{examplesdir}/etc/luids/netfilter/lunfqueue.toml[]
+----
+
+IMPORTANT: Deberás reemplazar la dirección de red `192.168.250.0/24` por la de tu red local.
+
+El servicio se configurará mediante la definición de los plugins y acciones que se van a aplicar. Esto se realizará mediante el siguiente fichero de configuración.
+
+.Contenido de `/etc/luids/netfilter/plugins-nfqueue.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/netfilter/plugins-nfqueue.json[]
+----
+
+Testearemos que la configuración es correcta.
+----
+# lunfqueue --config /etc/luids/netfilter/lunfqueue.toml --dry-run
+INFO[0000] lunfqueue (version: 160c012 build: 2020-12-11T08:52:38+0100)
+configuration seems ok
+----
+
+Una vez probado, inicializaremos y habilitaremos el servicio
+
+[source,bash]
+----
+systemctl start luids-lunfqueue
+systemctl enable luids-lunfqueue
+----
+
+Ya tenemos configurado un servicio que escucha la entrada de paquetes en la cola netfilter `100`. Ahora deberemos dirigir los paquetes que deseemos filtrar a dicha cola.
+
+== Configuración de netfilter mediante iptables
+
+Vamos a configurar el sencillo firewall mediante el siguiente script. Nótese que únicamente dejaremos pasar el tráfico `icmp` para pruebas de conexión y el tráfico por los puertos `80` y `443` para navegación.
+
+.Contenido de `init-firewall.sh`
+[source,bash]
+----
+include::{examplesdir}/init-firewall.sh[]
+----
+
+Lo ejecutaremos.
+
+[source,bash]
+----
+chmod 755 init-firewall.sh
+sudo ./init-firewall.sh
+----
+
+Ya tendremos nuestro cortafuegos configurado, ahora *desde una máquina dentro de la red interna* testearemos.
+----
+(RED-INTERNA)$ ping -c 3 ntp.ubuntu.com //<1>
+PING ntp.ubuntu.com (91.189.94.4) 56(84) bytes of data.
+64 bytes from pugot.canonical.com (91.189.94.4): icmp_seq=1 ttl=61 time=41.6 ms
+64 bytes from pugot.canonical.com (91.189.94.4): icmp_seq=2 ttl=61 time=37.5 ms
+64 bytes from pugot.canonical.com (91.189.94.4): icmp_seq=3 ttl=61 time=39.1 ms
+
+--- ntp.ubuntu.com ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2004ms
+rtt min/avg/max/mdev = 37.463/39.387/41.632/1.717 ms
+
+(RED-INTERNA)$ ping -c 3 www.google.com //<2>
+ping: www.google.com: Nombre o servicio desconocido
+
+(RED-INTERNA)$ ping -c 3 8.8.8.8 //<3>
+PING www.google.com (8.8.8.8) 56(84) bytes of data.
+
+--- 8.8.8.8 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2023ms
+----
+<1> La conexión con una máquina de la lista blanca funciona correctamente.
+<2> La resolución de dominios que no estén en la lista blanca son contestadas con un "no existe el dominio".
+<3> Si tratamos de conectar directamente por ip no funciona ya que la dirección no se ha resuelto previamente por la máquina que hace el ping.
+
+En el log de nuestro firewall tendremos algo parecido a lo siguiente.
+----
+# tail -f /var/log/syslog
+...
+Dec 28 16:55:17 luids-router ludns[2384]: [INFO] plugin/xlisthole: 192.168.250.100:59838 check 'www.google.com' response: false ''
+Dec 28 16:55:17 luids-router ludns[2384]: [INFO] plugin/xlisthole: 192.168.250.100:59838 check 'www.google.com' response: false ''
+Dec 28 16:56:00 luids-router lunfqueue[1876]: level=info msg="ip-processor.checkresolv: 192.168.250.100->8.8.8.8 8.8.8.8 {Result:false Last:0001-01-01 00:00:00 +0000 UTC Store:2020-12-28 15:01:44.8925821 +0000 UTC}"
+Dec 28 16:56:01 luids-router lunfqueue[1876]: level=info msg="ip-processor.checkresolv: 192.168.250.100->8.8.8.8 8.8.8.8 {Result:false Last:0001-01-01 00:00:00 +0000 UTC Store:2020-12-28 15:01:44.8925821 +0000 UTC}"
+Dec 28 16:56:02 luids-router lunfqueue[1876]: level=info msg="ip-processor.checkresolv: 192.168.250.100->8.8.8.8 8.8.8.8 {Result:false Last:0001-01-01 00:00:00 +0000 UTC Store:2020-12-28 15:01:44.8925821 +0000 UTC}"
+----
+
+En la traza de la caché tendremos algo parecido a lo siguiente.
+----
+# cat /var/lib/luids/dns/cache-trace.log
+...
+20201228165352,collect,127.0.0.1:42516,192.168.250.100,ntp.ubuntu.com,91.189.94.4,91.189.89.198,91.189.89.199,91.189.91.157,
+20201228165352,collect,127.0.0.1:42516,192.168.250.100,ntp.ubuntu.com,2001:67c:1560:8003::c7,2001:67c:1560:8003::c8,
+20201228165352,check,127.0.0.1:42510,192.168.250.100,,91.189.94.4,true
+20201228165600,check,127.0.0.1:42510,192.168.250.100,,8.8.8.8,false
+----
+
+== Consolidación del firewall
+
+Ahora que hemos comprobado que el sistema funciona correctamente sólo falta hacer las reglas que hemos definido persistentes para ello simplemente introduciremos.
+
+[source,bash]
+----
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+iptables-save > /etc/iptables/rules.v4
+ip6tables-save > /etc/iptables/rules.v6
+----
+
+ifdef::env-site,env-github[]
+A continuación: xref:client-config.adoc[Configuración de los clientes]
+endif::env-site,env-github[]

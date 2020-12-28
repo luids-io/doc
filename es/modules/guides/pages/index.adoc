@@ -14,6 +14,9 @@ include::{partialsdir}/attributes-es.adoc[]
 | xref:guide-advanced-dns-sinkhole:index.adoc[Sumidero DNS avanzado]
 | Guía rápida de configuración de un sumidero con el que bloquear publicidad, phising y malware. Este sumidero además utiliza la API Google Safebrowsing, archiva las peticiones DNS realizadas, genera eventos y dispone de una interfaz web de visualización del archivo.
 
+| xref:guide-basic-dns-whitehole-nfqueue:index.adoc[Sumidero DNS de lista blanca con cortafuegos]
+| Guía rápida de configuración de un sumidero de lista blanca con el que limitaremos el acceso a internet a un grupo reducido de dominios. Para evitar que las conexiones directas por IP puedan saltarse el sistema, configuraremos además un sistema cortafuegos que bloqueará todas aquellas conexiones provenientes de equipos de nuestra red dirigidas a dispositivos que no hayan sido resueltos previamente por nuestro servidor DNS.
+
 | xref:guide-basic-dns-rblzone:index.adoc[Zona DNS RBL compuesta]
 | Guía rápida de configuración de una sencilla zona DNS RBL compuesta para su uso como sistema antispam.
 
@@ -25,6 +28,5 @@ include::{partialsdir}/attributes-es.adoc[]
 
 | xref:guide-basic-nfqueue-whitehole:index.adoc[Cortafuegos integrado con sumidero DNS]
 | Configuración de un firewall iptables junto a un sumidero DNS de lista blanca para que bloquee todas aquellas conexiones provenientes de equipos de nuestra red dirigidas a dispositivos que no hayan sido resueltos previamente por nuestro servidor DNS.
-
 
 |===

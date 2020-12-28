@@ -1,0 +1,12 @@
+. {
+  idsapi
+  xlisthole {
+    service xlist-whitelist
+    exclude 127.0.0.0/8
+    listed-domain dns=return,log=false
+    unlisted-domain dns=nxdomain,log=true
+  }
+  resolvcache
+  cache
+  forward . 8.8.8.8 8.8.4.4
+}

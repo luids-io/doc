@@ -1,0 +1,164 @@
+= Configuración del servicio dns
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-whitehole-nfqueue
+
+En esta sección realizaremos el despliegue del del sistema caché de resoluciones, del servidor _DNS_ y realizaremos la integración con el resto de componentes del sistema.
+
+ifdef::env-site,env-github[]
+TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+endif::env-site,env-github[]
+
+== Instalación del paquete dns
+
+include::{partialsdir}/install-dns.adoc[]
+
+== Configuración de resolvcache
+
+Para este servicio no hay que hacer ninguna configuración, ya que la configuración por defecto es suficiente.
+
+Iniciaremos y habilitaremos el servicio.
+
+[source,bash]
+----
+sudo systemctl start luids-resolvcache
+sudo systemctl enable luids-resolvcache
+----
+
+== Publicación de los servicios de caché
+
+Con el servidor de caché ya configurado, publicaremos los servicios en `apiservices.json` para que el resto de servicios los puedan utilizar.
+
+.Contenido de `/etc/luids/apiservices.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/apiservices.json[]
+----
+
+NOTE: Se introduce una caché en el cliente de resolución para optimizar las consultas.
+
+== Configuración de ludns
+
+La configuración del servidor DNS la realizaremos en dos fases. En la primera fase lo pondremos a escuchar en el puerto no estándar `1053` para hacer pruebas y comprobar que funciona correctamente. En la segunda fase, que se verá en el apartado siguiente, haremos los pasos necesarios para ponerlo a escuchar en el puerto estándar y agregar una caché para mejorar el rendimiento del servicio.
+
+Una vez que el servicio `xlisthole` se encuentra disponible, la configuración del servicio `ludns` es muy sencilla, basta editar el fichero `/etc/luids/dns/Corefile`.
+
+.Contenido temporal `/etc/luids/dns/Corefile`
+[source]
+----
+.:1053 {
+  idsapi
+  xlisthole {
+    service xlist-whitelist
+    listed-domain dns=return,log=false
+    unlisted-domain dns=nxdomain,log=true
+  }
+  resolvcache
+  cache
+  forward . 8.8.8.8 8.8.4.4
+}
+----
+
+Iniciaremos el servidor con la nueva configuración.
+
+[source,bash]
+----
+systemctl start luids-ludns
+----
+
+Y puede comprobar que se ha iniciado correctamente como se ve en el ejemplo siguiente.
+----
+# systemctl status luids-ludns
+● luids-ludns.service - ludns luIDS service
+     Loaded: loaded (/etc/systemd/system/luids-ludns.service; disabled; vendor preset: enabled)
+     Active: active (running) since Mon 2020-12-28 16:04:09 CET; 13s ago
+   Main PID: 1467 (ludns)
+      Tasks: 6 (limit: 2281)
+     Memory: 2.1M
+     CGroup: /system.slice/luids-ludns.service
+             └─1467 /usr/local/bin/ludns -conf /etc/luids/dns/Corefile
+
+dic 28 16:04:09 luids-router systemd[1]: Started ludns luIDS service.
+dic 28 16:04:09 luids-router ludns[1467]: .:1053
+dic 28 16:04:09 luids-router ludns[1467]: CoreDNS-1.7.0
+dic 28 16:04:09 luids-router ludns[1467]: linux/amd64, go1.14.3,
+----
+
+Para poder probar, agregaremos a alguna de nuestras listas información. Como administradores podemos ejecutar lo siguiente.
+
+[source,bash]
+----
+cd /var/lib/luids/xlist/local
+echo "domain,sub,archive.ubuntu.com" >>software-updates.xlist
+echo "domain,sub,security.ubuntu.com" >>software-updates.xlist
+echo "domain,sub,archive.canonical.com" >>software-updates.xlist
+echo "domain,plain,ntp.ubuntu.com" >>software-updates.xlist
+----
+
+Ahora, transcurridos unos segundos, llevaremos a cabo las pruebas del servicio utilizando para ello el comando `dig`.
+----
+$ dig @localhost +short -p 1053 www.google.com //<1>
+$ dig @localhost +short -p 1053 ntp.ubuntu.com //<2>
+91.189.89.198
+91.189.89.199
+91.189.91.157
+91.189.94.4
+----
+<1> interrogamos al servidor local en puerto `1053` por el dominio `www.google.com` y obtenemos respuesta.
+<2> obtenemos el primer dominio listado en la lista de malware
+
+Comprobamos en el log del servicio que se ha generado un nuevo evento de chequeo de lista y que lo ha encontrado en una de las listas, como se muestra a continuación.
+
+----
+# journalctl -u luids-ludns
+....
+dic 28 16:18:46 luids-router ludns[1671]: [INFO] plugin/xlisthole: [::1]:40013 check 'www.google.com' response: false
+ ''
+----
+
+También comprobaremos que se está almacenando las consultas en la caché.
+
+----
+# cat /var/lib/luids/dns/cache-trace.log
+20201228161848,collect,127.0.0.1:42496,::1,ntp.ubuntu.com,91.189.89.198,91.189.89.199,91.189.91.157,91.189.94.4,
+----
+
+== Consolidación servicio DNS
+
+Ya tenemos un servidor DNS funcionando pero en un puerto no estándar, así que debemos cambiarlo al puerto que le corresponde. Sin embargo, aquí puede surgir un pequeño problema: puede existir un servidor DNS ya corriendo en dicho puerto.
+
+include::{partialsdir}/disable-local-resolver.adoc[]
+
+Modificaremos la configuración de nuestro servidor DNS con la configuración definitiva.
+
+.Contenido de `/etc/luids/dns/Corefile`
+[source]
+----
+. {
+  idsapi
+  xlisthole {
+    service xlist-whitelist
+    exclude 127.0.0.0/8
+    listed-domain dns=return,log=false
+    unlisted-domain dns=nxdomain,log=true
+  }
+  resolvcache
+  cache
+  forward . 8.8.8.8 8.8.4.4
+}
+----
+
+TIP: Podemos agregar a la directiva `exclude` a todas las direcciones de red que queramos excluir del sumidero.
+
+Reiniciaremos y habilitaremos el servicio al inicio.
+
+[source,bash]
+----
+systemctl restart luids-ludns
+systemctl enable luids-ludns
+----
+
+Ya tenemos configurado la caché de resoluciones y nuestro sumidero DNS
+
+ifdef::env-site,env-github[]
+A continuación: xref:netfilter-config.adoc[Configuración del cortafuegos]
+endif::env-site,env-github[]

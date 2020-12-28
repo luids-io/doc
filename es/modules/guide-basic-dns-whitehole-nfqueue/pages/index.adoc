@@ -1,0 +1,13 @@
+= Guia rápida - Sumidero DNS de lista blanca con cortafuegos
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-whitehole-nfqueue
+
+include::{partialsdir}/preface.adoc[]
+
+. xref:introduction.adoc[Introducción]
+. xref:design.adoc[Diseño del sistema]
+. xref:xlist-config.adoc[Configuración del sistema de listas]
+. xref:dns-config.adoc[Configuración del servicio dns]
+. xref:netfilter-config.adoc[Configuración del cortafuegos]
+. xref:client-config.adoc[Configuración de los clientes]
+. xref:next-steps.adoc[Siguientes pasos]

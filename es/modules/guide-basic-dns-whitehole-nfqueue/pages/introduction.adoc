@@ -1,0 +1,35 @@
+= Introducción
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-whitehole-nfqueue
+
+== Qué es ^lu^IDS
+
+include::{partialsdir}/what-luids.adoc[]
+
+== Qué es un sumidero DNS o DNS Sinkhole
+
+include::{partialsdir}/what-dns-sinkhole.adoc[]
+
+== ¿Qué es un sumidero DNS de lista blanca o DNS Whitehole?
+
+Un sumidero de listas blancas es una clase particular de sumidero DNS que únicamente resolverá los dominios solicitados por el cliente si se encuentran previamente en una lista.
+
+== Qué es netfilter
+
+_Netfilter_ es el software que se encuentra en el kernel de _Linux_ y que se encarga del filtrado y procesamiento de paquetes de red, siendo su principal cometido la implementación de sistemas cortafuegos. Dicho software es completamente configurable mediante las herramientas `nftables` e `iptables` (y otras) y es modular, lo que le permite agregar fácilmente nuevas funcionalidades al sistema.
+
+Uno de los módulos que incorpora _netfilter_ es _nfqueue_. Dicho módulo permite que se tomen decisiones acerca de la acción a tomar sobre un determinado paquete en un proceso fuera del espacio de kernel, empleando para ello una interfaz de alta velocidad llamada _netlink_.
+
+== Integración de netfilter con ^lu^IDS
+
+Dentro del conjunto de herramientas de ^lu^IDS hay un paquete, al que hemos llamado también _netfilter_, que incluye programas con los que podremos integrar cortafuegos basados en _Netfilter_ con el ecosistema de ^lu^IDS.
+
+Uno de dichos programas es _lunfqueue_. Este programa está diseñado para escuchar en una o varias colas _nfqueue_ y nos permitirá tomar decisiones acerca de los paquetes de red que enviemos a las colas. Para tomar dichas decisiones, _lunfqueue_ implementa a su vez un sistema de módulos de procesamiento y acciones que podrán consumir la información de otros servicios ^lu^IDS como el sistema de listas, la caché de resoluciones, etc.
+
+== ¿Por qué esta configuración?
+
+TODO
+
+ifdef::env-site,env-github[]
+A continuación: xref:design.adoc[Diseño del sistema]
+endif::env-site,env-github[]

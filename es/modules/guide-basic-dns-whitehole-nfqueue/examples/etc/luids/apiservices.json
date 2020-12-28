@@ -1,0 +1,20 @@
+
+[
+  {
+    "id": "xlist-whitelist",
+    "api": "luids.xlist.v1.Check",
+    "endpoint": "tcp://127.0.0.1:5801"
+  },
+  {
+    "id": "resolvcache",
+    "api": "luids.dnsutil.v1.ResolvCollect",
+    "endpoint": "tcp://127.0.0.1:5891"
+  },
+  {
+    "id": "resolvcheck",
+    "api": "luids.dnsutil.v1.ResolvCheck",
+    "endpoint": "tcp://127.0.0.1:5891",
+    "cache": true,
+    "opts": { "ttl": 60, "negativettl": 10 }
+  }
+]

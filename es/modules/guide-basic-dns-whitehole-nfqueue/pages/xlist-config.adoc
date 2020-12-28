@@ -1,0 +1,139 @@
+= Configuración del sistema de listas
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-whitehole-nfqueue
+
+En esta sección realizaremos el despliegue de nuestro sistema de listas. Para ello instalaremos el software necesario, configuraremos los orígenes de forma que se actualicen automáticamente y definiremos la relación entre dichos orígenes junto a la lógica a nuestro servicio.
+
+ifdef::env-site,env-github[]
+TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+endif::env-site,env-github[]
+
+== Instalación del paquete xlist
+
+include::{partialsdir}/install-xlist.adoc[]
+
+TIP: Si está instalando en una Raspberry debe definir la arquitectura al lanzar el instalador con `sudo ARCH=arm64 ./installer.sh`. Si desea instalar el software en alguna otra arquitectura, las arquitecturas disponibles son: `amd64`, `arm`, `arm64`, `mips`, `mips64`, `mips64le`, `ppc64` y `s390x`.
+
+== Configuración de xlistd
+
+La configuración de `xlistd` se divide en dos partes:
+
+* Definición del servicio.
+* Parámetros de configuración del servidor.
+
+La definición del servicio la realizaremos utilizando múltiples ficheros para que se entienda mejor. Empezaremos por crea los siguientes ficheros de definición que contendrá la definición de nuestra listas locales.
+
+.Contenido de `/etc/luids/xlist/services.d/local/software-updates.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/services.d/local/software-updates.json[]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/local/iot-devices.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/services.d/local/iot-devices.json[]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/local/children.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/services.d/local/children.json[]
+----
+
+.Contenido de `/etc/luids/xlist/services.d/local/autoremove.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/services.d/local/autoremove.json[]
+----
+
+Crearemos el componente raíz en el fichero `service.json` que dará forma a nuestro servicio de agregación.
+
+.Contenido de `/etc/luids/xlist/service.json`
+[source,json]
+----
+include::{examplesdir}/etc/luids/xlist/service.json[]
+----
+
+Finalmente, crearemos los ficheros vacíos de contenido.
+
+[source,bash]
+----
+touch /var/lib/luids/xlist/local/software-updates.xlist
+touch /var/lib/luids/xlist/local/iot-devices.xlist
+touch /var/lib/luids/xlist/local/children.xlist
+touch /var/lib/luids/xlist/local/autoremove.xlist
+----
+
+Editaremos el fichero de configuración del servidor `xlistd` para que utilice nuestra nueva definición de servicio.
+
+.Contenido de `/etc/luids/xlist/xlistd.toml`
+[source,toml]
+----
+include::{examplesdir}/etc/luids/xlist/xlistd.toml[]
+----
+
+Comprobaremos que la configuración es correcta con el siguiente comando.
+[source,bash]
+----
+xlistd --config /etc/luids/xlist/xlistd.toml --dry-run
+----
+
+Inicializaremos y habilitaremos el servicio `xlistd`.
+[source,bash]
+----
+sudo systemctl start luids-xlistd
+sudo systemctl enable luids-xlistd
+----
+
+Podremos probar el correcto funcionamiento del servidor utilizando el comando `xlistc` para hacerle consultas.
+----
+$ xlistc
+[domain] (2.666639ms)
+$ xlistc www.google.com
+domain,www.google.com: false,"",0 (603.587µs)
+----
+
+== Publicación del servicio de listas
+
+Para que el resto de componentes del ecosistema _^lu^IDS_ puedan utilizar nuestro servicio de listas, debemos "publicarlo" en el _registro de servicios de la API_. Esto lo haremos editando el fichero `/etc/luids/apiservices.json`
+
+.Contenido temporal de `/etc/luids/apiservices.json`
+[source,json]
+----
+[
+    {
+        "id": "xlist-whitelist",
+        "api": "luids.xlist.v1.Check",
+        "endpoint": "tcp://127.0.0.1:5801"
+    }
+]
+----
+
+== Configuración del autoremove
+
+Para hacer que se elimine diariamente de forma automática los elementos que agreguemos a la lista `autoremove` podremos hacerlo mediante un _timer_ de _systemd_.
+
+.Contenido de `/etc/systemd/system/luids-xlist-autoremove.service`
+[source]
+----
+include::{examplesdir}/etc/systemd/system/luids-xlist-autoremove.service[]
+----
+
+.Contenido de `/etc/systemd/system/luids-xlist-autoremove.timer`
+[source]
+----
+include::{examplesdir}/etc/systemd/system/luids-xlist-autoremove.timer[]
+----
+
+Aplicaremos el servicio y el timer.
+[source,bash]
+----
+systemctl daemon-reload
+----
+
+TIP: Con un poco de idea puede hacer algo parecido para implementar un sistema que permita accesos en función de la hora.
+
+ifdef::env-site,env-github[]
+A continuación: xref:dns-config.adoc[Configuración del servicio dns]
+endif::env-site,env-github[]

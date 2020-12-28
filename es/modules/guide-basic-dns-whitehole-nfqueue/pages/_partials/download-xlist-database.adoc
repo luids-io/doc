@@ -1,0 +1,24 @@
+
+Para descargar la base de datos xlist, bastará ejecutar el comando `xlist_database` como administrador. El script descargará o actualizará dicha base de datos en el directorio `/usr/local/share/xlist-database`.
+
+----
+$ sudo xlist_database
+Clonando en '/usr/local/share/xlist-database'...
+remote: Enumerating objects: 973, done.
+remote: Counting objects: 100% (973/973), done.
+remote: Compressing objects: 100% (244/244), done.
+remote: Total 973 (delta 850), reused 851 (delta 728), pack-reused 0
+Recibiendo objetos: 100% (973/973), 161.50 KiB | 879.00 KiB/s, listo.
+Resolviendo deltas: 100% (850/850), listo.
+----
+
+TIP: La base de datos se va actualizando con nuevas fuentes y va corrigiendo posibles cambios que se produzcan en las ya existentes: cambios de url, formato e incluso si la fuente deja de existir. Por ello, es más que recomendable que actualicemos regularmente la base de datos con el comando `xlist_database`.
+
+Si lo preferimos, podemos hacer que se actualice diariamente de forma automática. Para ello, basta con que habilitemos el _timer_ que crea el instalador para esta tarea.
+
+[source,bash]
+----
+sudo systemctl enable --now luids-xlist-updatedb.timer
+----
+
+WARNING: Para que la actualización automática funcione es necesario que hayamos ejecutado el comando `xlist_database` previamente.

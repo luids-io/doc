@@ -1,0 +1,13 @@
+[
+  {
+    "id": "iot-devices",
+    "class": "file",
+    "resources": [ "domain" ],
+    "source": "local/iot-devices.xlist",
+    "opts": {
+      "autoreload": true,
+      "reloadseconds": 5,
+      "reason": "found in 'iot-devices'"
+    }
+  }
+]

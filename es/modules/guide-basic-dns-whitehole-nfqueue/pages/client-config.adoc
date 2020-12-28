@@ -1,0 +1,9 @@
+= Configuración de los clientes
+include::{partialsdir}/attributes-es.adoc[]
+:guidename: basic-dns-whitehole-nfqueue
+
+Los clientes se deberán configurar para que usen la _IP_ de nuestro sumidero como *único servidor DNS* y como *gateway*. La forma recomendable de realizar esta configuración es mediante el uso de un sistema _DHCP_.
+
+ifdef::env-site,env-github[]
+A continuación: xref:next-steps.adoc[Siguientes pasos]
+endif::env-site,env-github[]

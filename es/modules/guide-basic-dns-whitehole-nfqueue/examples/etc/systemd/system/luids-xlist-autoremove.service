@@ -1,0 +1,8 @@
+[Unit]
+Description=Truncate file autoremove.xlist
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=truncate -s 0 /var/lib/luids/xlist/local/autoremove.xlist
+

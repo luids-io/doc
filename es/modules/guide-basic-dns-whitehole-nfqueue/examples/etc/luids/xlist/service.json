@@ -1,0 +1,13 @@
+[
+  {
+    "id": "root",
+    "class": "sequence",
+    "resources": [ "domain" ],
+    "contains": [
+      { "id": "software-updates" },
+      { "id": "iot-devices"      },
+      { "id": "children"         },
+      { "id": "autoremove"       }
+    ]
+  }
+]

@@ -1,0 +1,10 @@
+[xlist]
+datadir = "/var/lib/luids/xlist"
+
+[xlist.service]
+dirs       = [ "/etc/luids/xlist/services.d/local" ]
+files      = [ "/etc/luids/xlist/service.json" ]
+
+[log]
+format = "log"
+

@@ -1,0 +1,8 @@
+* xref:guide-basic-dns-whitehole-nfqueue:index.adoc[Sumidero DNS lista blanca]
+** xref:guide-basic-dns-whitehole-nfqueue:introduction.adoc[Introducción]
+** xref:guide-basic-dns-whitehole-nfqueue:design.adoc[Diseño del sistema]
+** xref:guide-basic-dns-whitehole-nfqueue:xlist-config.adoc[Configuración del sistema de listas]
+** xref:guide-basic-dns-whitehole-nfqueue:dns-config.adoc[Configuración del servicio dns]
+** xref:guide-basic-dns-whitehole-nfqueue:netfilter-config.adoc[Configuración del cortafuegos]
+** xref:guide-basic-dns-whitehole-nfqueue:client-config.adoc[Configuración de los clientes]
+** xref:guide-basic-dns-whitehole-nfqueue:next-steps.adoc[Siguientes pasos]
