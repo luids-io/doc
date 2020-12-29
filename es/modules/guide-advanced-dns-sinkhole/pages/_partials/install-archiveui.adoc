@@ -1,12 +1,6 @@
-
-Instalar *archiveui* es muy sencillo, basta descargar el instalador ya existente y ejecutarlo. Para ello puede dirigirse a https://github.com/luids-io/archiveui/releases y descargar la última versión del instalador (fichero `installer_linux.sh`). También puede simplemente copiar y pegar lo siguiente en una consola de comandos.
-
-[source,bash]
-----
-RELEASE="0.0.1"
-DOWNLOAD_BASE="https://github.com/luids-io/archiveui/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
-wget $DOWNLOAD_URI  -O installer_archiveui.sh
-chmod 755 installer_archiveui.sh
-sudo ./installer_archiveui.sh
-----
+ifdef::env-site[]
+include::guides:partial$install-archiveui.adoc[]
+endif::env-site[]
+ifndef::env-site[]
+include::{moduledir}/../guides/pages/_partials/install-archiveui.adoc[]
+endif::env-site[]

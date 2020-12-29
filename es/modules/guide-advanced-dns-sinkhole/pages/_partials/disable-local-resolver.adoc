@@ -1,24 +1,6 @@
-
-Esto se debe a que muchas distribuciones optan por poner un pequeño servidor DNS funcionando por defecto para resolver las peticiones locales. Los más habituales son `systemd-resolved` y `dnsmasqd`. En el caso de una distribución _Ubuntu server 20.04_, si comprobamos si hay algún proceso escuchando en el puerto `53`, obtenemos el siguiente resultado.
-----
-$ sudo ss -lunp | grep :53
-UNCONN 0 0 127.0.0.53%lo:53 0.0.0.0:* users:(("systemd-resolve",pid=564,fd=12))
-----
-
-Podremos desactivar dicho servicio y definir que el resolver local utilice nuestro servicio DNS ejecutando como administrador los siguientes comandos.
-
-[source,bash]
-----
-## deshabilito systemd-resolved
-systemctl disable systemd-resolved.service
-systemctl stop systemd-resolved.service
-
-## borro symlink
-sudo rm -f /etc/resolv.conf
-
-## creo nuevo resolv.conf que use el servidor dns local
-cat >/etc/resolv.conf <<EOF
-nameserver 127.0.0.1
-options edns0
-EOF
-----
+ifdef::env-site[]
+include::guides:partial$disable-local-resolver.adoc[]
+endif::env-site[]
+ifndef::env-site[]
+include::{moduledir}/../guides/pages/_partials/disable-local-resolver.adoc[]
+endif::env-site[]

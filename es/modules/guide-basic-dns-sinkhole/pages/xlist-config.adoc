@@ -12,8 +12,6 @@ endif::env-site,env-github[]
 
 include::{partialsdir}/install-xlist.adoc[]
 
-TIP: Si está instalando en una Raspberry debe definir la arquitectura al lanzar el instalador con `sudo ARCH=arm64 ./installer.sh`. Si desea instalar el software en alguna otra arquitectura, las arquitecturas disponibles son: `amd64`, `arm`, `arm64`, `mips`, `mips64`, `mips64le`, `ppc64` y `s390x`.
-
 == Descarga de la base de datos xlist
 
 include::{partialsdir}/download-xlist-database.adoc[]

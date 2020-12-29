@@ -1,0 +1,16 @@
+:xlist-release: 0.0.1
+
+Instalar *xlist* es muy sencillo, basta descargar el instalador ya existente y ejecutarlo. Para ello puede dirigirse a https://github.com/luids-io/xlist/releases y descargar la última versión del instalador (fichero `installer_linux.sh`). También puede simplemente copiar y pegar lo siguiente en una consola de comandos.
+
+[source,bash]
+[subs="attributes"]
+----
+RELEASE="{xlist-release}"
+DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
+DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
+wget $DOWNLOAD_URI -O installer_xlist.sh
+chmod 755 installer_xlist.sh
+sudo ./installer_xlist.sh
+----
+
+TIP: Si está instalando el software en una arquitectura diferente a la `amd64` (como en el caso de una Raspberry) deberá definirla en una variable de entorno al lanzar el instalador. Ejemplo: `sudo ARCH=arm64 ./installer.sh`. Las arquitecturas disponibles son: `amd64`, `arm`, `arm64`, `mips`, `mips64`, `mips64le`, `ppc64` y `s390x`.
