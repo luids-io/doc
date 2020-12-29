@@ -4,13 +4,10 @@ include::{partialsdir}/attributes-es.adoc[]
 
 La configuración del software se realiza de la misma forma que el resto de componentes del sistema _^lu^IDS_, tal y como se describe en <<config-bootstrap>>. Luego, cada componente tiene sus propias secciones particulares como se describirá en <<config-eventproc>>.
 
-ifdef::env-site,env-github[]
-include::manuals:partial$config-bootstrap.adoc[leveloffset=1]
-endif::env-site,env-github[]
+[[config-bootstrap]]
+== Proceso de inicialización
 
-ifndef::env-site,env-github[]
-include::{moduledir}/../manuals/pages/_partials/config-bootstrap.adoc[leveloffset=2]
-endif::env-site,env-github[]
+include::{partialsdir}/config-bootstrap.adoc[]
 
 [[config-eventproc]]
 == Configuración `eventproc`
@@ -40,31 +37,114 @@ include::{examplesdir}/eventproc_example1.toml[]
 [[config-reference]]
 == Referencia de configuración
 
-ifdef::env-site,env-github[]
-include::manuals:partial$options-args.adoc[leveloffset=2]
-include::partial$options-eventproc.adoc[leveloffset=2]
-include::partial$options-eventproc-db.adoc[leveloffset=2]
-include::partial$options-eventproc-stack.adoc[leveloffset=2]
-include::partial$options-service-event-notify.adoc[leveloffset=2]
-include::partial$options-service-event-forward.adoc[leveloffset=2]
-include::manuals:partial$options-ids-api.adoc[leveloffset=2]
-include::manuals:partial$options-server.adoc[leveloffset=2]
-include::manuals:partial$options-health.adoc[leveloffset=2]
-include::manuals:partial$options-log.adoc[leveloffset=2]
-endif::env-site,env-github[]
+[[options-args]]
+=== Sólo argumentos
 
-ifndef::env-site,env-github[]
-include::{moduledir}/../manuals/pages/_partials/options-args.adoc[leveloffset=3]
-include::{partialsdir}/options-eventproc.adoc[leveloffset=3]
-include::{partialsdir}/options-eventproc-db.adoc[leveloffset=3]
-include::{partialsdir}/options-eventproc-stack.adoc[leveloffset=3]
-include::{partialsdir}/options-service-event-notify.adoc[leveloffset=3]
-include::{partialsdir}/options-service-event-forward.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-ids-api.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-server.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-health.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-log.adoc[leveloffset=3]
-endif::env-site,env-github[]
+include::{partialsdir}/options-args.adoc[]
+
+[[options-eventproc]]
+=== Sección `eventproc`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `workers` | _int_ | No |
+|  Especifica el número de procesos ligeros que se encargan de procesar los eventos.
+
+| `certsdir` | _string_ | No |
+|  Especifica el directorio donde estarán los certificados referenciados en la configuración del stack de procesado.
+
+| `datadir` | _string_ | No |
+|  Especifica el directorio donde se almacenan los ficheros de datos.
+
+| `cachedir` | _string_ | No |
+|  Especifica el directorio para usar de cache por parte de los módulos.
+
+|===
+
+[[options-eventproc-db]]
+=== Sección `eventproc.db`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `files` | _[]string_ | No |
+|  Listado de ficheros que definen los códigos de eventos soportados por el procesados de eventos.
+
+| `dirs` | _[]string_ | No |
+|  Listado de directorios con los ficheros `.json` que definen los códigos de eventos soportados por el procesados de eventos.
+
+|===
+
+[[options-eventproc-stack]]
+=== Sección `eventproc.stack`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `main` | _string_ | Sí | `main`
+|  Stack por la que se inicia el procesado.
+
+| `files` | _[]string_ | No |
+|  Listado de ficheros que definen la definición de los stacks de procesado.
+
+| `dirs` | _[]string_ | No |
+|  Listado de directorios con los ficheros `.json` con la definición de los stacks de procesado.
+
+|===
+
+[[options-service-event-notify]]
+=== Sección `service.event.notify`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `enable` | _boolean_ | Sí | `true`
+|  Habilita la api `event.notify`.
+
+| `log` | _boolean_ | No | `true`
+|  Habilita el log del servicio.
+
+|===
+
+[[options-service-event-forward]]
+=== Sección `service.event.forward`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `enable` | _boolean_ | Sí | `true`
+|  Habilita la api `event.forward`.
+
+| `log` | _boolean_ | No | `true`
+|  Habilita el log del servicio.
+
+|===
+
+[[options-ids-api]]
+=== Sección `ids.api`
+
+include::{partialsdir}/options-ids-api.adoc[]
+
+[[options-server]]
+=== Sección `server`
+
+include::{partialsdir}/options-server.adoc[]
+
+[[options-health]]
+=== Sección `health`
+
+include::{partialsdir}/options-health.adoc[]
+
+[[options-log]]
+=== Sección `log`
+
+include::{partialsdir}/options-log.adoc[]
 
 
 ifdef::env-site,env-github[]

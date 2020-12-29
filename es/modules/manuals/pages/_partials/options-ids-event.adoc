@@ -1,5 +1,3 @@
-[[options-ids-event]]
-= Sección `ids.event`
 
 [cols="1,1,1,1,4"]
 |===

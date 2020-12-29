@@ -1,5 +1,7 @@
 = Empezando
 include::{partialsdir}/attributes-es.adoc[]
+:archive-release: 0.0.1
+:dns-release: 0.0.1
 
 A continuación veremos un pequeño tutorial en el que instalaremos un pequeño resolvedor DNS del que archivaremos las peticiones de resolución utilizando nuestro software `archive`. El objetivo de este tutorial es familiarizar al usuario con las herramientas y mostrar una pequeña parte de lo que nos ofrece el software, si desea ver su uso en algún escenario "real" puede ver alguna de las guías disponibles.
 
@@ -15,10 +17,11 @@ sudo apt install mongodb-server
 Para instalar el software, usaremos el instalador del paquete, para ello simplemente copiaremos y pegaremos el siguiente contenido en una shell.
 
 [source,bash]
+[subs="attributes"]
 ----
-RELEASE="0.0.1"
+RELEASE="{archive-release}"
 DOWNLOAD_BASE="https://github.com/luids-io/archive/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
+DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
 wget $DOWNLOAD_URI -O installer_archive.sh
 chmod 755 installer_archive.sh
 sudo ./installer_archive.sh -u
@@ -101,10 +104,11 @@ Publicaremos nuestro servicio recién configurado en `apiservices.json` de forma
 Nuestro servicio de archivado necesita de algún sistema que lo "alimente", por ello vamos a configurar un servidor `ludns`.
 
 [source,bash]
+[subs="attributes"]
 ----
-RELEASE="0.0.1"
+RELEASE="{dns-release}"
 DOWNLOAD_BASE="https://github.com/luids-io/dns/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
+DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
 wget $DOWNLOAD_URI -O installer_dns.sh
 chmod 755 installer_dns.sh
 sudo ./installer_dns.sh -u

@@ -1,5 +1,6 @@
 = Instalación
 include::{partialsdir}/attributes-es.adoc[]
+:event-release: 0.0.1
 ifdef::env-site,env-github[:toc:]
 
 El paquete de software *event* se encuentra precompilado para los siguientes sistemas operativos y arquitecturas:
@@ -29,12 +30,13 @@ El software viene en forma de ejecutables compilados estáticamente. Esto hace q
 Actualmente sólo hay instalador disponible para _GNU/Linux_. Para instalar, simplemente copie y pegue el siguiente contenido en una shell.
 
 [source,bash]
+[subs="attributes"]
 .Instalación mediante instalador
 ----
-RELEASE="0.0.1"
+RELEASE="{event-release}"
 DOWNLOAD_BASE="https://github.com/luids-io/event/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
-wget $DOWNLOAD_URI  -O installer_event.sh
+DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
+wget $DOWNLOAD_URI -O installer_event.sh
 chmod 755 installer_event.sh
 sudo ./installer_event.sh
 ----
@@ -111,19 +113,6 @@ docker pull luids/eventproc
 === Binarios precompilados
 
 Descargue los binarios utilizando un navegador en la siguiente dirección: https://github.com/luids-io/event/releases
-
-O bien simplemente copie y pegue lo siguiente en una shell, sustituyendo el sistema operativo y la arquitectura definida en los parámetros `OS` y `ARCH` si fuese necesario.
-
-[source,bash]
-----
-RELEASE="0.0.1"
-OS="linux"
-ARCH="amd64"
-DOWNLOAD_BASE="https://github.com/luids-io/event/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/event_${RELEASE}_${OS}_${ARCH}.tgz"
-wget $DOWNLOAD_URI -O event_binaries.tgz
-tar zxvf event_binaries.tgz
-----
 
 [[manual-sources]]
 === Compilar las fuentes

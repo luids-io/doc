@@ -4,13 +4,10 @@ include::{partialsdir}/attributes-es.adoc[]
 
 La configuración del software se realiza de la misma forma que el resto de componentes del sistema _^lu^IDS_, tal y como se describe en <<config-bootstrap>>. Luego, cada componente tiene sus propias secciones particulares como se describirá en <<config-lunfqueue>>.
 
-ifdef::env-site,env-github[]
-include::manuals:partial$config-bootstrap.adoc[leveloffset=1]
-endif::env-site,env-github[]
+[[config-bootstrap]]
+== Proceso de inicialización
 
-ifndef::env-site,env-github[]
-include::{moduledir}/../manuals/pages/_partials/config-bootstrap.adoc[leveloffset=2]
-endif::env-site,env-github[]
+include::{partialsdir}/config-bootstrap.adoc[]
 
 [[config-lunfqueue]]
 == Configuración `lunfqueue`
@@ -38,27 +35,74 @@ include::{examplesdir}/lunfqueue_example1.toml[]
 [[config-reference]]
 == Referencia de configuración
 
-ifdef::env-site,env-github[]
-include::manuals:partial$options-args.adoc[leveloffset=2]
-include::partial$options-nfqueue.adoc[leveloffset=2]
-include::partial$options-nfqueue-plugin.adoc[leveloffset=2]
-include::manuals:partial$options-ids-api.adoc[leveloffset=2]
-include::manuals:partial$options-ids-event.adoc[leveloffset=2]
-include::manuals:partial$options-server.adoc[leveloffset=2]
-include::manuals:partial$options-health.adoc[leveloffset=2]
-include::manuals:partial$options-log.adoc[leveloffset=2]
-endif::env-site,env-github[]
+[[options-args]]
+=== Sólo argumentos
 
-ifndef::env-site,env-github[]
-include::{moduledir}/../manuals/pages/_partials/options-args.adoc[leveloffset=3]
-include::{partialsdir}/options-nfqueue.adoc[leveloffset=3]
-include::{partialsdir}/options-nfqueue-plugin.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-ids-api.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-ids-event.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-server.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-health.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-log.adoc[leveloffset=3]
-endif::env-site,env-github[]
+include::{partialsdir}/options-args.adoc[]
+
+[[options-nfqueue]]
+=== Sección `nfqueue`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `localnets` | _[]string_ | Sí |
+|  Especifica los CIDRs de las redes locales al sistema.
+
+| `qids` | _[]int_ | Sí | `0`
+|  Listado de identificadores de colas nfqueue en las que escuchar.
+
+| `policy` | _string_ | No | `accept`
+|  Política a aplicar al final del procesado si no se ha determinado ninguna.
+
+| `onerror` | _string_ | No | `accept`
+|  Política a aplicar si se produce un error decodificando el paquete IP.
+
+| `tick` | _int_ | No | `5`
+|  Segundos por tick en el procesamiento de paquetes.
+
+|===
+
+[[options-nfqueue-plugin]]
+=== Sección `nfqueue.plugin`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `files` | _[]string_ | No |
+|  Listado de ficheros que definen la definición de los plugins de procesado de paquetes.
+
+| `dirs` | _[]string_ | No |
+|  Listado de directorios con los ficheros `.json` que contienen la definición de los plugins de procesado de paquetes.
+
+|===
+
+[[options-ids-api]]
+=== Sección `ids.api`
+
+include::{partialsdir}/options-ids-api.adoc[]
+
+[[options-ids-event]]
+=== Sección `ids.event`
+
+include::{partialsdir}/options-ids-event.adoc[]
+
+[[options-server]]
+=== Sección `server`
+
+include::{partialsdir}/options-server.adoc[]
+
+[[options-health]]
+=== Sección `health`
+
+include::{partialsdir}/options-health.adoc[]
+
+[[options-log]]
+=== Sección `log`
+
+include::{partialsdir}/options-log.adoc[]
 
 
 ifdef::env-site,env-github[]

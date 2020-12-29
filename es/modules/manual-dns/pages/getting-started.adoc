@@ -1,5 +1,7 @@
 = Empezando
 include::{partialsdir}/attributes-es.adoc[]
+:dns-release: 0.0.1
+:xlist-release: 0.0.1
 
 A continuación veremos un pequeño tutorial en el que instalaremos un pequeño sumidero DNS en un servidor GNU/Linux. El objetivo de este tutorial es familiarizar al usuario con las herramientas y mostrar una pequeña parte de lo que nos ofrece el software, si desea ver su uso en algún escenario "real" puede ver alguna de las guías disponibles.
 
@@ -8,10 +10,11 @@ A continuación veremos un pequeño tutorial en el que instalaremos un pequeño 
 Usaremos el instalador del paquete, para ello simplemente copiaremos y pegaremos el siguiente contenido en una shell.
 
 [source,bash]
+[subs="attributes"]
 ----
-RELEASE="0.0.1"
+RELEASE="{dns-release}"
 DOWNLOAD_BASE="https://github.com/luids-io/dns/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
+DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
 wget $DOWNLOAD_URI -O installer_dns.sh
 chmod 755 installer_dns.sh
 sudo ./installer_dns.sh -u
@@ -38,10 +41,11 @@ $ dig +short @localhost -p 1053 www.badsite.com
 Debido a que vamos a construir un sumidero, necesitamos un servidor `xlistd` que de soporte al sistema de listas negras. Por ello procederemos a instalar dicho servidor.
 
 [source,bash]
+[subs="attributes"]
 ----
-RELEASE="0.0.1"
+RELEASE="{xlist-release}"
 DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
+DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
 wget $DOWNLOAD_URI -O installer_xlist.sh
 chmod 755 installer_xlist.sh
 sudo ./installer_xlist.sh -u

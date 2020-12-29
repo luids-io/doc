@@ -1,5 +1,6 @@
 = Instalación
 include::{partialsdir}/attributes-es.adoc[]
+:netfilter-release: 0.0.1
 ifdef::env-site,env-github[:toc:]
 
 El paquete de software *netfilter* se encuentra precompilado para los siguientes sistemas operativos y arquitecturas:
@@ -29,12 +30,13 @@ El software viene en forma de ejecutables compilados estáticamente. Esto hace q
 Actualmente sólo hay instalador disponible para _GNU/Linux_. Para instalar, simplemente copie y pegue el siguiente contenido en una shell.
 
 [source,bash]
+[subs="attributes"]
 .Instalación mediante instalador
 ----
-RELEASE="0.0.1"
+RELEASE="{netfilter-release}"
 DOWNLOAD_BASE="https://github.com/luids-io/netfilter/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/installer_linux.sh"
-wget $DOWNLOAD_URI  -O installer_netfilter.sh
+DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
+wget $DOWNLOAD_URI -O installer_netfilter.sh
 chmod 755 installer_netfilter.sh
 sudo ./installer_netfilter.sh
 ----
@@ -104,19 +106,6 @@ TIP: Es posible ejecutar múltiples instancias de _lunfqueue_ con diferentes con
 === Binarios precompilados
 
 Descargue los binarios utilizando un navegador en la siguiente dirección: https://github.com/luids-io/netfilter/releases
-
-O bien simplemente copie y pegue lo siguiente en una shell, sustituyendo el sistema operativo y la arquitectura definida en los parámetros `OS` y `ARCH` si fuese necesario.
-
-[source,bash]
-----
-RELEASE="0.0.1"
-OS="linux"
-ARCH="amd64"
-DOWNLOAD_BASE="https://github.com/luids-io/netfilter/releases/download"
-DOWNLOAD_URI="${DOWNLOAD_BASE}/v${RELEASE}/netfilter_${RELEASE}_${OS}_${ARCH}.tgz"
-wget $DOWNLOAD_URI -O netfilter_binaries.tgz
-tar zxvf netfilter_binaries.tgz
-----
 
 [[manual-sources]]
 === Compilar las fuentes

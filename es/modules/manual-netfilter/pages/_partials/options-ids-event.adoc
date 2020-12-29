@@ -1,0 +1,6 @@
+ifdef::env-site[]
+include::manuals:partial$options-ids-event.adoc[]
+endif::env-site[]
+ifndef::env-site[]
+include::{moduledir}/../manuals/pages/_partials/options-ids-event.adoc[]
+endif::env-site[]

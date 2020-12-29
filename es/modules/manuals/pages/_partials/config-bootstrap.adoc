@@ -1,5 +1,3 @@
-[[config-bootstrap]]
-= Proceso de inicialización
 
 La configuración de un servicio _^lu^IDS_ puede realizarse de varias formas:
 

@@ -1,5 +1,3 @@
-[[options-args]]
-= Sólo argumentos
 
 [cols="1,1,1,1,4"]
 |===

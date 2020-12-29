@@ -1,0 +1,6 @@
+ifdef::env-site[]
+include::manuals:partial$options-health.adoc[]
+endif::env-site[]
+ifndef::env-site[]
+include::{moduledir}/../manuals/pages/_partials/options-health.adoc[]
+endif::env-site[]

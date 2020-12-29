@@ -1,5 +1,3 @@
-[[options-ids-api]]
-= Sección `ids.api`
 
 [cols="1,1,1,1,4"]
 |===

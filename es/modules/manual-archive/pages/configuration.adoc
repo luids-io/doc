@@ -4,13 +4,10 @@ include::{partialsdir}/attributes-es.adoc[]
 
 La configuración del software se realiza de la misma forma que el resto de componentes del sistema _^lu^IDS_, tal y como se describe en <<config-bootstrap>>. Luego, cada componente tiene sus propias secciones particulares como se describirá en <<config-luarchive>>.
 
-ifdef::env-site,env-github[]
-include::manuals:partial$config-bootstrap.adoc[leveloffset=1]
-endif::env-site,env-github[]
+[[config-bootstrap]]
+== Proceso de inicialización
 
-ifndef::env-site,env-github[]
-include::{moduledir}/../manuals/pages/_partials/config-bootstrap.adoc[leveloffset=2]
-endif::env-site,env-github[]
+include::{partialsdir}/config-bootstrap.adoc[]
 
 [[config-luarchive]]
 == Configuración `luarchive`
@@ -40,29 +37,110 @@ include::{examplesdir}/luarchive.toml[]
 [[config-reference]]
 == Referencia de configuración
 
-ifdef::env-site,env-github[]
-include::manuals:partial$options-args.adoc[leveloffset=2]
-include::partial$options-archive-backend.adoc[leveloffset=2]
-include::partial$options-archive-service.adoc[leveloffset=2]
-include::partial$options-service-dnsutil-archive.adoc[leveloffset=2]
-include::partial$options-service-tlsutil-archive.adoc[leveloffset=2]
-include::partial$options-service-event-archive.adoc[leveloffset=2]
-include::manuals:partial$options-server.adoc[leveloffset=2]
-include::manuals:partial$options-health.adoc[leveloffset=2]
-include::manuals:partial$options-log.adoc[leveloffset=2]
-endif::env-site,env-github[]
+[[options-args]]
+=== Sólo argumentos
 
-ifndef::env-site,env-github[]
-include::{moduledir}/../manuals/pages/_partials/options-args.adoc[leveloffset=3]
-include::{partialsdir}/options-archive-backend.adoc[leveloffset=3]
-include::{partialsdir}/options-archive-service.adoc[leveloffset=3]
-include::{partialsdir}/options-service-dnsutil-archive.adoc[leveloffset=3]
-include::{partialsdir}/options-service-tlsutil-archive.adoc[leveloffset=3]
-include::{partialsdir}/options-service-event-archive.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-server.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-health.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-log.adoc[leveloffset=3]
-endif::env-site,env-github[]
+include::{partialsdir}/options-args.adoc[]
+
+[[options-archive-backend]]
+=== Sección `archive.backend`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `files` | _[]string_ | No |
+|  Listado de ficheros donde se encuentra la configuración de los sistemas de almacenamiento.
+
+| `dirs` | _[]string_ | No |
+|  Listado de directorios donde se encuentra la configuración de los sistemas de almacenamiento.
+
+|===
+
+[[options-archive-service]]
+=== Sección `archive.service`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `files` | _[]string_ | No |
+|  Listado de ficheros donde se encuentra la configuración de los servicios de almacenamiento.
+
+| `dirs` | _[]string_ | No |
+|  Listado de directorios donde se encuentra la configuración de los servicios de almacenamiento.
+
+|===
+
+[[options-service-dnsutil-archive]]
+=== Sección `service.dnsutil.archive`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `enable` | _boolean_ | Sí | `false`
+|  Habilita la api `dnsutil.archive`.
+
+| `service` | _string__ | Sí |
+|  Define el identificador del servicio definido en los ficheros de configuración que proporcionará la api.
+
+| `log` | _boolean_ | No | `true`
+|  Habilita el log del servicio.
+
+|===
+
+[[options-service-event-archive]]
+=== Sección `service.event.archive`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `enable` | _boolean_ | Sí | `false`
+|  Habilita la api `event.archive`.
+
+| `service` | _string__ | Sí |
+|  Define el identificador del servicio definido en los ficheros de configuración que proporcionará la api.
+
+| `log` | _boolean_ | No | `true`
+|  Habilita el log del servicio.
+
+|===
+
+[[options-service-tlsutil-archive]]
+=== Sección `service.tlsutil.archive`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `enable` | _boolean_ | Sí | `false`
+|  Habilita la api `tlsutil.archive`.
+
+| `service` | _string__ | Sí |
+|  Define el identificador del servicio definido en los ficheros de configuración que proporcionará la api.
+
+| `log` | _boolean_ | No | `true`
+|  Habilita el log del servicio.
+
+|===
+
+[[options-server]]
+=== Sección `server`
+
+include::{partialsdir}/options-server.adoc[]
+
+[[options-health]]
+=== Sección `health`
+
+include::{partialsdir}/options-health.adoc[]
+
+[[options-log]]
+=== Sección `log`
+
+include::{partialsdir}/options-log.adoc[]
+
 
 ifdef::env-site,env-github[]
 A continuación: xref:service-definition.adoc[Definición del servicio]

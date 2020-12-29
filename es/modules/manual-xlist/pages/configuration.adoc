@@ -4,13 +4,10 @@ include::{partialsdir}/attributes-es.adoc[]
 
 La configuración del software se realiza de la misma forma que el resto de componentes del sistema _^lu^IDS_, tal y como se describe en <<config-bootstrap>>. Luego, cada componente tiene sus propias secciones particulares como se describirá en <<config-xlistd>> y <<config-xlget>>.
 
-ifdef::env-site,env-github[]
-include::manuals:partial$config-bootstrap.adoc[leveloffset=1]
-endif::env-site,env-github[]
+[[config-bootstrap]]
+== Proceso de inicialización
 
-ifndef::env-site,env-github[]
-include::{moduledir}/../manuals/pages/_partials/config-bootstrap.adoc[leveloffset=2]
-endif::env-site,env-github[]
+include::{partialsdir}/config-bootstrap.adoc[]
 
 [[config-xlistd]]
 == Configuración `xlistd`
@@ -67,36 +64,173 @@ include::{examplesdir}/xlget-example1.toml[]
 [[config-reference]]
 == Referencia de configuración
 
-ifdef::env-site,env-github[]
-include::manuals:partial$options-args.adoc[leveloffset=2]
-include::partial$options-xlistd.adoc[leveloffset=2]
-include::partial$options-xlistd-service.adoc[leveloffset=2]
-include::partial$options-xlistd-plugin-dnsxl.adoc[leveloffset=2]
-include::partial$options-xlistd-plugin-sblookup.adoc[leveloffset=2]
-include::partial$options-service-xlist-check.adoc[leveloffset=2]
-include::manuals:partial$options-ids-api.adoc[leveloffset=2]
-include::manuals:partial$options-server.adoc[leveloffset=2]
-include::manuals:partial$options-health.adoc[leveloffset=2]
-include::manuals:partial$options-log.adoc[leveloffset=2]
-include::partial$options-xlget-args.adoc[leveloffset=2]
-include::partial$options-xlget.adoc[leveloffset=2]
-include::partial$options-xlget-source.adoc[leveloffset=2]
-endif::env-site,env-github[]
+[[options-args]]
+=== Sólo argumentos
 
-ifndef::env-site,env-github[]
-include::{moduledir}/../manuals/pages/_partials/options-args.adoc[leveloffset=3]
-include::{partialsdir}/options-xlistd.adoc[leveloffset=3]
-include::{partialsdir}/options-xlistd-service.adoc[leveloffset=3]
-include::{partialsdir}/options-xlistd-plugin-dnsxl.adoc[leveloffset=3]
-include::{partialsdir}/options-service-xlist-check.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-ids-api.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-server.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-health.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-log.adoc[leveloffset=3]
-include::{partialsdir}/options-xlget-args.adoc[leveloffset=3]
-include::{partialsdir}/options-xlget.adoc[leveloffset=3]
-include::{partialsdir}/options-xlget-source.adoc[leveloffset=3]
-endif::env-site,env-github[]
+include::{partialsdir}/options-args.adoc[]
+
+[[options-xlistd]]
+=== Sección `xlistd`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `certsdir` | _string_ | No |
+|  Especifica el directorio donde estarán los certificados referenciados en la configuración del servicio.
+
+| `datadir` | _boolean_ | No |
+|  Especifica el directorio donde se almacenan los datos de los ficheros referenciados en la configuración del servicio.
+
+|===
+
+[[options-xlistd-service]]
+=== Sección `xlistd.service`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `files` | _[]string_ | No |
+|  Listado de ficheros donde se encuentra la definición del servicio.
+
+| `dirs` | _[]string_ | No |
+|  Listado de directorios donde se encuentran los ficheros de definición del servicio con extensión `json`.
+
+|===
+
+[[options-xlistd-plugin-dnsxl]]
+=== Sección `xlistd.plugin.dnsxl`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `resolvconf` | _boolean_ | No | `false`
+|  Empleará los resolvedores dns definidos en `/etc/resolv.conf` por defecto en los componentes de la clase `dnsxl`.
+
+| `resolvers` | _[]string_ | No |
+|  Empleará los resolvedores dns definidos en los componentes de la clase `dnsxl`.
+
+| `timeout` | _int_ | No |
+|  Establece un timeout por defecto en milisegundos para las consultas _DNS_ realizadas por los componentes de la clase `dnsxl`.
+
+|===
+
+[[options-xlistd-plugin-sblookup]]
+=== Sección `xlistd.plugin.sblookup`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `apikey` | _string_ | No | `false`
+|  Define la api key de _Google Safe Browsing_ que usará por defecto en todos los componentes de la clase `sblookup`.
+
+| `serverurl` | _string_ | No |
+|  Define la URL del servidor que tiene la API de _Google Safe Browsing_ en todos los componentes de la clase `sblookup`. Si no se definirá utilizará los de google.
+
+|===
+
+[[options-service-xlist-check]]
+=== Sección `service.xlist.check`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `enable` | _boolean_ | Sí | `true`
+|  Habilita la api `luids.xlist.Check`.
+
+| `rootid` | _boolean_ | Sí | `root`
+|  Define el identificador de la lista que será expuesta por el servicio.
+
+| `log` | _boolean_ | No | `true`
+|  Habilita el log del servicio.
+
+|===
+
+[[options-ids-api]]
+=== Sección `ids.api`
+
+include::{partialsdir}/options-ids-api.adoc[]
+
+[[options-server]]
+=== Sección `server`
+
+include::{partialsdir}/options-server.adoc[]
+
+[[options-health]]
+=== Sección `health`
+
+include::{partialsdir}/options-health.adoc[]
+
+[[options-log]]
+=== Sección `log`
+
+include::{partialsdir}/options-log.adoc[]
+
+
+[[options-xlget-args]]
+=== Sólo argumentos xlget
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `auto` | _bool_ | No | `false`
+| Habilita el modo automático, que hará que el comando se mantenga en ejecución y cada minuto compruebe si necesita actualizar alguna fuente en base a su programación.
+
+| `config` | _string_ | No |
+|  Usa el parámetro como fichero de configuración en lugar de los ficheros definidos por defecto. Admite la configuración en formatos `toml` y `yaml`. Para la correcta detección del formato, `config` deberá incorporar la extensión correspondiente.
+
+| `debug` | _boolean_ | No | `false`
+|  Habilita el modo debug.
+
+| `dry-run` | _boolean_ | No | `false`
+|  Chequea y construye las listas del servicio pero no lo inicializa. Puede emplearse para comprobar que la configuración es correcta.
+
+| `help` | _boolean_ | No | `false`
+|  Muestra la ayuda.
+
+| `version` | _boolean_ | No | `false`
+|  Muestra la versión de la aplicación.
+
+|===
+
+[[options-xlget]]
+=== Sección `xlget`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `cachedir` | _string_ | No |
+|  Especifica el directorio donde se almacenarán los datos temporales e intermedios de las descargas.
+
+| `outputdir` | _string_ | No |
+|  Especifica el directorio de salida de las listas descargadas.
+
+| `statusdir` | _string_ | No |
+|  Especifica el directorio de los ficheros de información de estado.
+
+|===
+
+[[options-xlget-source]]
+=== Sección `xlget.source`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `files` | _[]string_ | No |
+|  Listado de ficheros que definen las fuentes.
+
+| `dirs` | _[]string_ | No |
+|  Listado de directorios donde se encuentran los ficheros que definen las fuentes con extensión `json`.
+
+|===
+
 
 ifdef::env-site,env-github[]
 A continuación: xref:service-definition.adoc[Definición del servicio]

@@ -1,5 +1,3 @@
-[[options-server]]
-= Sección `server`
 
 [cols="1,1,1,1,4"]
 |===

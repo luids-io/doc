@@ -6,13 +6,10 @@ El software `ludns` tiene la particularidad de que está basado en el software `
 
 En lo que respecta `resolvcache`, la configuración del software se realiza de la misma forma que el resto de componentes del sistema _^lu^IDS_, tal y como se describe en <<config-bootstrap>>. La configuración de este componente se describirá en <<config-resolvcache>>.
 
-ifdef::env-site,env-github[]
-include::manuals:partial$config-bootstrap.adoc[leveloffset=1]
-endif::env-site,env-github[]
+[[config-bootstrap]]
+== Proceso de inicialización
 
-ifndef::env-site,env-github[]
-include::{moduledir}/../manuals/pages/_partials/config-bootstrap.adoc[leveloffset=2]
-endif::env-site,env-github[]
+include::{partialsdir}/config-bootstrap.adoc[]
 
 [[config-ludns]]
 == Configuración `ludns`
@@ -67,43 +64,305 @@ TODO
 [[config-reference]]
 == Referencia de configuración
 
-ifdef::env-site,env-github[]
-include::partial$plugin-coredns-idsapi.adoc[leveloffset=2]
-include::partial$plugin-coredns-idsevent.adoc[leveloffset=2]
-include::partial$plugin-coredns-xlisthole.adoc[leveloffset=2]
-include::partial$plugin-coredns-xlistrbl.adoc[leveloffset=2]
-include::partial$plugin-coredns-resolvarchive.adoc[leveloffset=2]
-include::partial$plugin-coredns-resolvcache.adoc[leveloffset=2]
-include::manuals:partial$options-args.adoc[leveloffset=2]
-include::partial$options-resolvcache.adoc[leveloffset=2]
-include::partial$options-resolvcache-dump.adoc[leveloffset=2]
-include::partial$options-resolvcache-trace.adoc[leveloffset=2]
-include::partial$options-resolvcache-limit.adoc[leveloffset=2]
-include::partial$options-service-dnsutil-resolvcheck.adoc[leveloffset=2]
-include::partial$options-service-dnsutil-resolvcollect.adoc[leveloffset=2]
-include::manuals:partial$options-server.adoc[leveloffset=2]
-include::manuals:partial$options-health.adoc[leveloffset=2]
-include::manuals:partial$options-log.adoc[leveloffset=2]
-endif::env-site,env-github[]
+[[plugin-coredns-idsapi]]
+=== Plugin `idsapi`
 
-ifndef::env-site,env-github[]
-include::{partialsdir}/plugin-coredns-idsapi.adoc[leveloffset=3]
-include::{partialsdir}/plugin-coredns-idsevent.adoc[leveloffset=3]
-include::{partialsdir}/plugin-coredns-xlisthole.adoc[leveloffset=3]
-include::{partialsdir}/plugin-coredns-xlistrbl.adoc[leveloffset=3]
-include::{partialsdir}/plugin-coredns-resolvarchive.adoc[leveloffset=3]
-include::{partialsdir}/plugin-coredns-resolvcache.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-args.adoc[leveloffset=3]
-include::{partialsdir}/options-resolvcache.adoc[leveloffset=3]
-include::{partialsdir}/options-resolvcache-dump.adoc[leveloffset=3]
-include::{partialsdir}/options-resolvcache-trace.adoc[leveloffset=3]
-include::{partialsdir}/options-resolvcache-limit.adoc[leveloffset=3]
-include::{partialsdir}/options-service-dnsutil-resolvcheck.adoc[leveloffset=3]
-include::{partialsdir}/options-service-dnsutil-resolvcollect.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-server.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-health.adoc[leveloffset=3]
-include::{moduledir}/../manuals/pages/_partials/options-log.adoc[leveloffset=3]
-endif::env-site,env-github[]
+.Sintaxis del plugin `idsapi`
+----
+idsapi {
+  files FILENAME ...
+  dirs DIRNAME ...
+  certsdir SSLDIR
+}
+----
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `certsdir` | _string_ | No |
+|  Especifica el directorio donde estarán los certificados referenciados en la
+   configuración de clientes de la API.
+
+| `files` | _[]string_ | No | `/etc/luids/services.json`
+|  Listado de ficheros donde se encuentra la definición estática de los clientes de los servicios de la API.
+
+| `dirs` | _[]string_ | No |
+|  Listado de ficheros donde se encuentra la definición estática de los clientes de los servicios de la API.
+
+|===
+
+[[plugin-coredns-idsevent]]
+=== Plugin `idsevent`
+
+.Sintaxis del plugin `idsevent`
+----
+idsevent {
+  service SERVICENAME
+  buffer INT
+}
+----
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `service` | _string_ | No | `idsevent`
+|  Especifica el identificador del servicio API notificador de eventos.
+
+| `instance` | _string_ | No |
+|  Identificador de instancia origen de eventos.
+
+| `waitdups` | int | No | 0
+|  Tiempo de espera en el buffer para la recepción de duplicados.
+
+| `buffer` | int | No | 1024
+|  Tamaño del buffer interno de eventos.
+
+|===
+
+[[plugin-coredns-xlisthole]]
+=== Plugin `xlisthole`
+
+.Sintaxis del plugin `xlisthole`
+----
+xlisthole {
+  service SERVICENAME
+  service-view SERVICENAME NETWORK ...
+  exclude NETWORK ...
+  listed-domain [merge] POLICY
+  unlisted-domain POLICY
+  listed-cname [merge] POLICY
+  unlisted-cname POLICY
+  listed-ip [merge] POLICY
+  unlisted-ip POLICY
+  on-error (return|nxdomain|refused|ip:x.x.x.x)
+}
+----
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `service` | _string_ | No |
+|  Especifica el identificador del servicio xlist para sumidero.
+
+| `service-view` | _string_ | No |
+|  Especifica el identificador del servicio xlist que se aplicará al listado de redes y hosts enumerado.
+
+| `exclude` | _string[]_ | No |
+|  Especifica las redes y hosts que no pasarán por el sumidero.
+
+| `listed-domain` | _string_ | No | `dns=nxdomain,log=true`
+| Acciones a tomar si dominio listado
+
+| `unlisted-domain` | _string_ | No | `dns=return`
+| Acciones a tomar si dominio no listado
+
+| `listed-cname` | _string_ | No | `dns=nxdomain,log=true`
+| Acciones a tomar si alguno de los CNAMEs retornados es listado
+
+| `unlisted-cname` | _string_ | No | `dns=return`
+| Acciones a tomar si ninguno de las CNAMEs retornados está listada
+
+| `listed-ip` | _string_ | No | `dns=nxdomain,log=true`
+| Acciones a tomar si alguna de las IPs es listada
+
+| `unlisted-ip` | _string_ | No | `dns=return`
+| Acciones a tomar si ninguna de las IPs está listada
+
+| `on-error` | _string_ | No | `return`
+| Acciones a tomar si se produce un error
+
+|===
+
+[[plugin-coredns-xlistrbl]]
+=== Plugin `xlistrbl`
+
+.Sintaxis del plugin `xlistrbl`
+----
+xlistrbl {
+  service SERVICENAME
+  returnip IP
+}
+----
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `service` | _string_ | No |
+|  Especifica el identificador del servicio xlist para la zona RBL.
+
+| `returnip` | _string_ | No | `"127.0.0.69"`
+| IP retornada si encuentra el recurso en la lista.
+
+|===
+
+[[plugin-coredns-resolvarchive]]
+=== Plugin `resolvarchive`
+
+.Sintaxis del plugin `resolvarchive`
+----
+resolvarchive {
+  service SERVICENAME
+  exclude NETWORK ...
+  ignore-rc CODE ...
+  server-ip IP
+}
+----
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `service` | _string_ | No |
+|  Especifica el identificador del servicio de archivado DNS.
+
+| `exclude` | _string[]_ | No |
+|  Especifica las redes y hosts que no se archivarán.
+
+| `ignore-rc` | _int[]_ | No |
+|  Listado de códigos de retorno DNS que no se archivarán.
+
+| `server-ip` | _string_ | No |
+| IP para definir como servidor.
+
+|===
+
+[[plugin-coredns-resolvcache]]
+=== Plugin `resolvcache`
+
+.Sintaxis del plugin `resolvcache`
+----
+resolvcache {
+  service SERVICENAME
+  on-maxclient RULE
+  on-maxnames RULE
+}
+----
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `service` | _string_ | No | `resolvcache`
+|  Especifica el identificador del servicio de colección cache DNS.
+
+| `on-maxclient` | _string_ | No | `log=true,event=none`
+|  Regla para cuando se obtiene el número máximo de bloques de cliente en la cache.
+
+| `on-maxnames` | _string_ | No | `log=true,event=none`
+|  Regla para cuando se obtiene el número máximo de nombres en un nodo para el cliente en la cache.
+
+|===
+
+[[options-args]]
+=== Sólo argumentos
+
+include::{partialsdir}/options-args.adoc[]
+
+[[options-resolvcache]]
+=== Sección `resolvcache`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `expire` | _int_ | Sí | `3600`
+|  Tiempo de expiración de los datos de la caché.
+
+|===
+
+[[options-resolvcache-limit]]
+=== Sección `resolvcache.limit`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `blocksize` | _int_ | No | `1024`
+|  Número de nodos del bloque.
+
+| `maxblocksclient` | _int_ | No | `32`
+|  Máximo de bloques por cliente.
+
+| `maxnamesnode` | _int_ | No | `32`
+|  Máximo de nombres por nodo.
+
+|===
+
+[[options-resolvcache-dump]]
+=== Sección `resolvcache.dump`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `file` | _string_ | No |
+|  Fichero en el que se realiza un volcado de la caché.
+
+| `secs` | _int_ | No | `60`
+|  Tiempo en segundos para refrescar el volcado.
+
+|===
+
+[[options-resolvcache-trace]]
+=== Sección `resolvcache.trace`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `file` | _string_ | No |
+|  Fichero en el que se almacenan todas las operaciones realizadas.
+
+|===
+
+[[options-service-dnsutil-resolvcheck]]
+=== Sección `service.dnsutil.resolvcheck`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `enable` | _boolean_ | Sí | `true`
+|  Habilita la API.
+
+| `log` | _boolean_ | No | `true`
+|  Habilita el log.
+
+|===
+
+[[options-service-dnsutil-resolvcollect]]
+=== Sección `service.dnsutil.resolvcollect`
+
+[cols="1,1,1,1,4"]
+|===
+| Parámetro | Tipo | Requerido | Defecto | Descripción
+
+| `enable` | _boolean_ | Sí | `true`
+|  Habilita la API.
+
+| `log` | _boolean_ | No | `true`
+|  Habilita el log.
+
+|===
+
+[[options-server]]
+=== Sección `server`
+
+include::{partialsdir}/options-server.adoc[]
+
+[[options-health]]
+=== Sección `health`
+
+include::{partialsdir}/options-health.adoc[]
+
+[[options-log]]
+=== Sección `log`
+
+include::{partialsdir}/options-log.adoc[]
 
 
 ifdef::env-site,env-github[]
