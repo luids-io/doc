@@ -10,3 +10,4 @@ libre disposición los manuales online y en formato PDF.
 * xref:manual-archive:index.adoc[*Manual archive*]
 * xref:manual-event:index.adoc[*Manual event*]
 * xref:manual-netfilter:index.adoc[*Manual netfilter*]
+* xref:manual-archiveui:index.adoc[*Manual archiveui*]

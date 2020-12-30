@@ -1,0 +1,16 @@
+= Introducción
+include::{partialsdir}/attributes-es.adoc[]
+ifdef::env-site,env-github[:toc:]
+
+El paquete de software *archiveui* contiene una interfaz web con la que visualizar y realizar búsquedas en la información de los *servicios de archivado* de _^lu^IDS_.
+
+.Diagrama de contexto
+image::introduction-archiveui.svg[introduction-archiveui,width=100%,pdfwidth=80%]
+
+WARNING: Como puede ver en el diagrama, la versión actual *archiveui* se conecta directamente a _MongoDB_.
+
+Todo el software está escrito en _PHP_ y _Laravel_, es software libre y está disponible en https://github.com/luids-io/archiveui.
+
+ifdef::env-site,env-github[]
+A continuación: xref:installation.adoc[Instalación]
+endif::env-site,env-github[]

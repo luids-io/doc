@@ -1,0 +1,14 @@
+=  Manual ^lu^IDS: {manualname}
+Luis Guillén Civera <luisguillenc@gmail.com>
+:doctype: book
+:icons: font
+:source-highlighter: rouge
+:rouge-style: monokai
+:chapter-label:
+include::{moduledir}/_attributes.adoc[]
+:toc:
+
+include::{pagesdir}/introduction.adoc[leveloffset=1]
+include::{pagesdir}/installation.adoc[leveloffset=1]
+include::{pagesdir}/configuration.adoc[leveloffset=1]
+include::{pagesdir}/next-steps.adoc[leveloffset=1]

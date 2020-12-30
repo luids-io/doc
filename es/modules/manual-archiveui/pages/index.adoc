@@ -1,0 +1,8 @@
+= Manual - archiveui
+
+El paquete de software *archiveui* contiene una interfaz web con la que visualizar y realizar búsquedas en la información de los *servicios de archivado* de _^lu^IDS_.
+
+. xref:introduction.adoc[Introducción]
+. xref:installation.adoc[Instalación]
+. xref:configuration.adoc[Configuración]
+. xref:next-steps.adoc[Siguientes pasos]

@@ -1,0 +1,41 @@
+= Configuración
+include::{partialsdir}/attributes-es.adoc[]
+//ifdef::env-site,env-github[:toc:]
+
+== Configuración de la aplicación
+
+La configuración relativa a la aplicación y al acceso a la base de datos se realiza mediante el fichero de configuración `.env` que se encuentra en el directorio en el que se ha desplegado la aplicación. Si hemos usado el instalador, se encontrará en `/var/www/archiveui/`.
+
+.Ejemplo de configuración de fichero .env
+[source,bash]
+----
+APP_NAME=ArhiveUI
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=base64:unacadenalarga
+
+APP_URL=http://localhost/archiveui
+ARCHIVE_HOST=localhost
+ARCHIVE_PORT=27017
+ARCHIVE_DATABASE=luidsdb
+ARCHIVE_USERNAME=
+ARCHIVE_PASSWORD=
+----
+
+Las variables relativas a la configuración del acceso al archivo son las que comienzan con `ARCHIVE` y son bastante autoexplicativas.
+
+IMPORTANT: Actualmente únicamente MongoDB está soportado.
+
+== Gestión de usuarios de la aplicación
+
+Los usuarios de la aplicación son independientes del archivo y se almacenan de forma independiente en una base de datos _sqlite_. Su gestión a través de la propia aplicación.
+
+IMPORTANT: El usuario y password por defecto (si no se cambiaron en el instalador) son `admin` y `admin`, cámbielo inmediatamente tras la instalación si no lo hizo en el momento de instalación.
+
+.Interfaz de cambio de contraseña
+image::archiveui-changepw.png[archiveui-changepw,width=70%,pdfwidth=70%]
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:next-steps.adoc[Siguientes pasos]
+endif::env-site,env-github[]

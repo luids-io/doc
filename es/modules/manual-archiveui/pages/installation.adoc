@@ -1,0 +1,120 @@
+= Instalación
+include::{partialsdir}/attributes-es.adoc[]
+:archiveui-release: 0.0.1
+//ifdef::env-site,env-github[:toc:]
+
+El paquete de software *archiveui* está desarrollado en _PHP_ con el framework de desarrollo _Laravel_, por lo que puede instalarse en cualquier plataforma soportada por PHP y las extensiones PECL requeridas.
+
+El software viene en forma de un `.tar.gz` con el código fuente e incluye la configuración de `composer` para descargar todas las dependencias PHP requeridas automáticamente. Aun así, es conveniente utilizar el instalador para obtener una instalación estandarizada.
+
+Puede ver todas las versiones y los ficheros de descarga en: https://github.com/luids-io/archiveui/releases.
+
+[[installer]]
+== Instalador
+
+Actualmente sólo hay instalador disponible para _GNU/Linux_. Para instalar, simplemente copie y pegue el siguiente contenido en una shell.
+
+[source,bash]
+[subs="attributes"]
+----
+RELEASE="{archiveui-release}"
+DOWNLOAD_BASE="https://github.com/luids-io/archiveui/releases/download"
+DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
+wget $DOWNLOAD_URI -O installer_archiveui.sh
+chmod 755 installer_archiveui.sh
+sudo ./installer_archiveui.sh
+----
+
+Si desea modificar alguna variable de entorno que controla la configuración que realizará el instalador puede hacerlo. Ejemplo:
+----
+$ sudo ADMIN_PASSWORD=passinicial ./installer_archiveui.sh
+----
+
+Las variables disponibles son las siguientes:
+[source,bash]
+----
+ADMIN_NAME=${ADMIN_NAME:-Administrator}
+ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+ARCHIVE_HOST=${ARCHIVE_HOST:-localhost}
+ARCHIVE_PORT=${ARCHIVE_PORT:-27017}
+ARCHIVE_DATABASE=${ARCHIVE_DATABASE:-luidsdb}
+ARCHIVE_USERNAME="$ARCHIVE_USERNAME"
+ARCHIVE_PASSWORD="$ARCHIVE_PASSWORD"
+----
+
+NOTE: Todas estas opciones pueden configurarse posteriormente.
+
+.Ejemplo de ejecución del instalador
+----
+$ sudo ./installer.sh
+
+======================
+- luIDS installer:
+   archiveui 541cbd3
+======================
+
+Warning! This script will commit the following changes to your system:
+. Install dependencies using apt-get
+. Download and install web application in '/var/www/archiveui'
+. Initialize web application
+. Enable apache2 required modules and create alias '/archiveui'
+
+Are you sure? (y/n) y
+
+* Installing dependencies... OK
+* Downloading and installing web application... OK
+* Initializing web application... OK
+* Enable apache2 required modules and create alias... OK
+
+Installation success!. You can see /tmp/ins-Sh4gYg/installer.log for details.
+  - Check env file:  /var/www/archiveui/.env
+  - Reload your apache2:  systemctl reload apache2
+----
+
+El instalador instalará `apache2` si no se encuentra previamente instalado, habilitará ssl con los certificados autogenerados y configurará un alias en la ruta `/archiveui`. Podrá conectarse a la gestión mediante la URL https://direccionip/archiveui.
+
+WARNING: Por defecto únicamente instala y activa SSL, no redirige el tráfico no cifrado. Eso se deja en manos del administrador del sistema.
+
+[[docker]]
+== Docker
+
+[source,console]
+----
+docker pull luids/archiveui
+----
+
+Listado de variables usadas por docker para ajustar la configuración del contenedor.
+
+[cols="1,1,3"]
+|===
+| Variable | Defecto | Uso
+
+| `APP_URL` | `http://localhost` | Le dice al framework la ubicación de la APP, no es necesario
+| `ARCHIVE_HOST` | `mongodb` | Nombre o ip del host que tiene la base de datos.
+| `ARCHIVE_PORT` | `27017` | Puerto del gestor de base de datos.
+| `ARCHIVE_DATABASE` | `luidsdb` | Base de datos del archivo.
+| `ARCHIVE_USERNAME` |  | Usuario de acceso a base de datos.
+| `ARCHIVE_PASSWORD` |  | Password de acceso a base de datos.
+| `ADMIN_NAME` | `Administrator` | Nombre usuario administrador.
+| `ADMIN_EMAIL` | | Email usuario administrador (no se usa).
+| `ADMIN_USERNAME`| `admin` | Login usuario administrador.
+| `ADMIN_PASSWORD` | `admin` | Password usuario administrador.
+
+|===
+
+En cuanto a los volúmenes, son los siguientes.
+
+[cols="1,3"]
+|===
+| Volumen | Uso
+
+| `/var/www/storage` | Almacenamiento persistente de la aplicación: usuarios, sesiones, etc
+| `/etc/apache2/ssl` | Certificados ssl utilizados. Nos permite poner los nuestros.
+
+|===
+
+
+ifdef::env-site,env-github[]
+A continuación: xref:configuration.adoc[Configuración]
+endif::env-site,env-github[]
