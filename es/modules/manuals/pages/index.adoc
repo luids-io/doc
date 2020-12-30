@@ -1,13 +1,26 @@
 = Manuales
 include::{partialsdir}/attributes-es.adoc[]
 
-Si quieres conocer al detalle la instalación, configuración y mantenimiento
-de algunas de las aplicaciones que forman el ecosistema _^lu^IDS_, tienes a tu
-libre disposición los manuales online y en formato PDF.
+[cols="1,4"]
+|===
+| Manual | Descripción
 
-* xref:manual-xlist:index.adoc[*Manual xlist*]
-* xref:manual-dns:index.adoc[*Manual dns*]
-* xref:manual-archive:index.adoc[*Manual archive*]
-* xref:manual-event:index.adoc[*Manual event*]
-* xref:manual-netfilter:index.adoc[*Manual netfilter*]
-* xref:manual-archiveui:index.adoc[*Manual archiveui*]
+| xref:manual-xlist:index.adoc[*xlist*]
+| Manual con todo lo necesario para integrar *servicios de listas negras* en nuestro sistema _^lu^IDS_.
+
+| xref:manual-dns:index.adoc[*dns*]
+| Manual con todo lo necesario para desplegar *servicios de dns* integrados con nuestro sistema _^lu^IDS_.
+
+| xref:manual-archive:index.adoc[*archive*]
+| Manual con todo lo necesario para integrar *servicios de archivado* en nuestro sistema _^lu^IDS_.
+
+| xref:manual-event:index.adoc[*event*]
+| Manual con todo lo necesario para desplegar un *servicio de gestión de eventos* integrado con nuestro sistema _^lu^IDS_.
+
+| xref:manual-netfilter:index.adoc[*netfilter*]
+| Manual con todo lo necesario para integrar un sistema cortafuegos _Netfilter_ con nuestro sistema _^lu^IDS_.
+
+| xref:manual-archiveui:index.adoc[*archiveui*]
+| Manual de la interfaz web con la que visualizar y realizar búsquedas en el archivo de _^lu^IDS_.
+
+|===
