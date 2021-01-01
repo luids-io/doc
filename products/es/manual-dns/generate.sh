@@ -15,8 +15,9 @@ asciidoctor-pdf -o output.pdf -r asciidoctor-diagram \
 	-a pdf-stylesdir="${THEMES_DIR}" \
 	-a pdf-fontsdir="${FONTS_DIR}" \
 	-a pdf-style="${THEME_NAME}" \
-        -a moduledir=$moduledir -a revnumber=$revnumber -a revdate=$revdate \
-        -a manualname=$manualname manual.adoc
+    -a moduledir=$moduledir -a revnumber=$revnumber -a revdate=$revdate \
+	-a docs-version=$revnumber -a docs-date=$revdate \
+    -a manualname=$manualname manual.adoc
 
 ## remove temporal files generated
 #rm $MODULE_DIR/assets/images/blackhole-negative.png

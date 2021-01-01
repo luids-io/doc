@@ -21,5 +21,7 @@ asciidoc:
   attributes:
     plantuml-server-url: 'http://www.plantuml.com/plantuml'
     plantuml-fetch-diagram: true
+    docs-version: unknown
+    docs-date: unknown
 output:
   dir: ./public

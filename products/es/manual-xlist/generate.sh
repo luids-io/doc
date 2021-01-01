@@ -16,6 +16,7 @@ asciidoctor-pdf -o output.pdf -r asciidoctor-diagram \
 	-a pdf-fontsdir="${FONTS_DIR}" \
 	-a pdf-style="${THEME_NAME}" \
 	-a moduledir=$moduledir -a revnumber=$revnumber -a revdate=$revdate \
+	-a docs-version=$revnumber -a docs-date=$revdate \
 	-a manualname=$manualname manual.adoc
 
 ## remove temporal files generated
