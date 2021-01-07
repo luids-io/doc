@@ -2,7 +2,3 @@
 Guía rápida de configuración de un *sumidero de lista blanca* con el que limitaremos el acceso a internet a un grupo reducido de dominios. Esto puede ser útil en multitud de casos de uso: control parental, control en aulas de informática, controlar el acceso de los dispositivos IoT, etc.
 
 Pero un sumidero no es suficiente: bastará con que los equipos realicen conexiones directas por IP. Para evitar esto, configuraremos *un sistema cortafuegos* que bloqueará todas aquellas conexiones provenientes de equipos de nuestra red dirigidas a dispositivos que no hayan sido resueltos previamente por nuestro servidor DNS.
-
-WARNING: Este proceso está probado únicamente en un sistema _Ubuntu 20.04LTS_ server. Los binarios están compilados estáticamente y las rutas empleadas son las de una distribución estándar, por lo que el instalador debería funcionar en cualquier distribución.
-
-TIP: Tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/{guidename}/examples/.

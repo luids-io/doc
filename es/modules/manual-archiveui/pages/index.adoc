@@ -1,6 +1,12 @@
 = Manual - archiveui
+include::{partialsdir}/attributes-es.adoc[]
+:manualname: archiveui
 
 El paquete de software *archiveui* contiene una interfaz web con la que visualizar y realizar búsquedas en la información de los *servicios de archivado* de _^lu^IDS_.
+
+ifdef::env-site,env-github[]
+NOTE: Tienes a tu disposición https://github.com/luids-io/docs/releases/tag/v{docs-version}/manual-{manualname}-{docs-version}_es.pdf[*este manual en formato PDF*]
+endif::env-site,env-github[]
 
 . xref:introduction.adoc[Introducción]
 . xref:installation.adoc[Instalación]

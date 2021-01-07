@@ -6,6 +6,8 @@ En esta sección instalaremos el componente que realiza el procesamiento de even
 
 ifdef::env-site,env-github[]
 TIP: Recuerde que tiene a su disposición todos los ficheros de configuración de esta guía en https://github.com/luids-io/docs/blob/master/es/modules/guide-{guidename}/examples/.
+
+WARNING: Este proceso está probado únicamente en un sistema _Ubuntu 20.04LTS_ server. Los binarios están compilados estáticamente y las rutas empleadas son las de una distribución estándar, por lo que el instalador debería funcionar en cualquier distribución.
 endif::env-site,env-github[]
 
 == Instalación del paquete event

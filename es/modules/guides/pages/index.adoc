@@ -1,8 +1,6 @@
 = Guías
 include::{partialsdir}/attributes-es.adoc[]
 
-NOTE: Tienes a tu disposición https://github.com/luids-io/docs/releases/tag/v{docs-version}[*las guías en formato PDF*]
-
 [cols="1,2"]
 |===
 | Guía | Descripción

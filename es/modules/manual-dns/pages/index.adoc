@@ -1,6 +1,12 @@
 = Manual - dns
+include::{partialsdir}/attributes-es.adoc[]
+:manualname: dns
 
 El paquete de software *dns* contiene todo lo necesario para desplegar *servicios de dns* integrados con nuestro sistema _^lu^IDS_.
+
+ifdef::env-site,env-github[]
+NOTE: Tienes a tu disposición https://github.com/luids-io/docs/releases/tag/v{docs-version}/manual-{manualname}-{docs-version}_es.pdf[*este manual en formato PDF*]
+endif::env-site,env-github[]
 
 . xref:introduction.adoc[Introducción]
 . xref:getting-started.adoc[Empezando]

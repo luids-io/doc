@@ -4,6 +4,10 @@ include::{partialsdir}/attributes-es.adoc[]
 
 include::{partialsdir}/preface.adoc[]
 
+ifdef::env-site,env-github[]
+NOTE: Tienes a tu disposición https://github.com/luids-io/docs/releases/tag/v{docs-version}/guide-{guidename}-{docs-version}_es.pdf[*esta guía en formato PDF*]
+endif::env-site,env-github[]
+
 . xref:introduction.adoc[Introducción]
 . xref:design.adoc[Diseño del sistema]
 . xref:xlist-config.adoc[Configuración del sistema de listas]
