@@ -9,6 +9,7 @@ ANTORAOPTS:=
 ANTORAARGS:=--attribute docs-version=$(VERSION) --attribute docs-date=$(DATEBUILD)
 
 # Resease opts
+NAME:=docs
 GITHUB_ORG:=luids-io
 
 # Print output
