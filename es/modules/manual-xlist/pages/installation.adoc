@@ -1,6 +1,5 @@
 = Instalación
 include::{partialsdir}/attributes-es.adoc[]
-:xlist-release: 0.0.1
 //ifdef::env-site,env-github[:toc:]
 
 El paquete de software *xlist* se encuentra precompilado para los siguientes sistemas operativos y arquitecturas:
@@ -30,13 +29,10 @@ El software viene en forma de ejecutables compilados estáticamente. Esto hace q
 Actualmente sólo hay instalador disponible para _GNU/Linux_. Para instalar, simplemente copie y pegue el siguiente contenido en una shell.
 
 [source,bash]
-[subs="attributes"]
 .Instalación de xlist mediante instalador
 ----
-RELEASE="0.0.1"
-DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
-DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
-wget $DOWNLOAD_URI -O installer_xlist.sh
+DOWNLOAD_URL=$(wget -O - https://api.github.com/repos/luids-io/xlist/releases/latest| grep download.*installer | grep -v sha256 | cut -d '"' -f4)
+wget ${DOWNLOAD_URL} -O installer_xlist.sh
 chmod 755 installer_xlist.sh
 sudo ./installer_xlist.sh
 ----

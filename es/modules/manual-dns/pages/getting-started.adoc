@@ -1,7 +1,5 @@
 = Empezando
 include::{partialsdir}/attributes-es.adoc[]
-:dns-release: 0.0.1
-:xlist-release: 0.0.1
 
 A continuación veremos un pequeño tutorial en el que instalaremos un pequeño sumidero DNS en un servidor GNU/Linux. El objetivo de este tutorial es familiarizar al usuario con las herramientas y mostrar una pequeña parte de lo que nos ofrece el software, si desea ver su uso en algún escenario "real" puede ver alguna de las guías disponibles.
 
@@ -10,14 +8,11 @@ A continuación veremos un pequeño tutorial en el que instalaremos un pequeño 
 Usaremos el instalador del paquete, para ello simplemente copiaremos y pegaremos el siguiente contenido en una shell.
 
 [source,bash]
-[subs="attributes"]
 ----
-RELEASE="{dns-release}"
-DOWNLOAD_BASE="https://github.com/luids-io/dns/releases/download"
-DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
-wget $DOWNLOAD_URI -O installer_dns.sh
+DOWNLOAD_URL=$(wget -O - https://api.github.com/repos/luids-io/dns/releases/latest| grep download.*installer | grep -v sha256 | cut -d '"' -f4)
+wget ${DOWNLOAD_URL} -O installer_dns.sh
 chmod 755 installer_dns.sh
-sudo ./installer_dns.sh -u
+sudo ./installer_dns.sh
 ----
 
 El instalador instala unos scripts `systemd` para la inicialización de los servicios, pero no los inicia ni activa, esto debe hacerlo explícitamente el administrador de sistemas. Para ello lo inicializaremos con `systemctl`.
@@ -41,14 +36,11 @@ $ dig +short @localhost -p 1053 www.badsite.com
 Debido a que vamos a construir un sumidero, necesitamos un servidor `xlistd` que de soporte al sistema de listas negras. Por ello procederemos a instalar dicho servidor.
 
 [source,bash]
-[subs="attributes"]
 ----
-RELEASE="{xlist-release}"
-DOWNLOAD_BASE="https://github.com/luids-io/xlist/releases/download"
-DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
-wget $DOWNLOAD_URI -O installer_xlist.sh
+DOWNLOAD_URL=$(wget -O - https://api.github.com/repos/luids-io/xlist/releases/latest| grep download.*installer | grep -v sha256 | cut -d '"' -f4)
+wget ${DOWNLOAD_URL} -O installer_xlist.sh
 chmod 755 installer_xlist.sh
-sudo ./installer_xlist.sh -u
+sudo ./installer_xlist.sh
 ----
 
 == Nuestra primera lista negra

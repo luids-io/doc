@@ -1,6 +1,5 @@
 = Instalación
 include::{partialsdir}/attributes-es.adoc[]
-:archiveui-release: 0.0.1
 //ifdef::env-site,env-github[:toc:]
 
 El paquete de software *archiveui* está desarrollado en _PHP_ con el framework de desarrollo _Laravel_, por lo que puede instalarse en cualquier plataforma soportada por PHP y las extensiones PECL requeridas.
@@ -15,12 +14,9 @@ Puede ver todas las versiones y los ficheros de descarga en: https://github.com/
 Actualmente sólo hay instalador disponible para _GNU/Linux_. Para instalar, simplemente copie y pegue el siguiente contenido en una shell.
 
 [source,bash]
-[subs="attributes"]
 ----
-RELEASE="{archiveui-release}"
-DOWNLOAD_BASE="https://github.com/luids-io/archiveui/releases/download"
-DOWNLOAD_URI="$DOWNLOAD_BASE/v$RELEASE/installer_linux.sh"
-wget $DOWNLOAD_URI -O installer_archiveui.sh
+DOWNLOAD_URL=$(wget -O - https://api.github.com/repos/luids-io/archiveui/releases/latest| grep download.*installer | grep -v sha256 | cut -d '"' -f4)
+wget ${DOWNLOAD_URL} -O installer_archiveui.sh
 chmod 755 installer_archiveui.sh
 sudo ./installer_archiveui.sh
 ----
