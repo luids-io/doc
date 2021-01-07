@@ -20,6 +20,6 @@ for product in $PRODUCTS; do
 	echo "Constructing: ${product}"
 	pushd ${SRCDIR}/${product} >/dev/null
 	./generate.sh
-	mv output.pdf ${OUTDIR}/${product}_${PRODUCT_LANG}.pdf
+	mv output.pdf ${OUTDIR}/${product}-${PRODUCT_VERSION}_${PRODUCT_LANG}.pdf
 	popd >/dev/null
 done
