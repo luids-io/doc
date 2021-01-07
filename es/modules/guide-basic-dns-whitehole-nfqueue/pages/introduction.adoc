@@ -28,7 +28,9 @@ Uno de dichos programas es _lunfqueue_. Este programa está diseñado para escuc
 
 == ¿Por qué esta configuración?
 
-TODO
+Como se indicó, con un sumidero de lista blanca podremos limitar el acceso a internet a un grupo reducido de dominios. Esto puede ser útil en multitud de casos de uso. Sin embargo, un sumidero no es suficiente: bastará con que los equipos realicen conexiones directas por IP. Para evitar esto, será necesario que el sistema cortafuegos de salida bloquee todas aquellas conexiones provenientes de equipos de nuestra red dirigidas a dispositivos que no hayan sido resueltos previamente por nuestro servidor DNS para esa determinada IP.
+
+Gracias a la versatilidad del sistema ^lu^IDS, esta configuración es posible combinando diferentes componentes. Cómo hacerlo se ilustrará en los diagramas de la siguiente sección.
 
 ifdef::env-site,env-github[]
 A continuación: xref:design.adoc[Diseño del sistema]

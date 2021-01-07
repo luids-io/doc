@@ -2,9 +2,11 @@
 include::{partialsdir}/attributes-es.adoc[]
 :guidename: basic-dns-sinkhole
 
+== Configuración DNS
+
 Los clientes se deberán configurar para que usen la _IP_ de nuestro sumidero como *único servidor DNS*. De lo contrario algunas preguntas podrán ser contestadas por otro servidor DNS que no haga el filtrado. La forma recomendable de realizar esta configuración es mediante el uso de un sistema _DHCP_.
 
-Una configuración adicional recomendada es que únicamente permitamos la salida del tráfico DNS de nuestra red a nuestro servidor DNS. Esto no sólo evitará que algunos usuarios puedan cambiarse la dirección del servidor DNS de forma manual para evadir a nuestro sumidero, sino que también hará que posible malware use servicios DNS públicos para evitar ser detectados.
+TIP: Una configuración adicional recomendada es que únicamente permitamos la salida del tráfico DNS de nuestra red a nuestro servidor DNS. Esto no sólo evitará que algunos usuarios puedan cambiarse la dirección del servidor DNS de forma manual para evadir a nuestro sumidero, sino que también hará que posible malware use servicios DNS públicos para evitar ser detectados.
 
 ifdef::env-site,env-github[]
 A continuación: xref:next-steps.adoc[Siguientes pasos]
