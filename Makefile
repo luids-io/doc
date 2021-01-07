@@ -1,7 +1,7 @@
 # Makefile for build static site
 
 # Used to populate version in antora
-VERSION=$(shell git describe --match 'v[0-9]*' --dirty='.m' --always)
+VERSION=$(shell git describe --match 'v[0-9]*' --dirty='.m' --always | sed 's/^v//')
 DATEBUILD=$(shell date +%FT%T%z)
 
 # Antora args

@@ -5,7 +5,7 @@ include::{partialsdir}/attributes-es.adoc[]
 El paquete de software *netfilter* contiene las utilidades necesarias para integrar un sistema cortafuegos _Netfilter_ con nuestro sistema _^lu^IDS_.
 
 ifdef::env-site,env-github[]
-NOTE: Tienes a tu disposición https://github.com/luids-io/docs/releases/tag/v{docs-version}/manual-{manualname}-{docs-version}_es.pdf[*este manual en formato PDF*]
+NOTE: Tienes a tu disposición https://github.com/luids-io/docs/releases/download/v{docs-version}/manual-{manualname}-{docs-version}_es.pdf[*este manual en formato PDF*]
 endif::env-site,env-github[]
 
 . xref:introduction.adoc[Introducción]

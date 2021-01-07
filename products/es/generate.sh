@@ -4,7 +4,7 @@ SRCDIR=$(dirname $(readlink -f "$0"))
 OUTDIR=${SRCDIR}/output
 
 export PRODUCT_LANG="es"
-export PRODUCT_VERSION=$(git describe --match 'v[0-9]*' --dirty='.m' --always)
+export PRODUCT_VERSION=$(git describe --match 'v[0-9]*' --dirty='.m' --always | sed 's/^v//')
 export PRODUCT_BUILD=$(date +%F)
 
 # list of products

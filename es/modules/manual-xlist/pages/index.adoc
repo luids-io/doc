@@ -5,7 +5,7 @@ include::{partialsdir}/attributes-es.adoc[]
 El paquete de software *xlist* contiene todo lo necesario para integrar *servicios de listas negras* en nuestro sistema de detección de intrusos _^lu^IDS_.
 
 ifdef::env-site,env-github[]
-NOTE: Tienes a tu disposición https://github.com/luids-io/docs/releases/tag/v{docs-version}/manual-{manualname}-{docs-version}_es.pdf[*este manual en formato PDF*]
+NOTE: Tienes a tu disposición https://github.com/luids-io/docs/releases/download/v{docs-version}/manual-{manualname}-{docs-version}_es.pdf[*este manual en formato PDF*]
 endif::env-site,env-github[]
 
 . xref:introduction.adoc[Introducción]
